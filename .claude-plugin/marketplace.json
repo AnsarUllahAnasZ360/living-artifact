@@ -1,0 +1,16 @@
+{
+  "name": "living-artifact",
+  "description": "The living-artifact skill: one living HTML page per piece of work, from first question to final proof.",
+  "owner": {
+    "name": "AnsarUllahAnasZ360",
+    "url": "https://github.com/AnsarUllahAnasZ360"
+  },
+  "plugins": [
+    {
+      "name": "living-artifact",
+      "source": "./",
+      "description": "One living HTML artifact per implementation: plan, live progress, decisions and proof.",
+      "version": "1.0.0"
+    }
+  ]
+}

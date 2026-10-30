@@ -1,0 +1,10 @@
+{
+  "name": "living-artifact",
+  "version": "1.0.0",
+  "description": "Run any piece of work through one living HTML artifact: the plan, the live tracker, the decisions and the proof, from first question to final report.",
+  "author": { "name": "AnsarUllahAnasZ360", "url": "https://github.com/AnsarUllahAnasZ360" },
+  "homepage": "https://github.com/AnsarUllahAnasZ360/living-artifact",
+  "repository": "https://github.com/AnsarUllahAnasZ360/living-artifact",
+  "license": "MIT",
+  "keywords": ["planning", "artifact", "long-running", "agents", "tracker", "workflow"]
+}

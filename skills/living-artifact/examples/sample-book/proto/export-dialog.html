@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Export dialog prototype</title>
+<style>
+:root{--bg:#f5f6f8;--panel:#fff;--fg:#1b2330;--mute:#5b6676;--line:#d9dee6;--accent:#3552c9}
+@media (prefers-color-scheme:dark){:root{--bg:#171b22;--panel:#1f242d;--fg:#e9edf3;--mute:#9aa4b2;--line:#323946;--accent:#8ea3ff;color-scheme:dark}}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 system-ui,sans-serif;display:grid;place-items:center;min-height:100vh;padding:16px;box-sizing:border-box}
+.d{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;width:min(380px,100%);display:grid;gap:14px}
+h1{font-size:17px;margin:0}label{display:grid;gap:4px;color:var(--mute);font-size:12.5px}
+select,input{font:inherit;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg)}
+.seg{display:flex;gap:6px}.seg button{flex:1;font:inherit;padding:7px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);cursor:pointer}
+.seg button[aria-pressed=true]{border-color:var(--accent);color:var(--accent);font-weight:600}
+.go{font:inherit;font-weight:600;padding:9px;border:0;border-radius:8px;background:var(--accent);color:#fff;cursor:pointer}
+</style></head><body>
+<form class="d" onsubmit="event.preventDefault();this.querySelector('.go').textContent='Export started'">
+<h1>Export invoices</h1>
+<label>Preset<select><option>Tool A</option><option>Tool B</option><option>Tool C</option><option>Generic CSV</option></select></label>
+<label>Range<select><option>Last month (October)</option><option>This year</option><option>Custom range</option></select></label>
+<div class="seg" role="group" aria-label="Format"><button type="button" aria-pressed="true">CSV</button><button type="button" aria-pressed="false">PDF zip</button></div>
+<button class="go" type="submit">Export 214 invoices</button>
+</form>
+<script>document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>document.querySelectorAll('.seg button').forEach(x=>x.setAttribute('aria-pressed',x===b)))</script>
+</body></html>
