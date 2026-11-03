@@ -1148,7 +1148,10 @@
      "export-job-runner"
     ],
     "evidence": "",
-    "pr": "monthly-send"
+    "pr": "monthly-send",
+    "after_merge": [
+     "The first real monthly email arrives on the 1st after release"
+    ]
    },
    {
     "id": "zip-bundle-download",
@@ -1321,20 +1324,159 @@
    "A review finding survives three rounds",
    "Anything would delete customer data"
   ],
-  "verification": [
-   {
-    "where": "Every ticket",
-    "what": "Area tests, its done-when proven in the browser, a fresh review of the commit"
-   },
-   {
-    "where": "Every PR",
-    "what": "Whole-PR review and an end to end walk on the local stack before it opens"
-   },
-   {
-    "where": "After each merge",
-    "what": "Staging deploys and the lead spot checks one done-when per commit"
-   }
-  ],
+  "verification": {
+   "summary": "One pass on a fresh local copy built from the top of the PR stack: three code and screen checks, then one month-end run on the seeded account with the rest. About 40 minutes, no paid services.",
+   "where": "a fresh local copy built from the top of the PR stack",
+   "ready": [
+    {
+     "id": "stack",
+     "need": "The local stack starts on the newest code",
+     "check": "make dev, then the app answers on port 3000",
+     "who": "agent",
+     "state": "ok"
+    },
+    {
+     "id": "seed",
+     "need": "A seeded account with 2,000 invoices in Los Angeles time",
+     "check": "The seed script reports 2,000 invoices",
+     "who": "agent",
+     "state": "ok"
+    },
+    {
+     "id": "baseline",
+     "need": "Last month's zip time on today's code, as the baseline",
+     "check": "The timing file from the baseline run is saved",
+     "who": "agent",
+     "state": "ok"
+    },
+    {
+     "id": "mailbox",
+     "need": "A test mailbox for the monthly email",
+     "check": "The local mail catcher shows its inbox",
+     "who": "agent",
+     "state": "ok"
+    },
+    {
+     "id": "tool-logins",
+     "need": "Sandbox logins for the three accounting tools",
+     "check": "Each tool opens its import screen",
+     "who": "Sam",
+     "state": "missing"
+    }
+   ],
+   "building": [
+    {
+     "where": "Every ticket",
+     "what": "Area tests, its done-when proven in the browser, a fresh review of the commit"
+    },
+    {
+     "where": "Every PR, before it opens",
+     "what": "Whole-PR review and an end to end walk on the local stack"
+    },
+    {
+     "where": "Every PR, on GitHub",
+     "what": "CI green on the last commit; it stays open in the stack until Sam merges"
+    }
+   ],
+   "runs": [
+    {
+     "id": "month-end",
+     "title": "Month end on the seeded account",
+     "what": "Seeded account, fresh browser, the October range",
+     "cost": "No paid services",
+     "time": "25 min"
+    }
+   ],
+   "checks": [
+    {
+     "id": "range-zones",
+     "title": "Range query holds in three time zones",
+     "kind": "code",
+     "tickets": [
+      "invoice-query-api"
+     ],
+     "expect": "October returns exactly the invoices dated in October in the account's own zone, for Los Angeles, London and Auckland.",
+     "pass": "The range test passes for all three zones."
+    },
+    {
+     "id": "render-cache",
+     "title": "Render cache skips unchanged invoices",
+     "kind": "code",
+     "tickets": [
+      "pdf-render-worker"
+     ],
+     "expect": "A second render of 500 PDFs reuses the cache; editing one invoice makes only that one render again.",
+     "pass": "The warm run takes under 8 seconds and exactly one PDF renders after one edit."
+    },
+    {
+     "id": "dialog-look",
+     "title": "Export dialog matches the prototype",
+     "kind": "screen",
+     "tickets": [
+      "export-dialog-ui"
+     ],
+     "expect": "The dialog on the invoice list looks like the approved prototype on a laptop and on a phone.",
+     "pass": "Screenshots at 1280 and 390 pixels wide match the prototype with no clipped text."
+    },
+    {
+     "id": "schedule-date",
+     "title": "A saved schedule shows its next send",
+     "kind": "screen",
+     "tickets": [
+      "schedule-settings"
+     ],
+     "expect": "Saving a monthly schedule shows the next send date in the account's time zone.",
+     "pass": "The date shown is the 1st of next month in Los Angeles time.",
+     "run": "month-end"
+    },
+    {
+     "id": "export-under-load",
+     "title": "An export finishes under load and is logged",
+     "kind": "watch",
+     "run": "month-end",
+     "tickets": [
+      "export-job-runner",
+      "export-history-page"
+     ],
+     "expect": "A queued CSV export finishes while the load script runs, and the history page lists it with who, when, filters and count.",
+     "pass": "The export downloads and its history row shows all four."
+    },
+    {
+     "id": "csv-imports",
+     "title": "Each CSV imports into its accounting tool",
+     "kind": "watch",
+     "run": "month-end",
+     "tickets": [
+      "csv-mapping-presets"
+     ],
+     "expect": "The three presets produce files each tool imports with no edits, and totals match the invoice list.",
+     "pass": "All three imports succeed and totals match to the cent."
+    },
+    {
+     "id": "zip-speed",
+     "title": "Zip of 2,000 invoices beats today",
+     "kind": "measure",
+     "run": "month-end",
+     "tickets": [
+      "zip-bundle-download"
+     ],
+     "expect": "The zip for the October range downloads well inside today's two minutes.",
+     "pass": "Under 30 seconds, measured three times."
+    },
+    {
+     "id": "monthly-email",
+     "title": "The monthly email arrives with an expiring link",
+     "kind": "watch",
+     "run": "month-end",
+     "tickets": [
+      "monthly-email-delivery",
+      "end-to-end-proof"
+     ],
+     "expect": "A test schedule set for today sends the email; its link downloads the bundle now and stops working after seven days.",
+     "pass": "The email arrives, the link works, and with the clock moved eight days it is refused."
+    }
+   ]
+  },
   "commits": "One commit per ticket on the PR branch, named for the ticket. PRs merge with a merge commit only, never a squash or a rebase merge, so the reviewed commits are the ones in history.",
   "risks": [
    {
@@ -1394,7 +1536,7 @@
     "problem": "Bookkeepers rebuild a spreadsheet by hand every month, and there is no place to see past exports.",
     "outcome": "One button exports a month as a CSV their tool imports with no edits, and the history page lists every run.",
     "wave": 2,
-    "base": "develop",
+    "base": "export-jobs",
     "branch": "export/csv",
     "tickets": [
      "csv-mapping-presets",
@@ -1428,7 +1570,7 @@
     "problem": "PDFs render on the web server one at a time, about 4 seconds each, so a month of PDFs takes about 20 minutes.",
     "outcome": "Anyone with the finance role downloads a zip of PDFs for any range, 2,000 invoices in under 30 seconds.",
     "wave": 2,
-    "base": "develop",
+    "base": "csv-export",
     "branch": "export/pdf",
     "tickets": [
      "pdf-render-worker",

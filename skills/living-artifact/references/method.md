@@ -38,7 +38,7 @@ Produce: `plan`, `decisions`, `kickoff`. Read `planning.md`.
 2. List all the work. Every finding, every done-when, every ask line.
 3. Group the work into goal-sized tickets, the tickets into one PR per problem category (each ticket one commit), and name three to seven milestones as outcomes a person can see.
 4. Schedule the PRs into waves for the most parallelism the files and dependencies allow. Foundations first, screens later, proof last.
-5. Put verification where it pays: every ticket proves itself and is reviewed before its commit is final, every PR is reviewed whole and run end to end before it opens, the end has the full walk and real data.
+5. Write the verification plan (`planning.md`) and agree it with the plan: what must be ready before the run (probe it now), what agents check while building, and the small final checklist (every ticket covered, each check saying how it should work and what counts as passing, live checks sharing one to three real runs). Do not call the plan safe to start while a ready item a person must supply is missing or unconfirmed. What only a merge or a deploy can show goes in a ticket's `after_merge`, not its done-when.
 6. Every choice that is the user's goes in `decisions` with a recommendation and its effect, attached to what it changes.
 7. Write the kickoff from `kickoff.md`.
 8. Check every ask line maps to a ticket, a decision, or a stated reason in `plan.later`.
@@ -51,17 +51,17 @@ Exit: `gates/plan` approved by the user, or the user says to run.
 A fresh chat opened in the repo, started by the kickoff. Read `run.md`.
 
 - Orient only from the book: read it, its agent files, the db. No other docs.
-- Each problem category ships as one PR into the development branch, one commit per ticket. Review and proof happen before a PR exists: per ticket before its commit is final, per PR before it opens.
+- Each problem category ships as one PR, one commit per ticket, stacked in one line on the development branch and left open; the run never waits for a merge. Review and proof happen before a PR exists: per ticket before its commit is final, per PR before it opens.
 - Each wave: read feedback and decisions, one builder per PR works its tickets in order, proof takes turns on the one local stack, each PR opens as soon as it is proven, write status and log, republish if content changed.
 - Do not stop for a mid-run review unless the kickoff says so. Stop only on the stop rules in the kickoff.
 
 ## 5. Verify
 
-- Walk every outcome claim end to end on the merged app, as each persona.
+- Run the agreed checklist once on a fresh copy of the product built from the top of the stack, which holds every PR: the checks that need no run, then each real run with its own checks, measures before typed requests. Every check gets a result; one never run counts as not proven.
 - Run real data where the book names it. Real customer data never goes into the book, code, tests, commits or the PR.
 - Each done-when gets a verdict: verified, not verified or inconclusive, with evidence and the commit it saw. Inconclusive is not a pass.
 - A cold reviewer reads the log and the evidence and writes `report.attention`: weak proof, skipped checks.
-- Fix loop until a full pass finds nothing new.
+- A failing check gets one fix round inside the stack and is checked again; if it still fails, the report says so. Never weaken a check to pass it.
 
 ## 6. Report
 

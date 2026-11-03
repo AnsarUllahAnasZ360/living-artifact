@@ -179,6 +179,7 @@ a.chip:hover, button.chip:hover { color: var(--fg); border-color: var(--fg-3); }
 .st.doing i, .st.building i { background: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
 .st.review i, .st.open i { background: var(--rev); }
 .st.unverified i { background: transparent; border: 2px solid var(--need); }
+.st.built i { background: transparent; border: 2px solid var(--ok); }
 .st.done i, .st.merged i { background: var(--ok); }
 .st.blocked i { background: var(--bad); }
 .st.blocked { color: var(--bad); }
@@ -531,6 +532,33 @@ button.pt:hover .go { opacity: 1; }
 .dact input { flex: 1; min-width: 160px; height: 34px; border: 1px solid var(--line-2); border-radius: 9px; background: var(--panel); color: var(--fg); padding: 0 10px; font: inherit; font-size: 13.5px; }
 .who { font-size: 12.5px; color: var(--fg-3); display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 .who q { color: var(--fg-2); }
+/* verification checklist */
+.vready { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 14px 40px; }
+.vready li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 10px; align-items: baseline; font-size: 14px; }
+.vready .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--fg-3); }
+.vready .dot.ok { background: var(--ok); }
+.vready .dot.missing { background: var(--bad); }
+.vready .n { font-weight: 550; }
+.vready .c { grid-column: 2; font-size: 13px; color: var(--fg-2); line-height: 1.45; }
+.vbuild { display: grid; grid-template-columns: minmax(150px, 240px) minmax(0, 1fr); gap: 10px 28px; margin: 0; }
+.vbuild dt { font-weight: 550; font-size: 14px; }
+.vbuild dd { margin: 0; font-size: 13.5px; color: var(--fg-2); line-height: 1.5; }
+.vruns { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 40px 48px; }
+.vrun { display: grid; gap: 18px; align-content: start; min-width: 0; }
+.vrun > header { display: grid; gap: 3px; padding-bottom: 10px; border-bottom: 1px solid var(--line-2); }
+.vrun h4 { margin: 0; font: 620 16px/1.3 var(--display); display: flex; gap: 8px; align-items: center; }
+.vrun .meta { font-size: 13px; color: var(--fg-2); line-height: 1.45; }
+.vck { display: grid; gap: 5px; min-width: 0; }
+.vck .top { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.vck .kd { font: 600 10.5px/1.6 var(--body); letter-spacing: 0.06em; text-transform: uppercase; color: var(--fg-3); }
+.vck .tt { font-weight: 560; font-size: 14.5px; }
+.vck p { margin: 0; }
+.vck .ex { font-size: 13.5px; color: var(--fg-2); line-height: 1.5; }
+.vck .ps { font-size: 13px; color: var(--fg-3); line-height: 1.45; }
+.vck .ps b { color: var(--fg-2); font-weight: 550; }
+.vck .say { justify-self: start; max-width: 100%; background: var(--accent-soft); border-radius: 12px 12px 12px 4px; padding: 7px 12px; font-size: 13.5px; line-height: 1.45; }
+.vck .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+@media (max-width: 640px) { .vbuild { grid-template-columns: minmax(0, 1fr); gap: 2px 0; } .vbuild dd { margin-bottom: 10px; } }
 .extras { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 24px 48px; }
 .extras > div { display: grid; gap: 10px; align-content: start; min-width: 0; }
 .extras dl { display: grid; gap: 10px; margin: 0; }
@@ -656,7 +684,7 @@ button.pt:hover .go { opacity: 1; }
 .segs { display: flex; gap: 3px; height: 8px; }
 .segs span { flex: 1; border-radius: 3px; background: var(--sunk); }
 .segs .s-done { background: var(--ok); } .segs .s-doing { background: var(--accent); } .segs .s-review { background: var(--rev); }
-.segs .s-unverified { background: var(--need); } .segs .s-blocked { background: transparent; border: 1.5px dashed var(--fg-3); }
+.segs .s-unverified { background: var(--need); } .segs .s-built { background: var(--ok); opacity: .45; } .segs .s-blocked { background: transparent; border: 1.5px dashed var(--fg-3); }
 .prr .live2 { display: grid; gap: 2px; font-size: 12.5px; color: var(--fg-2); }
 @container main (max-width: 760px) { .prr { grid-template-columns: minmax(0, 1fr) 18px; } .prr .w, .prr .live2 { grid-column: 1; } .prr .segs { grid-column: 1; } .prr .chev { grid-row: 1; grid-column: 2; } }
 .wprog { display: grid; gap: 10px; }
@@ -845,11 +873,11 @@ const STAGES = ["explore", "plan", "build", "verify", "report", "done"];
 const STAGE_LABEL = { explore: "Explore", plan: "Plan", build: "Build", verify: "Verify", report: "Report", done: "Done" };
 const stageIdx = Math.max(0, STAGES.indexOf(B.round?.stage));
 const reached = (st) => !st || STAGES.indexOf(st) <= stageIdx;
-const STATES = ["todo", "doing", "review", "unverified", "done", "blocked"];
-const STATE_LABEL = { todo: "To do", doing: "Doing", review: "In review", unverified: "Built, no proof", done: "Done", blocked: "Dropped" };
+const STATES = ["todo", "doing", "review", "unverified", "built", "done", "blocked"];
+const STATE_LABEL = { todo: "To do", doing: "Doing", review: "In review", unverified: "Built, no proof", built: "Built, final check next", done: "Done", blocked: "Dropped" };
 const PR_STATES = ["planned", "building", "open", "merged", "blocked"];
 const PR_LABEL = { planned: "Planned", building: "Building", open: "Open", merged: "Merged", blocked: "Blocked" };
-const PHASE_LABEL = { merging: "Merging", building: "Building", gate: "At the gate", review: "In review", fixing: "Fixing", "spot-check": "Spot check", paused: "Paused", done: "Done" };
+const PHASE_LABEL = { ready: "Checking what the run needs", building: "Building", review: "In review", fixing: "Fixing", final: "Final pass", paused: "Paused", done: "Done", merging: "Merging", gate: "At the gate", "spot-check": "Spot check" };
 const RISK_RANK = { low: 0, medium: 1, high: 2 };
 
 const P = B.plan || {};
@@ -864,6 +892,9 @@ const DECS = B.decisions || [];
 const DEC_N = Object.fromEntries(DECS.map((d, i) => [d.id, i + 1]));
 const OUT = B.outcomes || [];
 const REPORT = B.report || {};
+const VER = Array.isArray(P.verification) ? { building: P.verification } : (P.verification || {});
+const CK_KIND = { code: "Code", screen: "Screen", watch: "Watch", ask: "Ask", measure: "Measure" };
+const CK_STATE = { pass: ["ok", "Passed"], fail: ["bad", "Failed"], skipped: ["need", "Skipped"] };
 const tn = (id) => (T[id] && (T[id].short || T[id].title)) || id;
 // A ticket is one commit in one PR; its wave is its PR's wave.
 const OWNER = {};
@@ -874,10 +905,14 @@ const tWave = (t) => prOf(t.id)?.wave ?? t.wave ?? 0;
 const prTickets = (p) => (p.tickets || []).filter((id) => T[id]);
 const prsInWave = (n) => PRS.filter((p) => p.wave === n);
 const prRisk = (p) => p.risk || prTickets(p).map((id) => T[id].risk).filter((r) => r in RISK_RANK).sort((a, b) => RISK_RANK[b] - RISK_RANK[a])[0] || "";
-const stackOn = (p) => (p.base && p.base !== p.id && PR[p.base]) || null;
+// The stack is an order, not a dependency: the live base (a branch) wins over the planned one (a PR id).
+function stackOn(p) {
+  const live = L.status["pr-" + p.id]?.base;
+  if (live) return PRS.find((x) => x.branch === live && x.id !== p.id) || null;
+  return (p.base && p.base !== p.id && PR[p.base]) || null;
+}
 function prDeps(p) {
   const out = new Set((p.depends_on || []).filter((d) => PR[d] && d !== p.id));
-  if (stackOn(p)) out.add(p.base);
   prTickets(p).forEach((id) => (T[id].depends_on || []).forEach((d) => { const o = OWNER[d]; if (o && o !== p.id && PR[o]) out.add(o); }));
   return [...out];
 }
@@ -1011,6 +1046,8 @@ async function resolveNames() {
 const tState = (id) => { const st = L.status[id]?.state; return STATES.includes(st) ? st : "todo"; };
 const dropped = (id) => tState(id) === "blocked";
 const prLive = (id) => { const x = L.status["pr-" + id]; return x && typeof x === "object" ? x : null; };
+const ckLive = (id) => { const x = L.status["check-" + id]; return x && typeof x === "object" ? x : null; };
+const readyState = (r) => L.status["ready-" + r.id]?.state || r.state || "unknown";
 function prState(p) {
   const lv = prLive(p.id);
   if (lv && PR_STATES.includes(lv.state)) return lv.state;
@@ -1029,6 +1066,7 @@ function needsList() {
   const items = [];
   (B.needs || []).filter((n) => n && n.text).forEach((n) => items.push({ kind: "book", n }));
   if (B.round?.stage === "plan" && MILESTONES.length && !L.gates.plan?.approved) items.push({ kind: "gate", id: "plan" });
+  (VER.ready || []).filter((r) => r.who && !/^agent/i.test(r.who) && readyState(r) !== "ok").forEach((r) => items.push({ kind: "book", n: { kind: "action", text: (readyState(r) === "missing" ? "Needed before the run: " : "Confirm before the run: ") + r.need, link: "checks" } }));
   DECS.filter((d) => decState(d.id) === "unopened").forEach((d) => items.push({ kind: "dec", d }));
   TICKETS.filter((t) => tState(t.id) === "blocked").forEach((t) => items.push({ kind: "blk", t }));
   openFeedback().forEach((f) => items.push({ kind: "fb", f }));
@@ -1091,6 +1129,7 @@ const SECTIONS = [
   { id: "prototypes", label: "Prototypes", title: "Prototypes", stage: "explore" },
   { id: "plan", label: "Plan", title: "The plan", stage: "plan" },
   { id: "prs", label: "How it ships", title: "How it ships", stage: "plan" },
+  { id: "checks", label: "Checklist", title: "How we prove it", stage: "plan" },
   { id: "kickoff", label: "Kickoff", title: "Kickoff", stage: "plan" },
   { id: "progress", label: "Progress", title: "Progress", stage: "build" },
   { id: "report", label: "Report and proof", title: "Report and proof", stage: "report" },
@@ -1103,6 +1142,7 @@ function sectionDot(sec) {
   if (sec.id === "report" && !REPORT.ready) return "later";
   if (sec.id === "progress" && (L.run && L.run.phase !== "done")) return "live";
   if (sec.id === "plan" && DECS.some((d) => decState(d.id) === "unopened")) return "need";
+  if (sec.id === "checks" && (VER.ready || []).some((r) => readyState(r) === "missing" || (r.who && !/^agent/i.test(r.who) && readyState(r) !== "ok"))) return "need";
   return "ready";
 }
 const smooth = () => matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
@@ -1353,7 +1393,8 @@ function renderNeeds() {
     h("span", { class: "k" }, h("i", { style: "background:var(--need)" }), left + " not opened"),
     h("span", { class: "k" }, h("i", { style: "background:var(--ok)" }), kept + " kept"),
     h("span", { class: "k" }, h("i", { style: "background:var(--accent)" }), changed + " changed")) : null;
-  const rows = items.slice(0, 8).map((it) => {
+  // What waits on the reader comes first; info items fill what room is left.
+  const rows = [...items.filter(counts), ...items.filter((i) => !counts(i))].slice(0, 8).map((it) => {
     if (it.kind === "book") {
       const n = it.n, ic = n.kind === "blocked" ? "stop" : n.kind === "info" ? "note" : "flag";
       return h("div", { class: "ask " + (n.kind === "blocked" ? "blk" : n.kind === "info" ? "info" : "dec") }, h("span", { class: "ic" }, icon(ic)),
@@ -1727,7 +1768,7 @@ function prBlock(p) {
       onclick: () => openPR(p.id), onmouseenter: () => hiDeps(p.id, true), onfocus: () => hiDeps(p.id, true), onblur: () => hiDeps(null, false) },
     h("span", { class: "ptop" }, h("span", { class: "eyebrow", text: p.category || "" }), prPill(p)),
     h("span", { class: "tt", text: p.title }),
-    stackOn(p) ? h("span", { class: "stack", title: "Built on that PR's branch until it merges" }, icon("layers"), h("span", { text: "On top of " + stackOn(p).title })) : null,
+    stackOn(p) ? h("span", { class: "stack", title: "Opens above that PR in the stack and merges after it" }, icon("layers"), h("span", { text: "On top of " + stackOn(p).title })) : null,
     ids.length ? h("span", { class: "cm" }, ids.map((id) => h("span", { class: "cl" + (dropped(id) ? " dropped" : ""), title: dropped(id) ? "Dropped: " + (L.status[id]?.note || "moved to the next round") : STATE_LABEL[tState(id)] }, stDot(id), h("span", { text: tn(id) })))) : null,
     h("span", { class: "meta" }, h("span", { text: plural(ids.length, "commit", "commits") }), p.size?.files ? h("span", { title: "Files it touches" }, plural(p.size.files, "file", "files")) : null, riskTag(risk), p.approver ? h("span", { title: "Merges it" }, icon("check"), p.approver) : null),
     deps.length ? h("span", { class: "after", text: "After " + joinWords(deps.map((d) => PR[d].category || PR[d].title)) }) : null,
@@ -1773,13 +1814,53 @@ function fitLoops() { document.querySelectorAll(".loop").forEach((l) => { const 
 let relayRaf = 0;
 function relayout() { cancelAnimationFrame(relayRaf); relayRaf = requestAnimationFrame(() => { layoutWaves(); fitLoops(); }); }
 function planExtras() {
-  const R = P.risks || [], V = P.verification || [], later = P.later || [];
-  if (!R.length && !V.length && !later.length) return null;
-  return [h("h3", { class: "sub", text: "How it is proven, the risks, and later" }),
+  const R = P.risks || [], later = P.later || [];
+  if (!R.length && !later.length) return null;
+  return [h("h3", { class: "sub", text: "The risks, and later" }),
     h("div", { class: "extras" },
-      V.length ? h("div", null, h("span", { class: "eyebrow", text: "Where it is proven" }), h("dl", null, V.map((x) => [h("dt", { text: x.where }), h("dd", { text: x.what })]))) : null,
       R.length ? h("div", null, h("span", { class: "eyebrow", text: "Risks and what we do" }), h("dl", null, R.map((x) => [h("dt", { text: x.risk }), h("dd", { text: x.mitigation })]))) : null,
       later.length ? h("div", null, h("span", { class: "eyebrow", text: "Later, not this round" }), h("ul", { class: "plain" }, later.map((x) => h("li", null, icon("clock"), h("span", { text: x }))))) : null)];
+}
+
+/* ---------- how we prove it: the checklist agreed before the run ---------- */
+function renderChecks() {
+  const RD = VER.ready || [], BLD = VER.building || [], RUNS = VER.runs || [], CKS = VER.checks || [];
+  if (!RD.length && !BLD.length && !CKS.length) return section(SEC.checks, h("p", { class: "empty", text: "The checklist we agree before the run appears with the plan." }));
+  const bn = (v, of, l) => h("div", { class: "bn" }, h("div", { class: "v" }, String(v), of != null ? h("small", { text: " / " + of }) : null), h("div", { class: "l", text: l }));
+  const passed = CKS.filter((c) => ckLive(c.id)?.state === "pass").length;
+  const nums = h("div", { class: "bignums" },
+    RD.length ? bn(RD.filter((r) => readyState(r) === "ok").length, RD.length, "ready before the run") : null,
+    CKS.length ? bn(passed, CKS.length, "checks passed") : null,
+    CKS.length ? bn(new Set(CKS.flatMap((c) => c.tickets || []).filter((id) => T[id])).size, TICKETS.length, "tickets covered") : null,
+    RUNS.length ? bn(RUNS.length, null, RUNS.length === 1 ? "real run" : "real runs") : null);
+  const check = (c) => {
+    const lv = ckLive(c.id), st = CK_STATE[lv?.state];
+    const run = c.kind === "ask" && c.run ? RUNS.find((r) => r.id === c.run) : null;
+    return h("div", { class: "vck", id: "ck-" + c.id },
+      h("div", { class: "top" }, h("span", { class: "kd", text: CK_KIND[c.kind] || c.kind || "" }), h("span", { class: "tt", text: c.title }), st ? h("span", { class: "chip " + st[0], title: lv.note || "", text: st[1] }) : null),
+      c.say ? h("div", { class: "say" }, h("span", { class: "faint", text: "You type: " }), "“" + c.say + "”") : null,
+      c.expect ? h("p", { class: "ex", text: c.expect }) : null,
+      c.pass ? h("p", { class: "ps" }, h("b", { text: "Passes when: " }), c.pass) : null,
+      lv?.note && lv.state !== "pass" ? h("p", { class: "ps", text: lv.note }) : null,
+      h("div", { class: "chips" }, (c.tickets || []).filter((id) => T[id]).map(ticketChip), run ? h("span", { class: "chip", text: run.title }) : null, (lv?.proof || []).slice(0, 1).map(evidenceLink)));
+  };
+  const group = (title, meta, list, ic) => list.length ? h("div", { class: "vrun" }, h("header", null, h("h4", null, icon(ic), h("span", { text: title })), meta ? h("span", { class: "meta", text: meta }) : null), list.map(check)) : null;
+  const kind = (k) => CKS.filter((c) => c.kind === k);
+  const groups = h("div", { class: "vruns" },
+    group("Checked in code", "A test, a search of the code, or a read-only command", kind("code").filter((c) => !c.run), "search"),
+    group("Checked on a screen", "Open the screen in the product and look", kind("screen").filter((c) => !c.run), "eye"),
+    RUNS.map((r) => group(r.title, [r.needs && RUNS.find((x) => x.id === r.needs) ? "Only if " + RUNS.find((x) => x.id === r.needs).title + " held" : "", r.what, r.cost, r.time].filter(Boolean).join(" · "), CKS.filter((c) => c.run === r.id && c.kind !== "ask"), "play")),
+    group("Said in the chat", "What a person may ask for. It is done, or answered with a reason, never refused because the code forbids it.", kind("ask"), "chat"));
+  return section(SEC.checks, CKS.length ? count(plural(CKS.length, "check", "checks")) : null,
+    VER.summary ? h("p", { class: "lede", style: "margin-bottom:28px", text: VER.summary }) : null,
+    nums,
+    RD.length ? [h("h3", { class: "sub" }, "Ready before the run starts", h("span", { class: "faint", text: "the run checks these first and stops if one is missing" })),
+      h("ul", { class: "vready" }, RD.map((r) => { const s = readyState(r), note = L.status["ready-" + r.id]?.note;
+        return h("li", null, h("i", { class: "dot " + s, title: s }), h("span", { class: "n" }, r.need, r.who ? h("span", { class: "faint", text: " · " + r.who }) : null), h("span", { class: "c", text: note || r.check || "" })); }))] : null,
+    BLD.length ? [h("h3", { class: "sub" }, "While it is built", h("span", { class: "faint", text: "what the agents check on their own" })),
+      h("dl", { class: "vbuild" }, BLD.map((x) => [h("dt", { text: x.where }), h("dd", { text: x.what })]))] : null,
+    CKS.length ? [h("h3", { class: "sub" }, "After everything is built", h("span", { class: "faint", text: VER.where || "on a fresh copy of the product that holds every PR" })), groups] : null,
+    B.round?.stage === "plan" && CKS.length ? h("p", { class: "note", style: "margin-top:32px" }, icon("gate"), "Approving the plan agrees this checklist. A ticket is done only when its check passes in the final pass, or the report says plainly why not.") : null);
 }
 
 /* ---------- how it ships: the two loops, the rules, the PR body ---------- */
@@ -1879,7 +1960,7 @@ function renderProgress() {
     PRS.length ? [h("h3", { class: "sub" }, "By PR", h("span", { class: "faint", text: "each bar is one PR's commits, in order" })), h("div", { class: "prl" }, rows)] : null,
     h("h3", { class: "sub" }, "Log", h("span", { class: "faint", text: plural(L.log.length, "entry", "entries") })), logTimeline());
 }
-const LOG_ICON = { start: "play2", decision: "flag", merge: "branch", gate: "gate", review: "eye", fix: "wrench", proof: "image", blocked: "stop", note: "note", done: "check" };
+const LOG_ICON = { start: "play2", decision: "flag", merge: "branch", gate: "gate", review: "eye", fix: "wrench", proof: "image", open: "branch", drop: "stop", check: "shield", blocked: "stop", note: "note", done: "check" };
 function logTimeline() {
   if (!L.log.length) return h("p", { class: "empty", text: "No log entries yet. The run writes one at every start, gate, review, fix and proof." });
   const rows = L.log.slice().sort((a, b) => String(b.at).localeCompare(String(a.at)));
@@ -1943,10 +2024,18 @@ function renderReport() {
       imgs.length ? h("div", { class: "thumbs" }, imgs.map((e) => thumb(e.ref, e.caption))) : null);
   };
   const W = R.works_now || [], NP = R.not_proven || [];
+  // Once the final pass has started, every agreed check counts: one never run is not proven.
+  const allCk = VER.checks || [], started = REPORT.ready || allCk.some((c) => CK_STATE[ckLive(c.id)?.state]);
+  const ran = started ? allCk : [];
+  const ckOk = ran.filter((c) => ckLive(c.id)?.state === "pass"), ckBad = ran.filter((c) => ckLive(c.id)?.state !== "pass");
+  const ckItem = (c) => { const lv = ckLive(c.id) || {}, st = CK_STATE[lv.state] || ["need", "Not run"]; return h("div", { class: "pf" }, h("span", { class: "d", text: c.title }),
+    h("div", { class: "chips" }, lv.state !== "pass" ? h("span", { class: "verdict bad", text: st[1] }) : null, (c.tickets || []).filter((id) => T[id]).map(ticketChip), (lv.proof || []).slice(0, 1).map(evidenceLink)),
+    lv.note && lv.state !== "pass" ? h("span", { class: "faint", text: lv.note }) : null); };
+  const nOk = ok.length + ckOk.length, nAll = proof.length + ran.length, nBad = NP.length + notOk.length + ckBad.length;
   const three = h("div", { class: "r3" },
     h("div", { class: "rb ok" }, h("h4", null, icon("check"), "What works now", h("span", { class: "c", text: W.length ? String(W.length) : "" })), W.length ? h("ul", { class: "plain ok" }, W.map((x) => h("li", null, icon("check"), h("span", { text: x })))) : h("p", { class: "ph", text: "What a person can use today." })),
-    h("div", { class: "rb ok" }, h("h4", null, icon("shield"), "Proven", h("span", { class: "c", text: proof.length ? ok.length + " of " + proof.length : "" })), ok.length ? ok.map(pfItem) : h("p", { class: "ph", text: "Each done-when with its evidence." })),
-    h("div", { class: "rb bad" }, h("h4", null, icon("alert"), "Not proven yet", h("span", { class: "c", text: (NP.length + notOk.length) ? String(NP.length + notOk.length) : "" })), NP.length || notOk.length ? [NP.length ? h("ul", { class: "plain bad" }, NP.map((x) => h("li", null, icon("alert"), h("span", { text: x })))) : null, notOk.map(pfItem)] : h("p", { class: "ph", text: "What still has no proof, said plainly." })));
+    h("div", { class: "rb ok" }, h("h4", null, icon("shield"), "Proven", h("span", { class: "c", text: nAll ? nOk + " of " + nAll : "" })), nOk ? [ckOk.map(ckItem), ok.map(pfItem)] : h("p", { class: "ph", text: "Each check and done-when with its evidence." })),
+    h("div", { class: "rb bad" }, h("h4", null, icon("alert"), "Not proven yet", h("span", { class: "c", text: nBad ? String(nBad) : "" })), nBad ? [NP.length ? h("ul", { class: "plain bad" }, NP.map((x) => h("li", null, icon("alert"), h("span", { text: x })))) : null, ckBad.map(ckItem), notOk.map(pfItem)] : h("p", { class: "ph", text: "What still has no proof, said plainly." })));
   const g = L.gates.report;
   const gate = ready ? (g?.approved ? h("span", { class: "chip ok" }, icon("check"), "Accepted by ", nameOf(g.by), ", ", rel(g.at)) : h("button", { class: "btn pri sm", type: "button", disabled: !canWrite(), text: "Accept report", onclick: () => saveGate("report", true) })) : null;
   const list = (arr) => h("ul", { class: "plain" }, arr.map((x) => h("li", null, icon("chev"), h("span", { text: x }))));
@@ -2034,7 +2123,7 @@ function renderDrawer(fresh) {
         p.size?.why ? wide("Why this size", p.size.why) : null,
         fact("Waits for", deps.length ? h("div", { class: "chips" }, deps.map((x) => prChip(x))) : "Nothing"),
         after.length ? fact("Then unblocks", h("div", { class: "chips" }, after.map((x) => prChip(x.id)))) : null,
-        stackOn(p) ? wide("Branch", p.branch ? h("code", { text: p.branch }) : "Not named", " is built on top of the ", h("b", { text: stackOn(p).category || stackOn(p).title }), " PR, then goes into ", h("code", { text: P.branches?.development || "development" }), " once that one merges")
+        stackOn(p) ? wide("Branch", p.branch ? h("code", { text: p.branch }) : "Not named", " sits in the stack above the ", h("b", { text: stackOn(p).category || stackOn(p).title }), " PR and merges after it; it moves into ", h("code", { text: P.branches?.development || "development" }), " when that one merges")
           : wide("Branch", p.branch ? h("code", { text: p.branch }) : "Not named", " into ", h("code", { text: p.base || P.branches?.development || "development" })),
         p.hotfix ? wide("Hotfix", "Also into ", h("code", { text: p.hotfix.base || "production" }), " as its own PR" + ((p.hotfix.tickets || []).length ? ": " + p.hotfix.tickets.filter((t) => T[t]).map(tn).join(", ") : "") + (p.hotfix.note ? ". " + p.hotfix.note : ".")) : null),
       h("div", null, h("h3", { class: "sub" }, "Commits, in order", h("span", { class: "faint", text: prDone(p) + " of " + ids.length + " done" })),
@@ -2083,6 +2172,9 @@ function ticketDetail(t) {
       t.solution ? [h("dt", { text: "Solution" }), h("dd", { text: t.solution })] : null,
       t.why_right ? [h("dt", { text: "Why this fix" }), h("dd", { class: "muted", text: t.why_right })] : null,
       h("dt", { text: "Done when" }), h("dd", null, h("ul", { class: "dw" }, (t.done_when || []).map((d) => { const vv = verdictFor(d); return h("li", { class: vv ? "v-" + vClass(vv) : "" }, icon(vv === "verified" ? "check" : "target"), h("span", { text: d }), vv ? h("span", { class: "verdict " + vClass(vv), text: vLabel(vv) }) : null); }))),
+      (t.after_merge || []).length ? [h("dt", { text: "After you merge" }), h("dd", null, h("ul", { class: "dw" }, t.after_merge.map((d) => h("li", null, icon("branch"), h("span", { text: d })))))] : null,
+      (VER.checks || []).some((c) => (c.tickets || []).includes(t.id)) ? [h("dt", { text: "Final check" }), h("dd", { class: "chips" }, (VER.checks || []).filter((c) => (c.tickets || []).includes(t.id)).map((c) => { const st = CK_STATE[ckLive(c.id)?.state];
+        return h("a", { class: "chip" + (st ? " " + st[0] : ""), href: "#ck-" + c.id, title: c.expect || "", onclick: (e) => { e.preventDefault(); jumpFlash("ck-" + c.id); } }, h("span", { text: (CK_KIND[c.kind] || c.kind) + ": " + c.title + (st ? " · " + st[1] : "") })); }))] : null,
       v.code || v.browser || v.run ? [h("dt", { text: "Verify" }), h("dd", { style: "display:grid;gap:6px" }, v.run ? h("span", { text: v.run }) : null,
         v.code || v.browser ? h("div", { class: "chips" }, v.code ? h("span", { class: "chip mono", title: v.code }, icon("wrench"), h("span", { text: v.code })) : null, v.browser ? h("span", { class: "chip", title: v.browser }, icon("eye"), h("span", { text: v.browser })) : null) : null)] : null,
       (t.files || []).length ? [h("dt", { text: "Files" }), h("dd", { class: "files" }, t.files.map((f) => h("span", { text: f })))] : null,
@@ -2093,7 +2185,7 @@ function ticketDetail(t) {
 }
 
 /* ================= human render ================= */
-const RENDER = { summary: renderSummary, needs: renderNeeds, problem: renderProblem, findings: renderFindings, research: renderResearch, architecture: renderArch, prototypes: renderProtos, plan: renderPlan, prs: renderShips, kickoff: renderKickoff, progress: renderProgress, report: renderReport, history: renderHistory };
+const RENDER = { summary: renderSummary, needs: renderNeeds, problem: renderProblem, findings: renderFindings, research: renderResearch, architecture: renderArch, prototypes: renderProtos, plan: renderPlan, prs: renderShips, checks: renderChecks, kickoff: renderKickoff, progress: renderProgress, report: renderReport, history: renderHistory };
 function replaceSection(id, node) { const old = document.getElementById(id); if (old) { if (spyObs) spyObs.unobserve(old); old.replaceWith(node); wireClamps(node); if (spyObs) spyObs.observe(node); } }
 function renderHuman() {
   const main = document.getElementById("human");
@@ -2123,7 +2215,7 @@ function treeData() {
   const groups = [];
   const published = BUILD.published || ["agent/book.json", ...(B.files || []).map((f) => f.path)];
   const titles = Object.fromEntries((B.files || []).map((f) => [f.path, f.title]));
-  groups.push({ name: "book", items: [{ path: "agent/book.json", label: "book.json" }, ...(P.gate || P.stop_rules || PRS.length ? [{ path: "view:rules", label: "wave plan, gate and stop rules" }] : [])] });
+  groups.push({ name: "book", items: [{ path: "agent/book.json", label: "book.json" }, ...(P.gate || P.stop_rules || PRS.length ? [{ path: "view:rules", label: "wave plan, gate and stop rules" }] : []), ...((VER.checks || VER.ready) ? [{ path: "view:checks", label: "verification checklist" }] : [])] });
   const agent = published.filter((p) => p.startsWith("agent/") && p !== "agent/book.json" && !p.startsWith("agent/proof/"));
   if (agent.length) groups.push({ name: "agent/", items: agent.map((p) => ({ path: p, label: p.replace(/^agent\//, ""), title: titles[p] })) });
   const proof = [...new Set([...published.filter((p) => p.startsWith("agent/proof/")), ...Object.values(L.status).flatMap((x) => x.proof || [])])];
@@ -2161,14 +2253,23 @@ function describe(path) {
   if (path === "agent/book.json") return "content, republished with the page";
   if (path.startsWith("db:")) return "live documents, written by the run and by people";
   if (path === "view:rules") return "plan.waves, plan.prs, plan.gate and plan.stop_rules from book.json";
+  if (path === "view:checks") return "plan.verification from book.json, with live states from status/ready-<id> and status/check-<id>";
   const f = (B.files || []).find((x) => x.path === path); return f?.title || "";
 }
 function viewText(path) {
   if (path === "agent/book.json") return JSON.stringify(B, null, 2);
   if (path.startsWith("db:")) return JSON.stringify(dbDump(path.slice(3)), null, 2);
+  if (path === "view:checks") {
+    const st = (k, id, d) => L.status[k + id]?.state || d;
+    return ["# Ready before the run (status/ready-<id>)", ...(VER.ready || []).map((r) => "- [" + st("ready-", r.id, r.state || "unknown") + "] " + r.id + ": " + r.need + (r.check ? "\n  check: " + r.check : "") + (r.who ? "\n  who: " + r.who : "")),
+      "", "# While building", ...(VER.building || []).map((x) => "- " + x.where + ": " + x.what),
+      "", "# Runs", ...(VER.runs || []).map((r) => "- " + r.id + ": " + r.title + " (" + [r.what, r.cost, r.time].filter(Boolean).join(", ") + ")"),
+      "", "# Final checks (status/check-<id>)" + (VER.where ? ", " + VER.where : ""), ...(VER.checks || []).map((c) => "- [" + st("check-", c.id, "todo") + "] " + c.id + " (" + c.kind + (c.run ? ", run " + c.run : "") + "): " + c.title +
+        "\n  tickets: " + (c.tickets || []).join(", ") + (c.say ? "\n  say: " + c.say : "") + "\n  expect: " + (c.expect || "") + "\n  pass: " + (c.pass || ""))].join("\n");
+  }
   if (path === "view:rules") {
     const G = P.gate || {};
-    return ["# Waves (PRs, commits in order)", ...WAVES.map((w) => "wave " + w.n + ": " + wavePRs(w).map((p) => p.id + "[" + prTickets(p).join(" > ") + "]" + (stackOn(p) ? " on top of " + p.base : "") + (prDeps(p).length ? " after " + prDeps(p).join(",") : "")).join("  ") + (w.gate?.length ? "  gate: " + w.gate.join(", ") : "")),
+    return ["# Waves (PRs, commits in order)", ...WAVES.map((w) => "wave " + w.n + ": " + wavePRs(w).map((p) => p.id + "[" + prTickets(p).join(" > ") + "]" + (stackOn(p) ? " on top of " + stackOn(p).id : "") + (prDeps(p).length ? " after " + prDeps(p).join(",") : "")).join("  ") + (w.gate?.length ? "  gate: " + w.gate.join(", ") : "")),
       "", "# Gate (every wave)", ...(G.steps || []).map((x, i) => (i + 1) + ". " + x), "", "# Baseline (must stay green)", ...(G.baseline || []).map((x) => "- " + x), "", "# Stop rules", ...(P.stop_rules || []).map((x) => "- " + x),
       "", "# Ticket loop", ...((P.flow || {}).ticket || []).map((x, i) => (i + 1) + ". " + x), "", "# PR loop", ...((P.flow || {}).pr || []).map((x, i) => (i + 1) + ". " + x)].join("\n");
   }
@@ -2211,7 +2312,7 @@ function digest() {
   lines.push("", "## Run");
   lines.push(L.run ? "- wave " + L.run.wave + ", " + L.run.phase + (L.run.note ? ": " + L.run.note : "") + (L.run.sha ? " (head " + L.run.sha + ")" : "") : "- no run state");
   lines.push("", "## PRs");
-  PRS.forEach((p) => { const lv = prLive(p.id); lines.push("- " + p.id + " (wave " + p.wave + "): " + prState(p) + (lv?.number ? " #" + lv.number : "") + (lv?.checks ? ", checks " + lv.checks : "") + (lv?.approved ? ", approved" : "") + "; commits " + prTickets(p).join(" > ") + (stackOn(p) ? "; stacked on " + p.base : "") + ((p.shares || []).length ? "; also edits " + p.shares.join(", ") : "")); });
+  PRS.forEach((p) => { const lv = prLive(p.id); lines.push("- " + p.id + " (wave " + p.wave + "): " + prState(p) + (lv?.number ? " #" + lv.number : "") + (lv?.checks ? ", checks " + lv.checks : "") + "" + "; commits " + prTickets(p).join(" > ") + (stackOn(p) ? "; stacked on " + stackOn(p).id : "") + ((p.shares || []).length ? "; also edits " + p.shares.join(", ") : "")); });
   if (!PRS.length) lines.push("- none");
   lines.push("", "## Tickets");
   TICKETS.forEach((t) => { const st = L.status[t.id]; lines.push("- " + t.id + (OWNER[t.id] ? " (" + OWNER[t.id] + ")" : "") + ": " + tState(t.id) + (st?.note ? " (" + st.note + ")" : "") + ((st?.proof || []).length ? " proof: " + st.proof.join(", ") + (staleProof(st) ? " [old]" : "") : "")); });

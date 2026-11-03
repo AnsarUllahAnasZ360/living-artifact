@@ -228,12 +228,19 @@ if (isObj(plan)) {
       }
     }
   });
-  // a stacked PR sits on a PR from an earlier wave
+  // the planned stack is one line: a PR sits on a PR from its own or an earlier wave, nothing loops, and no base carries two PRs
   prById.forEach((pr, id) => {
     const under = prById.get(pr.base);
     if (!under || under === pr || !Number.isInteger(under.wave) || !Number.isInteger(pr.wave)) return;
-    if (under.wave >= pr.wave) err(`PR "${id}" (wave ${pr.wave}) is stacked on PR "${pr.base}" in ${under.wave === pr.wave ? "the same wave" : "later wave " + under.wave}; a stacked PR sits on a PR from an earlier wave`);
+    if (under.wave > pr.wave) err(`PR "${id}" (wave ${pr.wave}) is stacked on PR "${pr.base}" from later wave ${under.wave}; a PR opens above one that is built no later`);
   });
+  prById.forEach((pr, id) => {
+    const seen = new Set([id]);
+    for (let b = prById.get(pr.base); b; b = prById.get(b.base)) { if (seen.has(b.id)) { err(`PR "${id}": its stack loops back through PR "${b.id}"`); break; } seen.add(b.id); }
+  });
+  const onBase = new Map();
+  prById.forEach((pr) => { if (nonEmptyStr(pr.base)) onBase.set(pr.base, [...(onBase.get(pr.base) || []), pr.id]); });
+  onBase.forEach((on, base) => { if (on.length > 1) warn(`PRs ${on.map((x) => `"${x}"`).join(", ")} all sit on "${base}"; the stack is one line, so each sits on the PR before it`); });
   // a PR depends only on PRs in earlier waves
   prById.forEach((pr, id) => (pr.depends_on || []).forEach((d) => {
     const dep = prById.get(d);
@@ -268,7 +275,8 @@ if (isObj(plan)) {
     if (t.pr !== undefined && mine && t.pr !== mine) err(`${w}: pr is "${t.pr}", but PR "${mine}" lists it`);
     else if (t.pr !== undefined && !mine && !prIds.has(t.pr)) err(`${w}: unknown PR "${t.pr}"`);
     if (t.wave !== undefined && mine && prById.get(mine)?.wave !== t.wave) err(`${w}: wave ${t.wave}, but its PR "${mine}" is in wave ${prById.get(mine)?.wave}; a ticket's wave comes from its PR`);
-    if (/^pr-/.test(t.id) && prIds.has(t.id.slice(3))) err(`${w}: the id collides with the live status of PR "${t.id.slice(3)}"; rename the ticket`);
+    if (/^(pr|check|ready)-/.test(t.id)) err(`${w}: a ticket id may not start with pr-, check- or ready-; those name live status documents`);
+    if (t.after_merge !== undefined && !(isArr(t.after_merge) && t.after_merge.every(nonEmptyStr))) err(`${w}.after_merge: must be a list of strings`);
     (t.depends_on || []).forEach((d) => {
       if (!tById.has(d)) { err(`${w}: depends on unknown ticket "${d}"`); return; }
       if (d === t.id) { err(`${w}: depends on itself`); return; }
@@ -329,6 +337,47 @@ if (isObj(plan)) {
     else for (const k of ["steps", "baseline"]) if (plan.gate[k] !== undefined && !(isArr(plan.gate[k]) && plan.gate[k].every(isStr))) err(`plan.gate.${k}: must be a list of strings`);
   }
   if (plan.stop_rules !== undefined && !(isArr(plan.stop_rules) && plan.stop_rules.every(isStr))) err("plan.stop_rules: must be a list of strings");
+
+  // the verification checklist (an older book's list of { where, what } is read as its building rows)
+  const V = isArr(plan.verification) ? { building: plan.verification } : plan.verification;
+  if (V !== undefined) {
+    if (!isObj(V)) err("plan.verification: must be an object { summary, where, ready, building, runs, checks }");
+    else {
+      const list = (k) => { if (V[k] === undefined) return []; if (isArr(V[k])) return V[k]; err(`plan.verification.${k}: must be a list`); return []; };
+      const READY = list("ready"), BUILDING = list("building"), RUNS = list("runs"), CHECKS = list("checks");
+      BUILDING.forEach((x, i) => { if (!nonEmptyStr(x?.where) || !nonEmptyStr(x?.what)) err(`plan.verification.building[${i}]: needs where and what`); });
+      ids(READY, "plan.verification.ready");
+      READY.forEach((r, i) => {
+        if (!nonEmptyStr(r?.need)) err(`plan.verification.ready[${i}]: needs need`);
+        if (r?.state !== undefined && !["ok", "missing", "unknown"].includes(r.state)) err(`plan.verification.ready[${i}]: state is ok, missing or unknown`);
+        if (!nonEmptyStr(r?.who)) warn(`plan.verification.ready[${i}]: name who supplies it (agent or a person)`);
+      });
+      ids(RUNS, "plan.verification.runs");
+      const runAt = new Map(RUNS.filter((r) => nonEmptyStr(r?.id)).map((r) => [r.id, RUNS.indexOf(r)]));
+      RUNS.forEach((r, i) => {
+        if (!nonEmptyStr(r?.title)) err(`plan.verification.runs[${i}]: needs title`);
+        if (r?.needs && !(runAt.get(r.needs) < i)) err(`plan.verification.runs[${i}]: needs "${r.needs}", which must be an earlier run`);
+      });
+      const covered = new Set();
+      ids(CHECKS, "plan.verification.checks");
+      CHECKS.forEach((c, i) => {
+        const w = `plan.verification.checks[${i}] "${c?.id}"`;
+        if (!["code", "screen", "watch", "ask", "measure"].includes(c?.kind)) { err(`${w}: kind is code, screen, watch, ask or measure`); return; }
+        for (const k of ["title", "expect", "pass"]) if (!nonEmptyStr(c[k])) err(`${w}: needs ${k}`);
+        if (!isArr(c.tickets) || !c.tickets.length) err(`${w}: names no tickets`);
+        else c.tickets.forEach((t) => { if (!ticketIds.has(t)) err(`${w}: unknown ticket "${t}"`); covered.add(t); });
+        if (["watch", "ask", "measure"].includes(c.kind) && !runAt.has(c.run)) err(`${w}: a ${c.kind} check names one of plan.verification.runs in run`);
+        else if (c.run !== undefined && c.run !== "" && !runAt.has(c.run)) err(`${w}: unknown run "${c.run}"`);
+        if (c.kind === "measure" && !READY.some((r) => /baseline/i.test(`${r?.id} ${r?.need}`))) warn(`${w}: a measure check compares with a baseline, but no ready item supplies one`);
+        if (c.kind === "ask" && !nonEmptyStr(c.say)) err(`${w}: an ask check gives the words a person types in say`);
+        if (words(c.title) > 10) warn(`${w}: title is ${words(c.title)} words; 10 at most`);
+        budget(c.expect, 40, `${w}.expect`); budget(c.pass, 30, `${w}.pass`);
+      });
+      if (CHECKS.length && tickets.length && CHECKS.length > Math.ceil(tickets.length * 0.75)) warn(`plan.verification: ${CHECKS.length} checks for ${tickets.length} tickets; aim for about one per two tickets by letting one check cover several`);
+      if (CHECKS.length) tickets.forEach((t) => { if (!covered.has(t.id)) err(`plan.verification: ticket "${t.id}" has no final check; every ticket is proven by at least one`); });
+      else if (tickets.length) warn("plan.verification: no checks yet; agree the final checklist before the run");
+    }
+  }
 }
 
 // ---------- decisions ----------
@@ -397,7 +446,7 @@ if (book.needs !== undefined) {
 });
 
 // ---------- executive summary and prompts ----------
-const SECTION_IDS = new Set(["summary", "needs", "problem", "findings", "research", "architecture", "prototypes", "plan", "prs", "decisions", "kickoff", "progress", "report", "history"]);
+const SECTION_IDS = new Set(["summary", "needs", "problem", "findings", "research", "architecture", "prototypes", "plan", "prs", "checks", "decisions", "kickoff", "progress", "report", "history"]);
 function checkLink(link, where) {
   if (!isStr(link)) { err(`${where}: must be a string`); return; }
   const [kind, id] = link.includes(":") ? [link.slice(0, link.indexOf(":")), link.slice(link.indexOf(":") + 1)] : ["#", link.replace(/^#/, "")];

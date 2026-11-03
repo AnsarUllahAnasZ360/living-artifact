@@ -34,20 +34,22 @@ A category PR stays safe through what happens before it opens, not through a siz
 - **Files per PR.** State each PR's `size`: how many files it touches and the lines it should add and delete, with a reason when one PR is much larger than the rest. Hot files with tight limits (prompt token budgets, the one engine file) have one owner per wave; a PR that must edit one after its owner goes in a later wave.
 - **A line accounting.** The PR body splits added and deleted lines into production, tests, and docs and config, per commit, with a reason for anything large. A bloat review deletes lines that serve no done-when before the PR opens.
 
-Two rules come from the base, not the size:
+Rules every PR follows, whatever its size:
 
-- **Hotfix.** A fix production needs now ships as its own PR into the production branch, carrying only that commit, once the commit is proven in its category branch.
+- **One stack, open until the end.** PRs stack in one line in the order they open: the first opens into the development branch, every later one into the branch of the PR opened before it. The run never waits for a merge, so every PR can still be open when the report is written; the person merges them bottom first, each with a merge commit, whenever they choose, and each merged branch is deleted (by the repository setting, or by the Delete branch the merge checklist names) so the next PR moves onto the development branch. Waves decide what is built at the same time; the stack only decides the order PRs open and merge, so a PR's `base` may be a PR of its own wave.
+- **Hotfix.** A fix production needs now ships as its own PR into the production branch, carrying only that commit, opened by the lead once its category PR opens. Whether it is released is the person's call.
 - **Drop, do not hold.** A ticket that cannot prove its done-when is reset away, marked blocked with the reason, and moves to the next round, with every ticket that depends on it. It never holds its PR.
+- **Done-when the run can prove.** `done_when` holds only what the run can show before any merge: on the local stack, in tests, in the ticket's own proof. What only the person's merge, a deploy or a release can show goes in the ticket's `after_merge`, which the report lists for the person. A PR body is written after the ticket is final, so a ticket never waits on its PR's text.
 - **Baselines.** A graded comparison needs a baseline run on the unchanged development branch with the same inputs and a reset memory, planned and costed before wave 1. Results from other environments or older memory are context, never the bar.
 - **Evidence privacy.** Proof that shows customer material stays in a private folder the book names; only made-up test data appears in screenshots on the page or in a PR.
 
 `plan.prs` lists each PR: title, category, the problem it solves, the outcome after it merges, wave, base, branch, its tickets in commit order, the areas it owns, the PRs it depends on, its risk (the highest of its tickets), who approves it, and the proof shown before it opens. State `plan.flow` (the ticket loop and the PR loop), `plan.pr_template` (the PR body headings), `review_policy`, `merge_checklist`, and the repository settings to change first in `plan.github`. Merge with a merge commit: it keeps each ticket's reviewed commit with the same id, so one ticket can be reverted alone. A squash loses the tickets; a rebase merge rewrites every commit id.
 
-**Shared lines.** Two PRs in the same wave never own the same area. A few lines in a file that another PR also edits are allowed when the PR lists that file in `shares`; the second to merge rebases and runs its checks again. Hot files with tight limits (prompts near their token budget, one engine file every category touches) belong to one owner per wave.
+**Shared lines.** Two PRs in the same wave never own the same area. A few lines in a file that another PR also edits are allowed when the PR lists that file in `shares`; the later one in the stack resolves them when it rebases onto the stack before opening, and runs its checks again. Hot files with tight limits (prompts near their token budget, one engine file every category touches) belong to one owner per wave.
 
 ## Estimates are agent time
 
-Never human days. Say three numbers in plain words: agent build time (with parallel PR builders, the longest lane sets the wall clock), the merge line (PRs merge one at a time; each waits for its checks and, where the repo deploys on merge, for that deploy), and human review (one approval per PR, so the count of PRs is the count of approvals). A ticket's `estimate` reads like "2 h build, 30 min review".
+Never human days. Say three numbers in plain words: agent build time (with parallel PR builders, the longest lane sets the wall clock), the merge line (after the run, PRs merge one at a time, bottom of the stack first; each waits for its checks and, where the repo deploys on merge, for that deploy), and human review (one approval per PR, so the count of PRs is the count of approvals). A ticket's `estimate` reads like "2 h build, 30 min review".
 
 ## Milestones
 
@@ -56,7 +58,7 @@ Three to seven. Each is an outcome a person can see working ("Anyone can search 
 ## Waves
 
 1. A wave holds PRs that can be built at the same time: no shared files and no dependency between them.
-2. One builder owns one PR and works its tickets in commit order. A ticket may depend on an earlier ticket in its own PR, or on any ticket in a PR from an earlier wave that its PR is built on. A PR that needs two or more PRs of earlier waves is built on a local integration branch of them and opens after they merge.
+2. One builder owns one PR and works its tickets in commit order. A ticket may depend on an earlier ticket in its own PR, or on any ticket in a PR from an earlier wave. A PR is built from the top of the stack when its wave starts, so it already holds every earlier PR it needs.
 3. Six PRs per wave at most unless the user raised it.
 4. Foundations first (the checks every PR needs, security, data and contracts), the agent's behaviour and screens next, documents and measurement last.
 5. Two to four waves for a large round. A wave that exists only for one small PR is a smell.
@@ -69,15 +71,23 @@ The wave plan on the page is the centre of the Plan section: waves as columns, e
 
 Only choices no experiment can settle and the user owns: names, scope, taste, cost, risk. Each has the question, why it matters, two to four options with the effect of each ("this ticket goes", "adds one wave"), a recommendation, `attach` (the ticket, PR or milestone it changes) and `blocks` (tickets that cannot start without it). Two to seven per round. Facts are found, not asked. Never ask the user to do set-up work that access already covers (making test data, uploading files, creating accounts the agent can create itself).
 
-## Verification points
+## The verification plan
 
-| Where | What |
-|---|---|
-| Every ticket, before its commit is final | Area tests and type checks green; each done-when proven (a browser walk on the local stack for screens, a replay or a run for agent behaviour); a fresh reviewer read the diff; findings fixed |
-| Every PR, before it opens | All ticket commits final; a whole-PR review for correctness, simplicity and bloat, and security, with a refuter; an end-to-end run of the PR's proof list on the local stack; the line accounting written |
-| Every PR, on the code host | Required checks green on the latest commit; the merge by the person the book names |
-| After each merge | The development branch deploys; the lead spot checks one done-when per ticket there |
-| After the last wave | Every outcome walked end to end, real data runs where the book names them, the cold attention review, the report |
+Agree how the work will be proven before anything is built, and keep it small. `plan.verification` (`data-model.md`) has four parts; the page shows them in How we prove it, and approving the plan agrees them.
+
+1. **Ready before the run.** Everything the checks need, each with how the lead proves it is there and who supplies it: the local stack starts on the newest code, the accounts and keys the product calls, signed-in command-line tools, the test Projects and their files, the private answer keys, baselines, the browser and any app access a person must approve, the settings a check relies on, the spend. Probe what you can while planning and set `state`; the run probes them all again before wave 1 and stops on a missing one. "Safe to start" means every item a person must supply is there and confirmed.
+2. **While it is built.** The checks agents run on their own (the ticket loop, the PR loop, CI). One row each; they are the floor, not the proof.
+3. **After everything is built.** The final pass runs once, on a fresh copy of the product built from the top of the stack, so it holds every PR. Every ticket appears in at least one check. Each check says in plain words how it should work (`expect`) and what counts as passing (`pass`). Pick the cheapest kind that truly proves the behaviour:
+   - `code`: a test, a search of the code, a read-only command (a key is gone from the repo, a setting is read from the right place).
+   - `screen`: open one screen and look (a setting saves, a template shows).
+   - `watch`: seen while a real run goes (how the agent orients, asks, measures, prices, finishes).
+   - `ask`: a person types a request in the chat mid-run. Use these where the normal run would not touch a path, and to test the product's promise when it is agent-led: anything a person can reasonably say is done or answered with a reason, never refused because code forbids it. The pass line accepts a reasoned answer the product's own rules require (a setting that forbids it, a needed fact it asks for) and fails a refusal by rule.
+   - `measure`: compared with the baseline run on the same inputs (accuracy against a private key, time, cost). A measure is taken before any ask changes the estimate.
+4. **Runs.** The real runs the live checks share, each with its Project, how far it goes, cost and time. One to three per round; every watch, ask and measure check names one, and a screen check names the run whose Project it needs. A run that is worth doing only when an earlier one held names it in `needs`.
+
+Keep it reasonable: one check can cover several tickets; reuse the round's existing tests and its proof runs; no new test frameworks; aim for roughly one check per two tickets (the checker warns past three for every four), and say the total cost and time in `summary`, baselines included. Cover each high-risk ticket's failure path, not only its happy path. A check whose pass line depends on an open decision says so, so the decision's answer cannot fail it.
+
+**Done means proven.** A ticket is `built` once its own proof and review pass, and `done` only when its final check passes. A check that fails gets one fix round inside the stack (`run.md`, a fix to a PR lower in the stack), then is checked again; if it still fails, or never ran, the report says so plainly under not proven. Evidence showing customer material stays private; the page gets the verdict in words.
 
 ## Simplicity rules builders carry
 
@@ -88,4 +98,4 @@ Only choices no experiment can settle and the user owns: names, scope, taste, co
 
 ## The checker
 
-`node scripts/build.mjs <book-dir>` refuses: an unknown milestone, wave, PR or dependency; a ticket in no PR or in two; a PR that depends on a PR in the same or a later wave; a ticket that depends on a later ticket in its own PR or on a PR in the same or a later wave; a recommendation that is not an option; a dash; a missing file. It also refuses architecture steps that name nodes missing from their diagram and summary links to nothing. It warns on S tickets, two PRs in one wave that own the same area, more than six PRs in a wave, outcomes without done-when, a missing summary, an area without found, recommend or why, and a page over 400 KB. Fix every error and warning before publishing.
+`node scripts/build.mjs <book-dir>` refuses: an unknown milestone, wave, PR or dependency; a ticket in no PR or in two; a PR that depends on a PR in the same or a later wave; a PR stacked on one from a later wave, or a stack that loops; a ticket that depends on a later ticket in its own PR or on a PR in the same or a later wave; an id that collides with a live status document; a recommendation that is not an option; a dash; a missing file; a final check with an unknown ticket or run, an ask check without the words a person types, a run that needs a later run, and, once checks exist, a ticket that no check covers. It also refuses architecture steps that name nodes missing from their diagram and summary links to nothing. It warns on S tickets, a stack that branches (two PRs on one base), two PRs in one wave that own the same area, more than six PRs in a wave, more than three checks for every four tickets, a measure check with no baseline among the ready items, outcomes without done-when, a plan with no final checks yet, a missing summary, an area without found, recommend or why, and a page over 400 KB. Fix every error and warning before publishing.

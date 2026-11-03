@@ -6,8 +6,8 @@ Short. The book carries everything; the kickoff only points at it, opts in to th
 Run <book title>, round <n>, from its book: <book URL>.
 Open this chat in <repo path>. The book is the source of truth: read it with the Artifact tool, restore its files if this machine lacks it, read decisions, feedback and gates with ArtifactData, and follow the living-artifact skill's run.md.
 I opt in to workflows of up to <n> agents per wave.
-Start from run/current. Ship one PR per category in the PR plan into <development branch>, one commit per ticket. Prove and review every ticket before its commit is final, and every PR whole and end to end before it opens. Open each PR as soon as it is proven; do not wait for the wave. Do not stop for a mid-run review; stop only on the book's stop rules.
-Finish with the report section filled (PRs, lines added and deleted, tests run, what works, proven, not proven) and a push notification with the book and PR links.
+Start from run/current. Probe the checklist's ready items first, ask me once for any only I can supply or confirm, and stop if one is missing. Ship one PR per category in the PR plan, stacked in one line on <development branch>, one commit per ticket. Prove and review every ticket before its commit is final, and every PR whole and end to end before it opens. Open each PR as soon as it is proven; never wait for a merge. Do not stop for a mid-run review; stop only on the book's stop rules.
+When every PR is open, run the agreed checklist once on a fresh copy built from the top of the stack. A ticket is done only when its check passes. Finish with the report section filled (PRs in merge order, lines added and deleted, tests run, checklist results, what works, proven, not proven), the PRs left open for me, and a push notification with the book and PR links.
 <one to five lines of rules that are not in CLAUDE.md and matter for this round>
 ```
 
