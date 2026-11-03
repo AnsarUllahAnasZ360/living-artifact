@@ -36,9 +36,9 @@ Produce: `plan`, `decisions`, `kickoff`. Read `planning.md`.
 
 1. Start from the goals and outcomes, not from code.
 2. List all the work. Every finding, every done-when, every ask line.
-3. Group the work into goal-sized tickets, then into three to seven milestones named as outcomes a person can see.
-4. Schedule waves for the most parallelism the dependencies allow. Foundations first, screens later, proof last.
-5. Put verification where it pays: every ticket proves itself, every wave has the gate and reviews by risk, the end has the full walk and real data.
+3. Group the work into goal-sized tickets, the tickets into one PR per problem category (each ticket one commit), and name three to seven milestones as outcomes a person can see.
+4. Schedule the PRs into waves for the most parallelism the files and dependencies allow. Foundations first, screens later, proof last.
+5. Put verification where it pays: every ticket proves itself and is reviewed before its commit is final, every PR is reviewed whole and run end to end before it opens, the end has the full walk and real data.
 6. Every choice that is the user's goes in `decisions` with a recommendation and its effect, attached to what it changes.
 7. Write the kickoff from `kickoff.md`.
 8. Check every ask line maps to a ticket, a decision, or a stated reason in `plan.later`.
@@ -51,8 +51,8 @@ Exit: `gates/plan` approved by the user, or the user says to run.
 A fresh chat opened in the repo, started by the kickoff. Read `run.md`.
 
 - Orient only from the book: read it, its agent files, the db. No other docs.
-- Each ticket ships as its own small PR, or a short stack, into the development branch. Every PR is reviewed by risk before it merges, and merges one at a time when proven.
-- Each wave: read feedback and decisions, brief builders with goals, builders prove and open PRs, each PR is reviewed and fixed as soon as it opens, PRs merge one at a time when green and proven, spot check, write status and log, republish if content changed.
+- Each problem category ships as one PR into the development branch, one commit per ticket. Review and proof happen before a PR exists: per ticket before its commit is final, per PR before it opens.
+- Each wave: read feedback and decisions, one builder per PR works its tickets in order, proof takes turns on the one local stack, each PR opens as soon as it is proven, write status and log, republish if content changed.
 - Do not stop for a mid-run review unless the kickoff says so. Stop only on the stop rules in the kickoff.
 
 ## 5. Verify

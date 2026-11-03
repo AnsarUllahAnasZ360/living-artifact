@@ -1,36 +1,219 @@
 {
-  "_comment": "Sample live state for previewing the book. It is NOT published and NOT part of book.json. Each top-level key is a db collection and each inner key a document id, in the shapes from references/data-model.md. Use it two ways: (1) node scripts/build.mjs examples/sample-book --demo examples/sample-book/db-seed.json --preview embeds it, and the page shows it, labelled as sample data, only when the db is not available (local preview); (2) after a real publish, write the same documents with ArtifactData to see the live page. The status docs say: wave 1 is done with proof, wave 2 is building (csv presets doing, pdf worker in review, the dialog blocked on the dialog-placement decision), waves 3 and 4 have not started. _names maps the made-up user ids to names for the preview only.",
-  "_names": { "u_maya": "Maya Okafor", "u_dan": "Dan Reyes" },
+  "_comment": "Sample live state for previewing the book. It is NOT published and NOT part of book.json. Each top-level key is a db collection and each inner key a document id, in the shapes from references/data-model.md. Use it two ways: (1) node scripts/build.mjs examples/sample-book --demo examples/sample-book/db-seed.json --preview embeds it, and the page shows it, labelled as sample data, only when the db is not available (local preview); (2) after a real publish, write the same documents with ArtifactData to see the live page. The status docs say: the foundations PR merged with proof, wave 2 is building (in the CSV PR the presets are being built and the dialog was dropped to the next round on the dialog-placement decision; the PDF PR is open with checks running), wave 3 has not started. status/pr-<id> docs hold each PR's live state. _names maps the made-up user ids to names for the preview only.",
+  "_names": {
+    "u_maya": "Maya Okafor",
+    "u_dan": "Dan Reyes"
+  },
   "status": {
-    "export-job-runner": { "state": "done", "note": "Merged after gate and two reviews.", "proof": ["agent/proof/export-job-runner-1.png"], "sha": "9b03f11", "at": "2026-10-28T11:20:00Z" },
-    "invoice-query-api": { "state": "done", "note": "Los Angeles October test passes.", "proof": [], "sha": "9b03f11", "at": "2026-10-28T10:05:00Z" },
-    "csv-mapping-presets": { "state": "doing", "note": "Tool A and B import cleanly. Tool C next.", "proof": [], "sha": "4e1c9a2", "at": "2026-10-29T15:10:00Z" },
-    "pdf-render-worker": { "state": "review", "note": "500 PDFs in 6.2 s warm. Two reviews running.", "proof": [], "sha": "4e1c9a2", "at": "2026-10-29T14:55:00Z" },
-    "export-dialog-ui": { "state": "blocked", "note": "Waiting on where the Export button lives.", "proof": [], "sha": "", "at": "2026-10-29T14:10:00Z" }
+    "export-job-runner": {
+      "state": "done",
+      "note": "Merged after gate and two reviews.",
+      "proof": [
+        "agent/proof/export-job-runner-1.png"
+      ],
+      "sha": "9b03f11",
+      "at": "2026-10-28T11:20:00Z"
+    },
+    "invoice-query-api": {
+      "state": "done",
+      "note": "Los Angeles October test passes.",
+      "proof": [],
+      "sha": "9b03f11",
+      "at": "2026-10-28T10:05:00Z"
+    },
+    "csv-mapping-presets": {
+      "state": "doing",
+      "note": "Tool A and B import cleanly. Tool C next.",
+      "proof": [],
+      "sha": "4e1c9a2",
+      "at": "2026-10-29T15:10:00Z"
+    },
+    "pdf-render-worker": {
+      "state": "review",
+      "note": "500 PDFs in 6.2 s warm. Two reviews running.",
+      "proof": [],
+      "sha": "4e1c9a2",
+      "at": "2026-10-29T14:55:00Z"
+    },
+    "export-dialog-ui": {
+      "state": "blocked",
+      "note": "Dropped to round 4: waits on where the Export button lives.",
+      "proof": [],
+      "sha": "",
+      "at": "2026-10-29T14:10:00Z"
+    },
+    "zip-bundle-download": {
+      "state": "review",
+      "note": "Zip streams; 2,000 invoices in 24 s on the local stack.",
+      "proof": [],
+      "sha": "4e1c9a2",
+      "at": "2026-10-29T15:05:00Z"
+    },
+    "pr-export-jobs": {
+      "state": "merged",
+      "number": 212,
+      "url": "https://github.com/fieldnote/app/pull/212",
+      "sha": "9b03f11",
+      "checks": "passing",
+      "approved": true,
+      "at": "2026-10-28T11:20:00Z"
+    },
+    "pr-csv-export": {
+      "state": "building",
+      "number": null,
+      "url": "",
+      "sha": "4e1c9a2",
+      "checks": "",
+      "approved": false,
+      "at": "2026-10-29T15:10:00Z"
+    },
+    "pr-pdf-bundles": {
+      "state": "open",
+      "number": 216,
+      "url": "https://github.com/fieldnote/app/pull/216",
+      "sha": "4e1c9a2",
+      "checks": "pending",
+      "approved": false,
+      "at": "2026-10-29T15:06:00Z"
+    }
   },
   "run": {
-    "current": { "wave": 2, "phase": "building", "note": "Three builders on wave 2. The dialog waits on your call.", "at": "2026-10-29T15:12:00Z", "branch": "invoice-export-r3", "pr": "#214", "sha": "4e1c9a2" }
+    "current": {
+      "wave": 2,
+      "phase": "building",
+      "note": "Two PRs on wave 2. The PDF PR is open; the CSV PR is on its second commit.",
+      "at": "2026-10-29T15:12:00Z",
+      "branch": "export/csv",
+      "pr": "#216",
+      "sha": "4e1c9a2"
+    }
   },
   "log": {
-    "20261013090000-start": { "at": "2026-10-13T09:00:00Z", "round": 2, "kind": "start", "text": "Round 2 started: ship CSV, plan PDFs and the monthly send.", "evidence": "" },
-    "20261020170000-merge": { "at": "2026-10-20T17:00:00Z", "round": 2, "kind": "merge", "text": "CSV export merged behind a flag.", "evidence": "https://github.com/fieldnote/app/pull/198" },
-    "20261024160000-done": { "at": "2026-10-24T16:00:00Z", "round": 2, "kind": "done", "text": "Round 2 closed. Plan grew to 10 tickets in 4 waves.", "evidence": "" },
-    "20261027090000-start": { "at": "2026-10-27T09:00:00Z", "round": 3, "kind": "start", "text": "Round 3 started from the approved plan.", "evidence": "" },
-    "20261028100500-proof": { "at": "2026-10-28T10:05:00Z", "round": 3, "kind": "proof", "text": "Range query proven in three time zones.", "evidence": "" },
-    "20261028112000-gate": { "at": "2026-10-28T11:20:00Z", "round": 3, "kind": "gate", "text": "Wave 1 gate passed: tests, two reviews, spot check.", "evidence": "agent/proof/export-job-runner-1.png" },
-    "20261028143000-decision": { "at": "2026-10-28T14:30:00Z", "round": 3, "kind": "decision", "text": "Send day changed to a day the owner picks.", "evidence": "" },
-    "20261029141000-blocked": { "at": "2026-10-29T14:10:00Z", "round": 3, "kind": "blocked", "text": "Export dialog waits on where the button lives.", "evidence": "" },
-    "20261029145500-review": { "at": "2026-10-29T14:55:00Z", "round": 3, "kind": "review", "text": "PDF worker in review. One finding fixed, one closed as pre-existing.", "evidence": "" }
+    "20261013090000-start": {
+      "at": "2026-10-13T09:00:00Z",
+      "round": 2,
+      "kind": "start",
+      "text": "Round 2 started: ship CSV, plan PDFs and the monthly send.",
+      "evidence": ""
+    },
+    "20261020170000-merge": {
+      "at": "2026-10-20T17:00:00Z",
+      "round": 2,
+      "kind": "merge",
+      "text": "CSV export merged behind a flag.",
+      "evidence": "https://github.com/fieldnote/app/pull/198"
+    },
+    "20261024160000-done": {
+      "at": "2026-10-24T16:00:00Z",
+      "round": 2,
+      "kind": "done",
+      "text": "Round 2 closed. Plan grew to 10 tickets in 4 waves.",
+      "evidence": ""
+    },
+    "20261027090000-start": {
+      "at": "2026-10-27T09:00:00Z",
+      "round": 3,
+      "kind": "start",
+      "text": "Round 3 started from the approved plan.",
+      "evidence": ""
+    },
+    "20261028100500-proof": {
+      "at": "2026-10-28T10:05:00Z",
+      "round": 3,
+      "kind": "proof",
+      "text": "Range query proven in three time zones.",
+      "evidence": ""
+    },
+    "20261028112000-gate": {
+      "at": "2026-10-28T11:20:00Z",
+      "round": 3,
+      "kind": "gate",
+      "text": "Wave 1 gate passed: the foundations PR merged, staging spot check clean.",
+      "evidence": "agent/proof/export-job-runner-1.png"
+    },
+    "20261028143000-decision": {
+      "at": "2026-10-28T14:30:00Z",
+      "round": 3,
+      "kind": "decision",
+      "text": "Send day changed to a day the owner picks.",
+      "evidence": ""
+    },
+    "20261029141000-blocked": {
+      "at": "2026-10-29T14:10:00Z",
+      "round": 3,
+      "kind": "blocked",
+      "text": "Export dialog dropped to round 4; it waits on where the button lives.",
+      "evidence": ""
+    },
+    "20261029145500-review": {
+      "at": "2026-10-29T14:55:00Z",
+      "round": 3,
+      "kind": "review",
+      "text": "PDF worker in review. One finding fixed, one closed as pre-existing.",
+      "evidence": ""
+    },
+    "20261029150600-merge": {
+      "at": "2026-10-29T15:06:00Z",
+      "round": 3,
+      "kind": "review",
+      "text": "PDF bundles PR opened after the whole-PR review and an end to end walk.",
+      "evidence": "https://github.com/fieldnote/app/pull/216"
+    }
   },
   "decisions": {
-    "csv-default": { "choice": "per-invoice", "state": "kept", "note": "", "by": "u_maya", "at": "2026-10-28T09:40:00Z" },
-    "send-day": { "choice": "chosen", "state": "changed", "note": "Our bookkeepers close on the 3rd.", "by": "u_maya", "at": "2026-10-28T14:30:00Z" }
+    "csv-default": {
+      "choice": "per-invoice",
+      "state": "kept",
+      "note": "",
+      "by": "u_maya",
+      "at": "2026-10-28T09:40:00Z"
+    },
+    "send-day": {
+      "choice": "chosen",
+      "state": "changed",
+      "note": "Our bookkeepers close on the 3rd.",
+      "by": "u_maya",
+      "at": "2026-10-28T14:30:00Z"
+    }
   },
   "feedback": {
-    "fb-01": { "section": "findings", "target": "slow-pdf", "text": "Can we keep the old single PDF download too?", "by": "u_dan", "at": "2026-10-29T12:02:00Z", "round": 3, "resolved": false, "answer": "" },
-    "fb-02": { "section": "plan", "target": "export-history-page", "text": "History should show scheduled runs too.", "by": "u_maya", "at": "2026-10-28T16:00:00Z", "round": 3, "resolved": true, "answer": "Added to its done-when." }
+    "fb-01": {
+      "section": "findings",
+      "target": "slow-pdf",
+      "text": "Can we keep the old single PDF download too?",
+      "by": "u_dan",
+      "at": "2026-10-29T12:02:00Z",
+      "round": 3,
+      "resolved": false,
+      "answer": ""
+    },
+    "fb-02": {
+      "section": "plan",
+      "target": "export-history-page",
+      "text": "History should show scheduled runs too.",
+      "by": "u_maya",
+      "at": "2026-10-28T16:00:00Z",
+      "round": 3,
+      "resolved": true,
+      "answer": "Added to its done-when."
+    },
+    "fb-03": {
+      "section": "plan",
+      "target": "pdf-bundles",
+      "text": "Can the zip name include the date range?",
+      "by": "u_dan",
+      "at": "2026-10-29T15:20:00Z",
+      "round": 3,
+      "resolved": false,
+      "answer": ""
+    }
   },
   "gates": {
-    "plan": { "approved": true, "by": "u_maya", "at": "2026-10-27T08:50:00Z", "note": "" }
+    "plan": {
+      "approved": true,
+      "by": "u_maya",
+      "at": "2026-10-27T08:50:00Z",
+      "note": ""
+    }
   }
 }

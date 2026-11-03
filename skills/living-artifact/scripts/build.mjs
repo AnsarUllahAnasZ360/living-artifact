@@ -44,6 +44,7 @@ const SIZES = ["S", "M", "L", "XL"];
 const RISKS = ["low", "medium", "high"];
 const IMPACTS = ["low", "medium", "high"];
 const VERDICTS = ["verified", "not verified", "not-verified", "inconclusive"];
+const KINDS = ["production", "tests", "docs and config"];
 
 function need(obj, key, where, test = (v) => v !== undefined && v !== null && v !== "", what = "a value") {
   if (!isObj(obj) || !test(obj[key])) { err(`${where}.${key}: missing or not ${what}`); return false; }
@@ -152,11 +153,15 @@ if (arch !== undefined) {
 }
 
 // ---------- plan ----------
+// One PR per problem category. A PR holds tickets in commit order; each ticket is one commit.
+// A ticket's wave is its PR's wave. One builder owns one PR.
 const plan = book.plan;
 const milestoneIds = new Set();
 const ticketIds = new Set();
 const tickets = [];
 const waveByN = new Map();
+let prIds = new Set();
+const prById = new Map();
 if (profile !== "audit" && stageIdx >= 1) {
   if (need(book, "plan", "book", isObj, "an object")) {
     need(plan, "milestones", "plan", nonEmptyArr, "a non-empty list");
@@ -171,16 +176,82 @@ if (isObj(plan)) {
     if (!Number.isInteger(w?.n)) { err(`plan.waves[${i}].n: missing`); return; }
     if (waveByN.has(w.n)) err(`plan.waves: duplicate wave ${w.n}`);
     waveByN.set(w.n, w);
+    if (w.agents !== undefined) warn(`plan.waves[${i}]: "agents" is from the old model; one builder owns each PR, so list the wave's PRs in "prs"`);
   });
   const tById = new Map();
   (plan.tickets || []).forEach((t) => { if (isObj(t)) { tickets.push(t); tById.set(t.id, t); } });
-  // Build order inside one agent's lane: `order` when set, else the position in the wave's agent list.
-  var agentRank = (t) => {
-    if (typeof t.order === "number") return t.order;
-    const ag = (waveByN.get(t.wave)?.agents || []).find((a) => a.name === t.agent);
-    const i = ag ? (ag.tickets || []).indexOf(t.id) : -1;
-    return i < 0 ? 0 : i + 1;
-  };
+
+  // pull requests
+  if (plan.branches !== undefined && !isObj(plan.branches)) err("plan.branches: must be an object { development, production, naming }");
+  const branchNames = new Set([plan.branches?.development, plan.branches?.production].filter(Boolean));
+  if (plan.prs !== undefined && !isArr(plan.prs)) err("plan.prs: must be a list");
+  prIds = ids(plan.prs, "plan.prs");
+  (plan.prs || []).filter(isObj).forEach((x) => prById.set(x.id, x));
+  const owner = new Map(); // ticket id -> PR id
+  const pos = new Map();   // ticket id -> commit position in its PR
+  const RANK = { low: 0, medium: 1, high: 2 };
+  (plan.prs || []).forEach((pr, i) => {
+    if (!isObj(pr)) return;
+    const w = `plan.prs[${i}] "${pr.id}"`;
+    need(pr, "title", w, nonEmptyStr, "a string");
+    need(pr, "category", w, nonEmptyStr, "a string");
+    if (pr.ticket !== undefined) err(`${w}: "ticket" is from the old model; list the PR's tickets in commit order in "tickets"`);
+    for (const k of ["kind", "stack", "lines", "why_large", "review"]) if (pr[k] !== undefined) warn(`${w}: "${k}" is from the old model; PRs are sized by problem category, so drop it`);
+    if (!nonEmptyArr(pr.tickets)) err(`${w}: needs "tickets", its tickets in commit order`);
+    if (pr.size !== undefined) { if (!isObj(pr.size)) err(`${w}.size: must be an object { files, added, deleted, why }`); else for (const k of ["files", "added", "deleted"]) if (pr.size[k] !== undefined && !(typeof pr.size[k] === "number" && isFinite(pr.size[k]) && pr.size[k] >= 0)) err(`${w}.size.${k}: must be a number`); }
+    (pr.tickets || []).forEach((t, j) => {
+      if (!tById.has(t)) { err(`${w}: unknown ticket "${t}"`); return; }
+      if (owner.has(t)) { if (owner.get(t) !== pr.id) err(`ticket "${t}" is in two PRs ("${owner.get(t)}" and "${pr.id}"); a ticket is one commit in one PR`); else err(`${w}: lists ticket "${t}" twice`); return; }
+      owner.set(t, pr.id); pos.set(t, j);
+    });
+    if (!waveByN.has(pr.wave)) err(`${w}: unknown wave ${JSON.stringify(pr.wave)}`);
+    if (pr.base !== undefined) {
+      if (!nonEmptyStr(pr.base)) err(`${w}: base must be a branch name or the id of the PR it is stacked on`);
+      else if (pr.base === pr.id) err(`${w}: is stacked on itself`);
+      else if (!prIds.has(pr.base) && branchNames.size && !branchNames.has(pr.base)) err(`${w}: base "${pr.base}" is neither a branch in plan.branches nor a PR id`);
+    }
+    if (pr.branch !== undefined && !nonEmptyStr(pr.branch)) err(`${w}: branch must be a string`);
+    if (pr.risk !== undefined && !RISKS.includes(pr.risk)) err(`${w}: risk must be one of ${RISKS.join(", ")}`);
+    const top = (pr.tickets || []).map((t) => tById.get(t)?.risk).filter((r) => RISKS.includes(r)).sort((a, b) => RANK[b] - RANK[a])[0];
+    if (RISKS.includes(pr.risk) && top && RANK[pr.risk] < RANK[top]) warn(`${w}: risk is ${pr.risk} but a ticket in it is ${top}; a PR carries the highest risk of its tickets`);
+    (pr.depends_on || []).forEach((d) => {
+      if (d === pr.id) err(`${w}: depends on itself`);
+      else if (!prIds.has(d)) err(`${w}: depends on unknown PR "${d}"`);
+    });
+    for (const k of ["areas", "shares", "proof", "depends_on"]) if (pr[k] !== undefined && !(isArr(pr[k]) && pr[k].every(isStr))) err(`${w}.${k}: must be a list of strings`);
+    if (pr.hotfix !== undefined) {
+      if (!isObj(pr.hotfix)) err(`${w}.hotfix: must be an object { base, note }`);
+      else {
+        if (!nonEmptyStr(pr.hotfix.base)) err(`${w}.hotfix.base: name the production branch the commit also goes to`);
+        else if (branchNames.size && !branchNames.has(pr.hotfix.base)) err(`${w}.hotfix.base "${pr.hotfix.base}" is not a branch in plan.branches`);
+        (pr.hotfix.tickets || []).forEach((t) => { if (!(pr.tickets || []).includes(t)) err(`${w}.hotfix: "${t}" is not a commit in this PR`); });
+      }
+    }
+  });
+  // a stacked PR sits on a PR from an earlier wave
+  prById.forEach((pr, id) => {
+    const under = prById.get(pr.base);
+    if (!under || under === pr || !Number.isInteger(under.wave) || !Number.isInteger(pr.wave)) return;
+    if (under.wave >= pr.wave) err(`PR "${id}" (wave ${pr.wave}) is stacked on PR "${pr.base}" in ${under.wave === pr.wave ? "the same wave" : "later wave " + under.wave}; a stacked PR sits on a PR from an earlier wave`);
+  });
+  // a PR depends only on PRs in earlier waves
+  prById.forEach((pr, id) => (pr.depends_on || []).forEach((d) => {
+    const dep = prById.get(d);
+    if (!dep || !Number.isInteger(dep.wave) || !Number.isInteger(pr.wave) || d === id) return;
+    if (dep.wave >= pr.wave) err(`PR "${id}" (wave ${pr.wave}) depends on PR "${d}" in ${dep.wave === pr.wave ? "the same wave" : "later wave " + dep.wave}; a PR depends only on PRs in earlier waves`);
+  }));
+  // waves list their PRs, and each PR is listed by its own wave
+  (plan.waves || []).forEach((wv) => {
+    if (!Number.isInteger(wv?.n)) return;
+    if (wv.prs !== undefined && !isArr(wv.prs)) { err(`wave ${wv.n}: prs must be a list`); return; }
+    (wv.prs || []).forEach((id) => {
+      if (!prIds.has(id)) err(`wave ${wv.n}: unknown PR "${id}"`);
+      else if (prById.get(id).wave !== wv.n) err(`wave ${wv.n} lists PR "${id}", but the PR says wave ${prById.get(id).wave}`);
+    });
+    const mine = [...prById.values()].filter((p) => p.wave === wv.n);
+    if (wv.prs) mine.forEach((p) => { if (!wv.prs.includes(p.id)) err(`PR "${p.id}" says wave ${wv.n}, but wave ${wv.n} does not list it`); });
+    if (mine.length > 6) warn(`wave ${wv.n}: ${mine.length} PRs; six at most unless the user raised it`);
+  });
 
   tickets.forEach((t, i) => {
     const w = `plan.tickets[${i}] "${t.id}"`;
@@ -190,97 +261,67 @@ if (isObj(plan)) {
     if (t.size && !SIZES.includes(t.size)) err(`${w}: size must be one of ${SIZES.join(", ")}`);
     if (t.size === "S") warn(`${w}: size S; fold it into a goal-sized ticket`);
     if (t.risk && !RISKS.includes(t.risk)) err(`${w}: risk must be one of ${RISKS.join(", ")}`);
-    const wave = waveByN.get(t.wave);
-    if (!wave) err(`${w}: unknown wave ${JSON.stringify(t.wave)}`);
-    else {
-      const ag = (wave.agents || []).find((a) => a.name === t.agent);
-      if (!ag) err(`${w}: agent "${t.agent}" is not listed in wave ${t.wave}`);
-      else if (!(ag.tickets || []).includes(t.id)) err(`${w}: wave ${t.wave} agent "${t.agent}" does not list this ticket`);
-    }
-    if (t.order !== undefined && (typeof t.order !== "number" || !isFinite(t.order))) err(`${w}: order must be a number`);
     if (t.short !== undefined) { if (!nonEmptyStr(t.short)) err(`${w}: short must be a string`); else if (words(t.short) > 5) warn(`${w}: short is ${words(t.short)} words; 5 at most`); }
+    for (const k of ["agent", "order", "prs"]) if (t[k] !== undefined) warn(`${w}: "${k}" is from the old model; one builder owns the PR and the PR lists its commits in order, so drop it`);
+    const mine = owner.get(t.id);
+    if (!mine) err(`${w}: is in no PR; every ticket is one commit in exactly one PR`);
+    if (t.pr !== undefined && mine && t.pr !== mine) err(`${w}: pr is "${t.pr}", but PR "${mine}" lists it`);
+    else if (t.pr !== undefined && !mine && !prIds.has(t.pr)) err(`${w}: unknown PR "${t.pr}"`);
+    if (t.wave !== undefined && mine && prById.get(mine)?.wave !== t.wave) err(`${w}: wave ${t.wave}, but its PR "${mine}" is in wave ${prById.get(mine)?.wave}; a ticket's wave comes from its PR`);
+    if (/^pr-/.test(t.id) && prIds.has(t.id.slice(3))) err(`${w}: the id collides with the live status of PR "${t.id.slice(3)}"; rename the ticket`);
     (t.depends_on || []).forEach((d) => {
-      const dep = tById.get(d);
-      if (!dep) { err(`${w}: depends on unknown ticket "${d}"`); return; }
+      if (!tById.has(d)) { err(`${w}: depends on unknown ticket "${d}"`); return; }
       if (d === t.id) { err(`${w}: depends on itself`); return; }
-      if (!Number.isInteger(dep.wave) || !Number.isInteger(t.wave)) return;
-      if (dep.wave > t.wave) err(`${w}: depends on "${d}" in later wave ${dep.wave}; a dependency must come first`);
-      else if (dep.wave === t.wave) {
-        if (dep.agent !== t.agent) err(`${w}: depends on "${d}" in the same wave with a different agent ("${dep.agent}"); move it to an earlier wave or give both to one agent`);
-        else if (agentRank(dep) >= agentRank(t)) err(`${w}: depends on "${d}", which agent "${t.agent}" builds at the same point or later; give "${d}" a lower order`);
+      const theirs = owner.get(d);
+      if (!mine || !theirs) return;
+      if (mine === theirs) {
+        if (pos.get(d) > pos.get(t.id)) err(`${w}: depends on "${d}", a later commit in its own PR "${mine}"; move "${d}" earlier in that PR's tickets`);
+        return;
       }
+      const a = prById.get(mine)?.wave, b = prById.get(theirs)?.wave;
+      if (Number.isInteger(a) && Number.isInteger(b) && b >= a) err(`${w}: depends on "${d}" in PR "${theirs}" (wave ${b}); a ticket depends only on earlier commits in its own PR or on PRs from earlier waves`);
     });
   });
 
-  // waves list only known tickets, each once, and agents stay small
-  const listed = new Map();
-  (plan.waves || []).forEach((wv) => {
-    (wv.agents || []).forEach((a) => {
-      if (!nonEmptyStr(a.name)) err(`plan.waves wave ${wv.n}: an agent has no name`);
-      const ts = a.tickets || [];
-      const orders = ts.map((id) => tById.get(id)?.order);
-      const chained = orders.every((o) => typeof o === "number") && new Set(orders).size === orders.length;
-      if (ts.length > 2 && !(a.name === "lead" && chained)) warn(`wave ${wv.n} agent "${a.name}": ${ts.length} tickets; two at most`);
-      ts.forEach((id) => {
-        const t = tById.get(id);
-        if (!t) err(`wave ${wv.n} agent "${a.name}": unknown ticket "${id}"`);
-        else if (t.wave !== wv.n || t.agent !== a.name) err(`wave ${wv.n} agent "${a.name}" lists "${id}", but the ticket says wave ${t.wave}, agent "${t.agent}"`);
-        if (listed.has(id)) err(`ticket "${id}" is listed by two agents`);
-        listed.set(id, true);
-      });
-    });
-  });
-  if (tickets.length > 24) warn(`plan.tickets: ${tickets.length} tickets; over 24 usually means they are too small`);
-
-  // two agents in one wave touching the same files (path prefixes, case-insensitive)
+  // two PRs in one wave owning the same area (path prefixes, case-insensitive); shares never count
   (plan.waves || []).forEach((wv) => {
     const owned = [];
-    (wv.agents || []).forEach((a) => (a.tickets || []).forEach((id) => (tById.get(id)?.files || []).forEach((f) => owned.push({ agent: a.name, id, f: String(f).toLowerCase().replace(/\/+$/, "") }))));
+    [...prById.values()].filter((p) => p.wave === wv.n).forEach((p) => {
+      (isArr(p.areas) ? p.areas : []).forEach((f) => owned.push({ pr: p.id, f: String(f).toLowerCase().replace(/\/+$/, "") }));
+    });
     const seen = new Set();
     for (let i = 0; i < owned.length; i++) for (let j = i + 1; j < owned.length; j++) {
       const x = owned[i], y = owned[j];
-      if (x.agent === y.agent) continue;
+      if (x.pr === y.pr) continue;
       const under = (p, q) => p === q || q.startsWith(p + "/");
       if (!under(x.f, y.f) && !under(y.f, x.f)) continue;
-      const key = [x.id, y.id].sort().join("|");
+      const key = [x.pr, y.pr].sort().join("|");
       if (seen.has(key)) continue; seen.add(key);
-      warn(`wave ${wv.n}: agents "${x.agent}" and "${y.agent}" both touch "${x.f.length <= y.f.length ? x.f : y.f}" (${x.id}, ${y.id}); they will collide`);
+      warn(`wave ${wv.n}: PRs "${x.pr}" and "${y.pr}" both own "${x.f.length <= y.f.length ? x.f : y.f}"; run them in order or split the area`);
     }
   });
 
-  // pull requests: each proves part of one ticket, bases are branches or earlier PRs in the same stack
-  if (plan.branches !== undefined && !isObj(plan.branches)) err("plan.branches: must be an object { development, production, naming }");
-  const branchNames = new Set([plan.branches?.development, plan.branches?.production].filter(Boolean));
-  if (plan.prs !== undefined && !isArr(plan.prs)) err("plan.prs: must be a list");
-  const prIds = ids(plan.prs, "plan.prs");
-  const prById = new Map((plan.prs || []).filter(isObj).map((x) => [x.id, x]));
-  (plan.prs || []).forEach((pr, i) => {
-    if (!isObj(pr)) return;
-    const w = `plan.prs[${i}] "${pr.id}"`;
-    need(pr, "title", w, nonEmptyStr, "a string");
-    if (!pr.ticket) warn(`${w}: no ticket; every PR proves part of one ticket`);
-    else if (!ticketIds.has(pr.ticket)) err(`${w}: unknown ticket "${pr.ticket}"`);
-    if (pr.kind !== undefined && !["independent", "stacked"].includes(pr.kind)) err(`${w}: kind is independent or stacked`);
-    if (pr.kind === "stacked" && !nonEmptyStr(pr.stack)) err(`${w}: a stacked PR names its stack`);
-    if (pr.risk !== undefined && !RISKS.includes(pr.risk)) err(`${w}: risk must be one of ${RISKS.join(", ")}`);
-    if (pr.base) {
-      if (pr.base === pr.id) err(`${w}: based on itself`);
-      else if (prIds.has(pr.base)) { if (prById.get(pr.base).stack !== pr.stack) warn(`${w}: based on PR "${pr.base}" from a different stack`); }
-      else if (branchNames.size && !branchNames.has(pr.base)) err(`${w}: base "${pr.base}" is neither a branch in plan.branches nor a PR id`);
-    }
-    if (pr.lines !== undefined) {
-      if (typeof pr.lines !== "number") err(`${w}: lines must be a number`);
-      else if (pr.lines > 1500 && !nonEmptyStr(pr.why_large)) err(`${w}: about ${pr.lines} lines; split it, or say why in why_large`);
-      else if (pr.lines > 400 && !nonEmptyStr(pr.why_large)) warn(`${w}: about ${pr.lines} lines; review works best under 400`);
-    }
+  // milestones name the PRs whose merge reaches them
+  (plan.milestones || []).forEach((m, i) => {
+    if (m?.prs === undefined) return;
+    if (!isArr(m.prs)) { err(`plan.milestones[${i}].prs: must be a list`); return; }
+    m.prs.forEach((p) => { if (!prIds.has(p)) err(`plan.milestones[${i}] "${m.id}": unknown PR "${p}"`); });
   });
-  if ((plan.prs || []).length) tickets.forEach((t) => { if (!(plan.prs || []).some((x) => x.ticket === t.id)) warn(`ticket "${t.id}": no PR in plan.prs`); });
+
   (plan.review_policy || []).forEach((x, i) => {
     if (!RISKS.includes(x?.risk)) err(`plan.review_policy[${i}].risk: one of ${RISKS.join(", ")}`);
     if (!nonEmptyStr(x?.who) || !nonEmptyStr(x?.what)) err(`plan.review_policy[${i}]: needs who and what`);
   });
   if (plan.merge_checklist !== undefined && !(isArr(plan.merge_checklist) && plan.merge_checklist.every(isStr))) err("plan.merge_checklist: must be a list of strings");
   (plan.github || []).forEach((x, i) => { if (!nonEmptyStr(x?.what)) err(`plan.github[${i}].what: missing`); });
+  if (plan.flow !== undefined) {
+    if (!isObj(plan.flow)) err("plan.flow: must be an object { ticket, pr }");
+    else for (const k of ["ticket", "pr"]) if (plan.flow[k] !== undefined && !(isArr(plan.flow[k]) && plan.flow[k].every(nonEmptyStr))) err(`plan.flow.${k}: must be a list of steps`);
+  }
+  if (plan.pr_template !== undefined) {
+    if (!isArr(plan.pr_template)) err("plan.pr_template: must be a list of { heading, holds }");
+    else plan.pr_template.forEach((x, i) => { if (!nonEmptyStr(x?.heading) || !nonEmptyStr(x?.holds)) err(`plan.pr_template[${i}]: needs heading and holds`); });
+  }
 
   // gate and stop rules
   if (plan.gate !== undefined) {
@@ -299,11 +340,11 @@ if (isObj(plan)) {
   if (!d.options.some((o) => o.id === d.recommended)) err(`${w}: recommended "${d.recommended}" is not one of its options`);
   if (d.attach) {
     const [kind, id] = String(d.attach).split(":");
-    const pool = { ticket: ticketIds, milestone: milestoneIds, outcome: outcomeIds, finding: findingIds }[kind];
-    if (!pool) err(`${w}: attach "${d.attach}" must start with ticket:, milestone:, outcome: or finding:`);
+    const pool = { ticket: ticketIds, pr: prIds, milestone: milestoneIds, outcome: outcomeIds, finding: findingIds }[kind];
+    if (!pool) err(`${w}: attach "${d.attach}" must start with ticket:, pr:, milestone:, outcome: or finding:`);
     else if (!pool.has(id)) err(`${w}: attach names unknown ${kind} "${id}"`);
   }
-  (d.blocks || []).forEach((t) => { if (!ticketIds.has(t)) err(`${w}: blocks unknown ticket "${t}"`); });
+  (d.blocks || []).forEach((t) => { if (!ticketIds.has(t) && !prIds.has(t)) err(`${w}: blocks unknown ticket or PR "${t}"`); });
 });
 ids(book.decisions, "decisions");
 
@@ -315,6 +356,27 @@ if (rep !== undefined && isObj(rep)) {
     if (p.ticket && !ticketIds.has(p.ticket)) err(`report.proof[${i}]: unknown ticket "${p.ticket}"`);
   });
   if (rep.ready && stageIdx < STAGES.indexOf("report")) warn("report.ready is true but the stage is before report");
+  const num = (v) => typeof v === "number" && isFinite(v) && v >= 0;
+  if (rep.totals !== undefined) {
+    const Tt = rep.totals;
+    if (!isObj(Tt)) err("report.totals: must be an object { prs_opened, prs_merged, approvals, commits, lines_added, lines_deleted, by_kind }");
+    else {
+      for (const k of ["prs_opened", "prs_merged", "approvals", "commits", "lines_added", "lines_deleted"]) if (Tt[k] !== undefined && !num(Tt[k])) err(`report.totals.${k}: must be a number`);
+      if (Tt.by_kind !== undefined) {
+        if (!isArr(Tt.by_kind)) err("report.totals.by_kind: must be a list");
+        else Tt.by_kind.forEach((x, i) => {
+          if (!KINDS.includes(x?.kind)) err(`report.totals.by_kind[${i}].kind: one of ${KINDS.join(", ")}`);
+          for (const k of ["added", "deleted"]) if (!num(x?.[k])) err(`report.totals.by_kind[${i}].${k}: must be a number`);
+        });
+      }
+    }
+  }
+  (rep.tests || []).forEach((x, i) => {
+    if (!nonEmptyStr(x?.kind)) err(`report.tests[${i}].kind: missing`);
+    for (const k of ["count", "passed"]) if (x?.[k] !== undefined && !num(x[k])) err(`report.tests[${i}].${k}: must be a number`);
+    if (num(x?.count) && num(x?.passed) && x.passed > x.count) err(`report.tests[${i}]: passed is more than count`);
+  });
+  for (const k of ["works_now", "not_proven"]) if (rep[k] !== undefined && !(isArr(rep[k]) && rep[k].every(isStr))) err(`report.${k}: must be a list of strings`);
 }
 
 // ---------- needs ----------
@@ -329,16 +391,20 @@ if (book.needs !== undefined) {
 
 // ---------- architecture areas name real tickets ----------
 (arch?.areas || []).forEach((a, i) => (a?.tickets || []).forEach((t) => { if (!ticketIds.has(t)) err(`architecture.areas[${i}] "${a.id}": unknown ticket "${t}"`); }));
+(book.research || []).forEach((r, i) => {
+  if (r?.shaped !== undefined && !isArr(r.shaped)) { err(`research[${i}].shaped: must be a list of ticket or PR ids`); return; }
+  (r?.shaped || []).forEach((x) => { if (!ticketIds.has(x) && !prIds.has(x)) err(`research[${i}] "${r.id}": shaped names unknown ticket or PR "${x}"`); });
+});
 
 // ---------- executive summary and prompts ----------
 const SECTION_IDS = new Set(["summary", "needs", "problem", "findings", "research", "architecture", "prototypes", "plan", "prs", "decisions", "kickoff", "progress", "report", "history"]);
 function checkLink(link, where) {
   if (!isStr(link)) { err(`${where}: must be a string`); return; }
   const [kind, id] = link.includes(":") ? [link.slice(0, link.indexOf(":")), link.slice(link.indexOf(":") + 1)] : ["#", link.replace(/^#/, "")];
-  const pool = { t: ticketIds, a: areaIds, r: researchIds }[kind];
-  if (kind === "#") { if (!SECTION_IDS.has(id)) err(`${where}: "${link}" is not a section; use #section, t:ticket, a:area or r:research`); }
-  else if (!pool) err(`${where}: "${link}" must start with t:, a:, r: or #`);
-  else if (!pool.has(id)) err(`${where}: "${link}" names an unknown ${{ t: "ticket", a: "area", r: "research question" }[kind]}`);
+  const pool = { t: ticketIds, p: prIds, a: areaIds, r: researchIds }[kind];
+  if (kind === "#") { if (!SECTION_IDS.has(id)) err(`${where}: "${link}" is not a section; use #section, t:ticket, p:pr, a:area or r:research`); }
+  else if (!pool) err(`${where}: "${link}" must start with t:, p:, a:, r: or #`);
+  else if (!pool.has(id)) err(`${where}: "${link}" names an unknown ${{ t: "ticket", p: "PR", a: "area", r: "research question" }[kind]}`);
 }
 if (book.summary !== undefined) {
   const S = book.summary;
@@ -358,7 +424,7 @@ if (book.summary !== undefined) {
 if (book.prompts !== undefined && !isArr(book.prompts)) err("prompts: must be a list");
 ids(book.prompts, "prompts");
 (book.prompts || []).forEach((x, i) => { need(x, "title", `prompts[${i}]`, nonEmptyStr, "a string"); need(x, "text", `prompts[${i}]`, nonEmptyStr, "a string"); });
-(book.needs || []).forEach((n, i) => { if (isStr(n?.link) && /^(t|a|r):/.test(n.link)) checkLink(n.link, `needs[${i}].link`); });
+(book.needs || []).forEach((n, i) => { if (isStr(n?.link) && /^(t|p|a|r):/.test(n.link)) checkLink(n.link, `needs[${i}].link`); });
 
 // ---------- word budgets (references/design.md) ----------
 function words(t) { return String(t || "").trim().split(/\s+/).filter(Boolean).length; }
@@ -380,7 +446,7 @@ if (isObj(book.summary)) {
   (a.steps || []).forEach((st, j) => budget(st.text, 30, `${w}.steps[${j}]`));
   for (const k of ["tradeoffs", "not_building"]) (a[k] || []).forEach((x, j) => budget(x, 20, `${w}.${k}[${j}]`));
 });
-(plan?.prs || []).forEach((x, i) => budget(x.title, 10, `plan.prs[${i}].title`));
+(plan?.prs || []).forEach((x, i) => { budget(x.title, 10, `plan.prs[${i}].title`); budget(x.problem, 40, `plan.prs[${i}].problem`); budget(x.outcome, 30, `plan.prs[${i}].outcome`); });
 (book.research || []).forEach((r, i) => { budget(r.answer, 40, `research[${i}].answer`); (r.recommendations || []).forEach((x, j) => budget(x, 15, `research[${i}].recommendations[${j}]`)); });
 (book.architecture?.frames || []).forEach((f, i) => budget(f.caption, 20, `architecture.frames[${i}].caption`));
 (book.architecture?.frames || []).forEach((f, i) => {
@@ -392,7 +458,7 @@ tickets.forEach((t, i) => { budget(t.goal, 50, `plan.tickets[${i}].goal`); (t.do
 (book.outcomes || []).forEach((o, i) => (o.done_when || []).forEach((d, j) => budget(d, 20, `outcomes[${i}].done_when[${j}]`)));
 (plan?.milestones || []).forEach((m, i) => (m.done_when || []).forEach((d, j) => budget(d, 20, `plan.milestones[${i}].done_when[${j}]`)));
 (book.decisions || []).forEach((d, i) => { budget(d.question, 15, `decisions[${i}].question`); budget(d.why, 30, `decisions[${i}].why`); (d.options || []).forEach((o, j) => budget(o.effect, 12, `decisions[${i}].options[${j}].effect`)); });
-if (isObj(rep)) for (const k of ["blocked_on_you", "changed", "found", "attention"]) (rep[k] || []).forEach((x, j) => budget(x, 25, `report.${k}[${j}]`));
+if (isObj(rep)) for (const k of ["blocked_on_you", "changed", "found", "attention", "works_now", "not_proven"]) (rep[k] || []).forEach((x, j) => budget(x, 25, `report.${k}[${j}]`));
 
 // ---------- one ask file ----------
 const asks = (book.files || []).filter((f) => /(^|\/)ask[^/]*\.md$/i.test(f?.path || ""));
