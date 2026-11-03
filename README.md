@@ -49,11 +49,11 @@ frame -> explore <-> feedback -> plan <-> feedback -> run -> verify -> report ->
 ```
 
 1. **Frame.** Your words go verbatim into `agent/ASK.md`. The agent turns them into three to five outcome claims you can check.
-2. **Explore.** It reads the code, runs research agents, and records findings with evidence (a file and line, a screenshot, a number).
-3. **Plan.** Goal-sized tickets, grouped into milestones people can see working, scheduled into parallel waves where no two builders touch the same files. Every choice you must make becomes a decision card with a recommendation.
+2. **Explore.** It reads the code, runs research agents, and records findings with evidence (a file and line, a screenshot, a number). It explains the fix one area at a time: what it found, what it recommends, a today and a proposed picture with steps you can walk through, why it is right, and what you will notice.
+3. **Plan.** Goal-sized tickets, grouped into milestones people can see working, scheduled into parallel waves where no two builders touch the same files. Each ticket says where the problem was found, how to reproduce it, the fix, why it is right and how to check it. A PR plan shows every small pull request, which are stacked, and who reviews each risk level. Every choice you must make becomes a decision card with a recommendation. The first screen is an executive summary.
 4. **Approve.** You read the book, answer the decisions and approve the plan on the page. Nothing builds before that.
-5. **Run.** A kickoff prompt starts a fresh session. It opens a draft PR first, runs each wave, lands one commit per ticket, and writes every status change to the page as it happens.
-6. **Verify.** Each wave ends with the gate (tests, types, build), fresh-eyes reviews scaled by risk, and a browser check. A ticket is done only with its proof.
+5. **Run.** A kickoff prompt starts a fresh session. Each ticket ships as its own small PR (or a short stack) into your development branch, is reviewed by risk before it merges, and merges one at a time when proven. Every status change is written to the page as it happens, and a progress prompt gives anyone a plain status.
+6. **Verify.** Every PR needs green checks, proof for each done-when, and a fresh-eyes review scaled by risk; high risk also needs a person. Each wave ends with a browser check on the merged branch. A ticket is done only with its proof.
 7. **Report.** The book fills its completion report: what shipped, proof per outcome, what did not ship and why, and a short retro.
 
 The page has two modes. **Human mode** is for the person who owns the work: pictures, status and decisions, very little text. **Agent mode** shows every raw file the agents use.
@@ -70,7 +70,7 @@ skills/living-artifact/
     method.md          what each stage produces
     data-model.md      the book.json shape, the agent files, the live database
     planning.md        tickets, milestones, waves, decisions, verification
-    run.md             the orchestrator: draft PR, wave workflow, reviews, status writes
+    run.md             the orchestrator: PRs, review before merge, wave workflow, status writes
     report.md          the completion report, proof and retro
     kickoff.md         the kickoff prompt template
     design.md          how human mode reads, and word budgets per field

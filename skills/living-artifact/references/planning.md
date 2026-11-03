@@ -17,6 +17,16 @@ Group by outcome and by the code area. Five fixes on one screen are one ticket. 
 | risk | Review depth: low, medium, high | high for data deletion, auth, billing, migrations, prompts | |
 | size | M (hours) or L (about a day). S is folded into its neighbour | | |
 
+Open tickets also carry, when the work is a fix: `where_found` (file and line, or the run where it showed), `reproduce` (steps anyone can follow), `solution`, `why_right` (why this fix and not another), `verify.run` (how to check it on a real system) and `estimate`.
+
+## Estimates are agent time
+
+Never human days. Say three numbers in plain words: agent build time (with parallel builders, the longest lane sets the wall clock), the merge line (PRs merge one at a time; each waits for its checks, so count checks per PR times the success rate of CI), and human review (only high-risk PRs wait for a person). A ticket's `estimate` reads like "2 h build, 30 min review".
+
+## The PR plan
+
+Each ticket ships as one PR or a stack of two to four (`plan.prs`), about 200 to 400 changed lines each, into the development branch (`plan.branches`). Independent PRs have the development branch as base and merge in any order. A stack is for one goal too big to review at once, where each part needs the one below; it merges bottom first. Prefer independent PRs: a stack makes later PRs wait. State `review_policy` by risk and the `merge_checklist` every PR must pass, and list the repository settings to change first in `plan.github`. The page groups PRs by wave, with stacks drawn as chains.
+
 ## Milestones
 
 Three to seven. Each is an outcome a person can see working ("Anyone can search the docs from any page"), never a layer ("backend"). Each has a goal and done-when statements. A milestone's done-when is usually its outcome claim's.
@@ -41,7 +51,8 @@ Only choices no experiment can settle and the user owns: names, scope, taste, co
 | Where | What |
 |---|---|
 | Every ticket | The builder's test and its own browser walk with screenshots, before it says done |
-| Every wave | The gate (typecheck, lint, tests, build), reviews by risk, the lead's spot check of one done-when per ticket on the merged app |
+| Every PR | Required checks green on its latest commit, proof for each done-when in the body, review by risk with no open important finding, a person's approval when high risk |
+| Every wave | The lead's spot check of one done-when per ticket on the merged development branch |
 | After the last wave | Every outcome walked end to end, real data runs, the cold attention review, the fix loop until a pass finds nothing new |
 
 ## Simplicity rules builders carry
@@ -53,4 +64,4 @@ Only choices no experiment can settle and the user owns: names, scope, taste, co
 
 ## The checker
 
-`node scripts/build.mjs <book-dir>` refuses: unknown milestone, wave, agent or dependency; a dependency in the same or a later wave; a recommendation that is not an option; a dash; a missing file. It warns on S tickets, more than two tickets per agent per wave, more than 24 tickets, outcomes without done-when, and a page over 400 KB. Fix every error and warning before publishing.
+`node scripts/build.mjs <book-dir>` refuses: unknown milestone, wave, agent or dependency; a dependency in the same or a later wave; a recommendation that is not an option; a dash; a missing file. It also refuses architecture steps that name nodes missing from their diagram, PRs with unknown tickets or bases, summary links to nothing, and PRs over 1500 lines with no reason. It warns on S tickets, more than two tickets per agent per wave, more than 24 tickets, outcomes without done-when, a missing summary, an area without found, recommend or why, a ticket with no PR, a PR over 400 lines, and a page over 400 KB. Fix every error and warning before publishing.

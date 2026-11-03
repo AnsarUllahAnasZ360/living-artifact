@@ -48,6 +48,14 @@ All text is plain words, no em or en dashes, no internal codes in human-facing f
   "round": { "n": 9, "title": "Search on every page", "started": "2026-10-29", "stage": "plan" },
   "needs": [ { "text": "Share the staging login with the build bot", "link": "ticket:search-api", "kind": "action" } ],
 
+  "summary": {
+    "headline": "One plain sentence: what the reader gets and why it matters.",
+    "text": "Optional, two sentences of how.",
+    "numbers": [ { "value": "22", "label": "goal-sized tickets" } ],
+    "timeline": [ { "when": "Tonight", "what": "What lands, in under 15 words" } ],
+    "points": [ { "icon": "layers", "label": "How it will work", "text": "Under 40 words.", "link": "a:search-index" } ]
+  },
+
   "problem": {
     "statement": "Two or three sentences in the user's terms.",
     "today": ["What hurts now, one line each, with evidence in findings"],
@@ -57,15 +65,31 @@ All text is plain words, no em or en dashes, no internal codes in human-facing f
     { "id": "ask-anywhere", "claim": "Anyone can search from any page and get results with sources in under two seconds.", "icon": "chat", "done_when": ["..."], "milestone": "search-on-every-page" }
   ],
   "findings": [
-    { "id": "ask-hidden", "finding": "Search opens nothing on the settings page.", "evidence": [ { "label": "search.css:215", "ref": "apps/web/.../search.css:215" } ], "solution": "...", "impact": "high", "tickets": ["search-api"] }
+    { "id": "ask-hidden", "finding": "Search opens nothing on the settings page.", "evidence": [ { "label": "search.css:215", "ref": "apps/web/.../search.css:215" } ], "solution": "...", "impact": "high", "tickets": ["search-api"],
+      "area": "Front end", "detail": "Optional, under 80 words: the full story behind the finding.", "solution_detail": "Optional, under 80 words: how the fix works." }
   ],
   "research": [
     { "id": "lifecycle", "question": "How do the best apps do search?", "answer": "Two sentences.", "recommendations": ["..."], "sources": [ { "title": "...", "url": "..." } ], "file": "agent/research/lifecycle.md" }
   ],
   "architecture": {
     "summary": "Two sentences.",
+    "areas": [
+      {
+        "id": "search-index", "title": "One index every page can query", "short": "Under 12 words",
+        "found": "What we found, with one concrete example and its evidence.",
+        "evidence": [ { "label": "search.ts:40", "ref": "apps/web/src/search.ts:40" } ],
+        "recommend": "What we recommend, in plain words.",
+        "why": "Why this is the right fix: the industry pattern, what it reuses, what it avoids.",
+        "user_sees": "What people will notice when it ships.",
+        "tradeoffs": ["What we accept"], "not_building": ["What we chose not to build"],
+        "today": { "title": "Today", "caption": "One line.", "nodes": [], "edges": [] },
+        "proposed": { "title": "Proposed", "caption": "One line.", "nodes": [], "edges": [], "new": [] },
+        "steps": [ { "text": "One step of how it works, under 30 words.", "nodes": ["web", "index"], "view": "proposed" } ],
+        "tickets": ["search-api"], "research": ["lifecycle"]
+      }
+    ],
     "frames": [
-      { "title": "Today", "caption": "One line.", "nodes": [ { "id": "web", "label": "Web app", "kind": "screen", "x": 0, "y": 0 } ], "edges": [ { "from": "web", "to": "agent", "label": "runs" } ], "new": [] }
+      { "title": "Today", "caption": "One line.", "nodes": [ { "id": "web", "label": "Web app", "kind": "screen", "x": 0, "y": 0 } ], "edges": [ { "from": "web", "to": "agent", "label": "runs" } ], "new": [], "points": [ { "label": "Reads", "text": "Optional, up to 6: what this stage takes in or does, one line each." } ] }
     ],
     "changes": [ { "area": "Agent", "before": "...", "after": "..." } ]
   },
@@ -80,15 +104,27 @@ All text is plain words, no em or en dashes, no internal codes in human-facing f
         "id": "search-api", "title": "Add one search endpoint every page can call", "short": "Search endpoint", "milestone": "one-branch",
         "area": "Repo", "size": "L", "risk": "high", "wave": 1, "agent": "lead", "order": 1,
         "problem": "...", "goal": "...", "done_when": ["..."],
-        "verify": { "code": "...", "browser": "..." },
+        "where_found": ["file:line or the run where it showed, one line each"],
+        "reproduce": ["Step one", "Step two", "What goes wrong"],
+        "solution": "How we fix it, under 120 words.", "why_right": "Why this fix and not another, under 60 words.",
+        "verify": { "run": "How a person or agent checks it on a real system", "code": "...", "browser": "..." },
+        "estimate": "2 h build, 30 min review",
         "files": ["..."], "depends_on": [], "evidence": "..."
       }
     ],
+    "branches": { "development": "develop", "production": "main", "naming": "fix/<ticket>-<part>", "naming_note": "...", "development_note": "...", "production_note": "..." },
+    "prs": [
+      { "id": "search-index", "title": "Under 10 words", "ticket": "search-api", "base": "develop", "kind": "stacked", "stack": "search", "wave": 1, "lines": 280, "risk": "medium", "review": "AI review and a refuter" },
+      { "id": "search-endpoint", "title": "...", "ticket": "search-api", "base": "search-index", "kind": "stacked", "stack": "search", "lines": 220, "risk": "medium" }
+    ],
+    "review_policy": [ { "risk": "high", "who": "A named person, after the AI review", "what": "Approves on GitHub before merge." } ],
+    "merge_checklist": ["The gate is green on the PR's latest commit", "..."],
+    "github": [ { "what": "Delete head branches on merge", "why": "Stacks retarget cleanly after a squash", "done": false } ],
     "waves": [ { "n": 1, "title": "One branch", "why": "Everything builds on it.", "agents": [ { "name": "lead", "tickets": ["search-api"] } ], "gate": ["gate", "two reviews", "spot check"] } ],
     "gate": { "steps": ["full tests", "two fresh reviews", "browser walk"], "baseline": ["pnpm test", "pnpm typecheck"] },
     "stop_rules": ["A blocking decision is still not opened"],
     "verification": [ { "where": "Every ticket", "what": "..." } ],
-    "commits": "One commit per ticket on the draft PR branch, message names the ticket title.",
+    "commits": "Each PR squash merges into the development branch, titled with its PR title.",
     "risks": [ { "risk": "...", "mitigation": "..." } ],
     "later": ["..."]
   },
@@ -96,6 +132,7 @@ All text is plain words, no em or en dashes, no internal codes in human-facing f
     { "id": "panel-name", "question": "What do we call the results panel?", "why": "...", "options": [ { "id": "results", "label": "Results", "effect": "..." } ], "recommended": "results", "attach": "ticket:search-api", "blocks": ["search-api"] }
   ],
   "kickoff": "The short prompt the user pastes into a fresh chat.",
+  "prompts": [ { "id": "progress", "title": "Progress update", "when": "Paste any time", "text": "..." } ],
   "report": {
     "ready": false,
     "blocked_on_you": ["..."], "changed": ["..."], "found": ["..."],
@@ -110,6 +147,14 @@ All text is plain words, no em or en dashes, no internal codes in human-facing f
 `needs` (optional) lists what waits on the reader that the db cannot know: `kind` is `action`, `blocked` or `info`; `link` is a URL, a section id, `ticket:<id>`, `decision:<id>`, `milestone:<id>` or a published file path. Needs you shows these first, then the plan gate (stage `plan`, `gates/plan` not approved), unopened decisions, blocked tickets and open feedback, under one "Next:" line taken from `run/current.note`. `info` items show but are not counted.
 
 Ticket `short` (optional, at most 5 words) is the name the page uses everywhere except the ticket table (wave bars, milestones, board, chips). `plan.gate` is `{ steps, baseline }`: what every wave gate runs and the checks that must stay green; `plan.stop_rules` lists when the run stops and asks. Both show in the Plan section and in agent mode.
+
+`summary` is the first screen: one headline, up to 6 numbers, an optional timeline of when things land, and up to 8 points that each open somewhere. A point's `link` is `#section` (summary, needs, problem, findings, research, architecture, prototypes, plan, prs, decisions, kickoff, progress, report, history), `t:<ticket>`, `a:<area>` or `r:<research>`. The checker warns when a book past explore has no summary.
+
+`architecture.areas` explain the solution one part at a time; the page shows them as tabs. Each area says what we found (with evidence), what we recommend, a today and a proposed diagram, numbered steps that light up the nodes they name (`view` picks the diagram, default proposed), why it is right, what people will notice, trade-offs and what we will not build, then the tickets and research behind it. Use `frames` for one picture of the whole system; with areas, frames show under "The whole system".
+
+`plan.prs` is the pull request plan. Each PR proves part of one ticket. `base` is a branch from `plan.branches` or another PR's id; `kind` is `independent` or `stacked`, and stacked PRs name their `stack` and merge bottom first. `wave` defaults to the ticket's wave. `lines` is the expected size: over 400 warns, over 1500 needs `why_large`. `review_policy` says who reviews each risk level before merge; `merge_checklist` is what every PR needs before it merges; `github` lists repository settings to change first.
+
+Ticket `where_found`, `reproduce`, `solution`, `why_right`, `verify.run` and `estimate` are optional and show in the open ticket in that order. `estimate` is agent time in plain words, never human days. `prompts` are extra prompts shown under the kickoff with a Copy button, such as a progress update.
 
 `profile` is `feature`, `audit` or `large`. A feature has one milestone and one wave and may skip waves in the page. An audit has findings and recommendations and usually no tickets. A large build has everything.
 

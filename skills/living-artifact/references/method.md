@@ -22,7 +22,8 @@ Produce: `findings`, `research`, `architecture`, `prototypes`, files under `agen
 - **Experiment.** When a run can settle a question (a layout, a latency, a model's accuracy), build a throwaway prototype or script and let the result decide. Ask the user only questions of taste and product.
 - **Prototype screens.** A clickable prototype beats a description. Publish it as `proto/<name>.html` in the book (or link its own artifact). Keep variant switchers.
 - **Critique through lenses.** For each persona (the user, the subject matter expert, the customer's customer) and each situation (doing it by hand, reviewing the AI's work, coming back later), ask: is it clear, is it simple, is it how the industry works? Fix and critique again until a round finds nothing important.
-- **Explain the solution** as architecture frames: today, then one added part per frame. Plain words, data in and out, what changes for the user.
+- **Explain the solution, area by area** (`architecture.areas`). The reader asked for a fix, not a diagram. For each part of the solution say, in this order: what we found (one concrete example, with evidence), what we recommend, a today picture and a proposed picture, how it works as numbered steps that light up the parts they name, why this is the right fix (the industry pattern, what it reuses, what it avoids), what people will notice, the trade-offs, what we will not build, and the tickets that carry it. Use `frames` only for one picture of the whole system.
+- **Write the executive summary last, show it first** (`summary`): one headline a stranger understands, the numbers that matter, when things land, and a point for each part of the story that opens its detail.
 - Each finding pairs with its solution and the tickets that will carry it.
 
 This stage loops with the user many times. Each loop: republish, log what changed, read feedback.
@@ -50,8 +51,8 @@ Exit: `gates/plan` approved by the user, or the user says to run.
 A fresh chat opened in the repo, started by the kickoff. Read `run.md`.
 
 - Orient only from the book: read it, its agent files, the db. No other docs.
-- Open the draft PR first. One commit per ticket.
-- Each wave: read feedback and decisions, brief builders with goals, builders prove, merge, gate, review by risk, fix, spot check, write status and log, republish if content changed.
+- Each ticket ships as its own small PR, or a short stack, into the development branch. Every PR is reviewed by risk before it merges, and merges one at a time when proven.
+- Each wave: read feedback and decisions, brief builders with goals, builders prove and open PRs, each PR is reviewed and fixed as soon as it opens, PRs merge one at a time when green and proven, spot check, write status and log, republish if content changed.
 - Do not stop for a mid-run review unless the kickoff says so. Stop only on the stop rules in the kickoff.
 
 ## 5. Verify

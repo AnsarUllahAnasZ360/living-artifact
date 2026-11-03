@@ -47,7 +47,7 @@ Do not scale a feature up to look thorough. One strong agent beats a wave for sm
 - `references/data-model.md`: book.json, agent files, db collections. The contract.
 - `references/design.md`: how human mode must read and look, and word budgets.
 - `references/planning.md`: tickets, milestones, waves, decisions, verification points.
-- `references/run.md`: the orchestrator: kickoff orientation, draft PR, the wave workflow, review loop, commits, status writes.
+- `references/run.md`: the orchestrator: kickoff orientation, branches and PRs, review before merge by risk, the wave workflow, status writes.
 - `references/report.md`: the completion report, proof, the retro.
 - `references/kickoff.md`: the kickoff prompt.
 - `scripts/build.mjs`: `node scripts/build.mjs <book-dir>` checks book.json, writes index.html, prints the files map for publishing.

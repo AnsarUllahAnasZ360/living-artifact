@@ -99,26 +99,56 @@ const findingIds = ids(book.findings, "findings");
   need(f, "finding", `findings[${i}]`, nonEmptyStr, "a string");
   if (f?.impact && !IMPACTS.includes(f.impact)) err(`findings[${i}].impact: one of ${IMPACTS.join(", ")}`);
 });
-ids(book.research, "research");
+const researchIds = ids(book.research, "research");
 (book.research || []).forEach((r, i) => { need(r, "question", `research[${i}]`, nonEmptyStr, "a string"); });
 ids(book.prototypes, "prototypes");
 
 // ---------- architecture ----------
+// One diagram: nodes with id, label, x, y; edges between known nodes; `new` names nodes in it.
+function checkFrame(fr, where) {
+  const nodeIds = new Set((fr.nodes || []).map((n) => n.id));
+  (fr.nodes || []).forEach((n, j) => {
+    if (!nonEmptyStr(n.id) || !nonEmptyStr(n.label)) err(`${where}.nodes[${j}]: needs id and label`);
+    if (typeof n.x !== "number" || typeof n.y !== "number") err(`${where}.nodes[${j}] "${n.id}": needs numeric x and y`);
+  });
+  (fr.edges || []).forEach((e, j) => {
+    if (!nodeIds.has(e.from) || !nodeIds.has(e.to)) err(`${where}.edges[${j}]: ${e.from} to ${e.to} names a node not in this diagram`);
+  });
+  (fr.new || []).forEach((id) => { if (!nodeIds.has(id)) err(`${where}.new: "${id}" is not a node in this diagram`); });
+  if ((fr.nodes || []).length > 12) warn(`${where}: ${fr.nodes.length} nodes; over 12 is hard to read`);
+  return nodeIds;
+}
 const arch = book.architecture;
+let areaIds = new Set();
 if (arch !== undefined) {
   if (!isObj(arch)) err("architecture: must be an object");
-  else (arch.frames || []).forEach((fr, i) => {
-    const nodeIds = new Set((fr.nodes || []).map((n) => n.id));
-    (fr.nodes || []).forEach((n, j) => {
-      if (!nonEmptyStr(n.id) || !nonEmptyStr(n.label)) err(`architecture.frames[${i}].nodes[${j}]: needs id and label`);
-      if (typeof n.x !== "number" || typeof n.y !== "number") err(`architecture.frames[${i}].nodes[${j}] "${n.id}": needs numeric x and y`);
+  else {
+    (arch.frames || []).forEach((fr, i) => checkFrame(fr, `architecture.frames[${i}]`));
+    if (arch.areas !== undefined && !isArr(arch.areas)) err("architecture.areas: must be a list");
+    areaIds = ids(arch.areas, "architecture.areas");
+    (arch.areas || []).forEach((a, i) => {
+      const w = `architecture.areas[${i}] "${a?.id}"`;
+      need(a, "title", w, nonEmptyStr, "a string");
+      if (!nonEmptyStr(a?.found)) warn(`${w}: no found; say what we found, with one concrete example`);
+      if (!nonEmptyStr(a?.recommend)) warn(`${w}: no recommend; say what we recommend`);
+      if (!nonEmptyStr(a?.why)) warn(`${w}: no why; say why this is the right fix`);
+      if (!a?.today && !a?.proposed) warn(`${w}: no today or proposed diagram`);
+      const pics = {};
+      for (const k of ["today", "proposed"]) if (a?.[k] !== undefined) {
+        if (!isObj(a[k])) { err(`${w}.${k}: must be a diagram object`); continue; }
+        pics[k] = checkFrame(a[k], `${w}.${k}`);
+      }
+      (a?.steps || []).forEach((st, j) => {
+        if (!nonEmptyStr(st?.text)) err(`${w}.steps[${j}]: needs text`);
+        const view = st?.view || (pics.proposed ? "proposed" : "today");
+        if (!pics[view]) { err(`${w}.steps[${j}]: view "${view}" has no diagram`); return; }
+        (st.nodes || []).forEach((n) => { if (!pics[view].has(n)) err(`${w}.steps[${j}]: node "${n}" is not in the ${view} diagram`); });
+      });
+      if ((a?.steps || []).length > 7) warn(`${w}: ${a.steps.length} steps; keep it to 7`);
+      (a?.research || []).forEach((r) => { if (!researchIds.has(r)) err(`${w}: unknown research "${r}"`); });
+      for (const k of ["tradeoffs", "not_building", "evidence"]) if (a?.[k] !== undefined && !isArr(a[k])) err(`${w}.${k}: must be a list`);
     });
-    (fr.edges || []).forEach((e, j) => {
-      if (!nodeIds.has(e.from) || !nodeIds.has(e.to)) err(`architecture.frames[${i}].edges[${j}]: ${e.from} to ${e.to} names a node not in this frame`);
-    });
-    (fr.new || []).forEach((id) => { if (!nodeIds.has(id)) err(`architecture.frames[${i}].new: "${id}" is not a node in this frame`); });
-    if ((fr.nodes || []).length > 12) warn(`architecture.frames[${i}]: ${fr.nodes.length} nodes; over 12 is hard to read`);
-  });
+  }
 }
 
 // ---------- plan ----------
@@ -218,6 +248,40 @@ if (isObj(plan)) {
     }
   });
 
+  // pull requests: each proves part of one ticket, bases are branches or earlier PRs in the same stack
+  if (plan.branches !== undefined && !isObj(plan.branches)) err("plan.branches: must be an object { development, production, naming }");
+  const branchNames = new Set([plan.branches?.development, plan.branches?.production].filter(Boolean));
+  if (plan.prs !== undefined && !isArr(plan.prs)) err("plan.prs: must be a list");
+  const prIds = ids(plan.prs, "plan.prs");
+  const prById = new Map((plan.prs || []).filter(isObj).map((x) => [x.id, x]));
+  (plan.prs || []).forEach((pr, i) => {
+    if (!isObj(pr)) return;
+    const w = `plan.prs[${i}] "${pr.id}"`;
+    need(pr, "title", w, nonEmptyStr, "a string");
+    if (!pr.ticket) warn(`${w}: no ticket; every PR proves part of one ticket`);
+    else if (!ticketIds.has(pr.ticket)) err(`${w}: unknown ticket "${pr.ticket}"`);
+    if (pr.kind !== undefined && !["independent", "stacked"].includes(pr.kind)) err(`${w}: kind is independent or stacked`);
+    if (pr.kind === "stacked" && !nonEmptyStr(pr.stack)) err(`${w}: a stacked PR names its stack`);
+    if (pr.risk !== undefined && !RISKS.includes(pr.risk)) err(`${w}: risk must be one of ${RISKS.join(", ")}`);
+    if (pr.base) {
+      if (pr.base === pr.id) err(`${w}: based on itself`);
+      else if (prIds.has(pr.base)) { if (prById.get(pr.base).stack !== pr.stack) warn(`${w}: based on PR "${pr.base}" from a different stack`); }
+      else if (branchNames.size && !branchNames.has(pr.base)) err(`${w}: base "${pr.base}" is neither a branch in plan.branches nor a PR id`);
+    }
+    if (pr.lines !== undefined) {
+      if (typeof pr.lines !== "number") err(`${w}: lines must be a number`);
+      else if (pr.lines > 1500 && !nonEmptyStr(pr.why_large)) err(`${w}: about ${pr.lines} lines; split it, or say why in why_large`);
+      else if (pr.lines > 400 && !nonEmptyStr(pr.why_large)) warn(`${w}: about ${pr.lines} lines; review works best under 400`);
+    }
+  });
+  if ((plan.prs || []).length) tickets.forEach((t) => { if (!(plan.prs || []).some((x) => x.ticket === t.id)) warn(`ticket "${t.id}": no PR in plan.prs`); });
+  (plan.review_policy || []).forEach((x, i) => {
+    if (!RISKS.includes(x?.risk)) err(`plan.review_policy[${i}].risk: one of ${RISKS.join(", ")}`);
+    if (!nonEmptyStr(x?.who) || !nonEmptyStr(x?.what)) err(`plan.review_policy[${i}]: needs who and what`);
+  });
+  if (plan.merge_checklist !== undefined && !(isArr(plan.merge_checklist) && plan.merge_checklist.every(isStr))) err("plan.merge_checklist: must be a list of strings");
+  (plan.github || []).forEach((x, i) => { if (!nonEmptyStr(x?.what)) err(`plan.github[${i}].what: missing`); });
+
   // gate and stop rules
   if (plan.gate !== undefined) {
     if (!isObj(plan.gate)) err("plan.gate: must be an object { steps, baseline }");
@@ -263,15 +327,67 @@ if (book.needs !== undefined) {
   });
 }
 
+// ---------- architecture areas name real tickets ----------
+(arch?.areas || []).forEach((a, i) => (a?.tickets || []).forEach((t) => { if (!ticketIds.has(t)) err(`architecture.areas[${i}] "${a.id}": unknown ticket "${t}"`); }));
+
+// ---------- executive summary and prompts ----------
+const SECTION_IDS = new Set(["summary", "needs", "problem", "findings", "research", "architecture", "prototypes", "plan", "prs", "decisions", "kickoff", "progress", "report", "history"]);
+function checkLink(link, where) {
+  if (!isStr(link)) { err(`${where}: must be a string`); return; }
+  const [kind, id] = link.includes(":") ? [link.slice(0, link.indexOf(":")), link.slice(link.indexOf(":") + 1)] : ["#", link.replace(/^#/, "")];
+  const pool = { t: ticketIds, a: areaIds, r: researchIds }[kind];
+  if (kind === "#") { if (!SECTION_IDS.has(id)) err(`${where}: "${link}" is not a section; use #section, t:ticket, a:area or r:research`); }
+  else if (!pool) err(`${where}: "${link}" must start with t:, a:, r: or #`);
+  else if (!pool.has(id)) err(`${where}: "${link}" names an unknown ${{ t: "ticket", a: "area", r: "research question" }[kind]}`);
+}
+if (book.summary !== undefined) {
+  const S = book.summary;
+  if (!isObj(S)) err("summary: must be an object { headline, numbers, timeline, points }");
+  else {
+    if (!nonEmptyStr(S.headline)) warn("summary.headline: missing; the first screen needs one plain sentence");
+    (S.numbers || []).forEach((n, i) => { if (n?.value === undefined || n?.value === "" || !nonEmptyStr(n?.label)) err(`summary.numbers[${i}]: needs value and label`); });
+    if ((S.numbers || []).length > 6) warn(`summary.numbers: ${S.numbers.length}; keep it to 6`);
+    (S.timeline || []).forEach((x, i) => { if (!nonEmptyStr(x?.when) || !nonEmptyStr(x?.what)) err(`summary.timeline[${i}]: needs when and what`); });
+    (S.points || []).forEach((x, i) => {
+      if (!nonEmptyStr(x?.label) || !nonEmptyStr(x?.text)) err(`summary.points[${i}]: needs label and text`);
+      if (x?.link !== undefined) checkLink(x.link, `summary.points[${i}].link`);
+    });
+    if ((S.points || []).length > 8) warn(`summary.points: ${S.points.length}; keep it to 8`);
+  }
+} else if (stageIdx >= 1) warn("summary: missing; a reader needs the whole story on the first screen");
+if (book.prompts !== undefined && !isArr(book.prompts)) err("prompts: must be a list");
+ids(book.prompts, "prompts");
+(book.prompts || []).forEach((x, i) => { need(x, "title", `prompts[${i}]`, nonEmptyStr, "a string"); need(x, "text", `prompts[${i}]`, nonEmptyStr, "a string"); });
+(book.needs || []).forEach((n, i) => { if (isStr(n?.link) && /^(t|a|r):/.test(n.link)) checkLink(n.link, `needs[${i}].link`); });
+
 // ---------- word budgets (references/design.md) ----------
 function words(t) { return String(t || "").trim().split(/\s+/).filter(Boolean).length; }
 function budget(text, max, where) { if (isStr(text) && words(text) > max) warn(`${where}: ${words(text)} words; budget is ${max}`); }
 budget(book.tagline, 15, "tagline");
 budget(book.problem?.statement, 50, "problem.statement");
 (book.outcomes || []).forEach((o, i) => budget(o.claim, 30, `outcomes[${i}].claim`));
-(book.findings || []).forEach((f, i) => { budget(f.finding, 25, `findings[${i}].finding`); budget(f.solution, 25, `findings[${i}].solution`); });
+(book.findings || []).forEach((f, i) => { budget(f.finding, 25, `findings[${i}].finding`); budget(f.solution, 25, `findings[${i}].solution`); budget(f.detail, 80, `findings[${i}].detail`); budget(f.solution_detail, 80, `findings[${i}].solution_detail`); });
+if (isObj(book.summary)) {
+  budget(book.summary.headline, 25, "summary.headline"); budget(book.summary.text, 50, "summary.text");
+  (book.summary.points || []).forEach((x, i) => budget(x.text, 40, `summary.points[${i}].text`));
+  (book.summary.timeline || []).forEach((x, i) => budget(x.what, 15, `summary.timeline[${i}].what`));
+}
+(arch?.areas || []).forEach((a, i) => {
+  const w = `architecture.areas[${i}]`;
+  budget(a.short, 12, `${w}.short`); budget(a.found, 90, `${w}.found`); budget(a.recommend, 90, `${w}.recommend`);
+  budget(a.why, 70, `${w}.why`); budget(a.user_sees, 50, `${w}.user_sees`);
+  budget(a.today?.caption, 25, `${w}.today.caption`); budget(a.proposed?.caption, 25, `${w}.proposed.caption`);
+  (a.steps || []).forEach((st, j) => budget(st.text, 30, `${w}.steps[${j}]`));
+  for (const k of ["tradeoffs", "not_building"]) (a[k] || []).forEach((x, j) => budget(x, 20, `${w}.${k}[${j}]`));
+});
+(plan?.prs || []).forEach((x, i) => budget(x.title, 10, `plan.prs[${i}].title`));
 (book.research || []).forEach((r, i) => { budget(r.answer, 40, `research[${i}].answer`); (r.recommendations || []).forEach((x, j) => budget(x, 15, `research[${i}].recommendations[${j}]`)); });
 (book.architecture?.frames || []).forEach((f, i) => budget(f.caption, 20, `architecture.frames[${i}].caption`));
+(book.architecture?.frames || []).forEach((f, i) => {
+  if ((f.points || []).length > 6) warn(`architecture.frames[${i}]: ${f.points.length} points; keep it to 6`);
+  (f.points || []).forEach((pt, j) => { if (!nonEmptyStr(pt.label) || !nonEmptyStr(pt.text)) err(`architecture.frames[${i}].points[${j}]: needs label and text`); budget(pt.text, 22, `architecture.frames[${i}].points[${j}]`); });
+});
+tickets.forEach((t, i) => { budget(t.problem, 60, `plan.tickets[${i}].problem`); budget(t.solution, 120, `plan.tickets[${i}].solution`); budget(t.why_right, 60, `plan.tickets[${i}].why_right`); budget(t.verify?.run, 50, `plan.tickets[${i}].verify.run`); (t.reproduce || []).forEach((x, j) => budget(x, 25, `plan.tickets[${i}].reproduce[${j}]`)); });
 tickets.forEach((t, i) => { budget(t.goal, 50, `plan.tickets[${i}].goal`); (t.done_when || []).forEach((d, j) => budget(d, 20, `plan.tickets[${i}].done_when[${j}]`)); });
 (book.outcomes || []).forEach((o, i) => (o.done_when || []).forEach((d, j) => budget(d, 20, `outcomes[${i}].done_when[${j}]`)));
 (plan?.milestones || []).forEach((m, i) => (m.done_when || []).forEach((d, j) => budget(d, 20, `plan.milestones[${i}].done_when[${j}]`)));

@@ -276,6 +276,9 @@ button.chip { cursor: pointer; }
 .archsvg { display: block; width: 100%; height: auto; color: var(--fg); }
 .archcap { padding: 10px 14px 14px; font-size: 14px; color: var(--fg-2); display: flex; gap: 8px; align-items: baseline; }
 .archcap b { color: var(--fg); font-weight: 600; }
+.archpts { list-style: none; margin: 0; padding: 0 14px 14px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px 18px; font-size: 13.5px; color: var(--fg-2); }
+.archpts li { display: grid; gap: 2px; align-content: start; }
+.archpts b { color: var(--fg); font-weight: 600; font-size: 13px; }
 .an rect, .an path.shape { fill: var(--panel); stroke: var(--line-2); stroke-width: 1.2; }
 .an text { fill: var(--fg); font: 500 12.5px var(--body); }
 .an text.k { fill: var(--fg-3); font: 400 10.5px var(--body); }
@@ -548,6 +551,134 @@ body.agent .live.on i { animation: none; }
 .raw.img img { filter: grayscale(1); max-height: 60vh; border: 1px solid var(--line); }
 .digest-fallback { width: 100%; min-height: 160px; font: 12px var(--mono); border: 1px solid var(--line); background: var(--bg); color: var(--fg); padding: 10px; }
 
+/* ---------- summary ---------- */
+.sumhead { font-family: var(--display); font-size: 25px; line-height: 1.28; font-weight: 600; letter-spacing: -0.01em; max-width: 44ch; margin: 0; text-wrap: balance; }
+.sumnums { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 20px; }
+.sumnums .kpi .v { font-size: 27px; }
+.sumtl { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(150px, 1fr); margin-top: 22px; overflow-x: auto; padding-top: 6px; }
+.sumtl .tli { position: relative; padding: 14px 16px 2px 0; border-top: 2px solid var(--line-2); display: grid; gap: 2px; align-content: start; }
+.sumtl .tli::before { content: ""; position: absolute; top: -7px; left: 0; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px var(--bg); }
+.sumtl .tli b { font-size: 13px; font-weight: 600; }
+.sumtl .tli span { font-size: 13px; color: var(--fg-2); line-height: 1.4; }
+.sumpts { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; margin-top: 20px; }
+.sp { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 16px; display: grid; gap: 6px; align-content: start; text-align: left; font: inherit; color: inherit; }
+button.sp { cursor: pointer; }
+button.sp:hover { border-color: var(--line-2); box-shadow: var(--shadow); }
+.sp .lab { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14.5px; }
+.sp .lab .ico { color: var(--accent); flex: none; }
+.sp .tx { font-size: 14px; color: var(--fg-2); line-height: 1.45; }
+.sp .go { font-size: 12.5px; color: var(--accent); display: flex; align-items: center; gap: 4px; }
+
+/* ---------- finding details ---------- */
+.fd .area { font-size: 12px; color: var(--fg-3); }
+.fdx { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px 28px; background: var(--sunk); border-radius: 10px; padding: 12px 16px; }
+.fdx h4 { margin: 0 0 4px; font-size: 12.5px; font-weight: 600; color: var(--fg-3); }
+.fdx p { margin: 0; font-size: 14px; line-height: 1.55; color: var(--fg-2); }
+
+/* ---------- architecture areas ---------- */
+.areas { display: grid; grid-template-columns: repeat(auto-fit, minmax(176px, 1fr)); gap: 8px; margin-top: 18px; }
+.areas button { text-align: left; border: 1px solid var(--line); background: var(--panel); border-radius: 10px; padding: 10px 12px; cursor: pointer; display: grid; gap: 3px; align-content: start; font: inherit; color: var(--fg); }
+.areas button:hover { border-color: var(--line-2); }
+.areas button b { font-size: 11.5px; color: var(--fg-3); font-weight: 600; font-variant-numeric: tabular-nums; }
+.areas button span { font-size: 14px; font-weight: 550; line-height: 1.3; }
+.areas button small { font-size: 12.5px; color: var(--fg-2); line-height: 1.35; }
+.areas button[aria-selected="true"] { border-color: var(--accent); background: var(--accent-soft); }
+.areas button[aria-selected="true"] b { color: var(--accent); }
+.apanel { margin-top: 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); overflow: hidden; container-type: inline-size; }
+.apanel .ahead { padding: 16px 18px 4px; display: grid; gap: 4px; }
+.apanel .ahead h3 { margin: 0; font-family: var(--display); font-size: 20px; font-weight: 600; }
+.apanel .ahead p { margin: 0; font-size: 14px; color: var(--fg-2); }
+.atwo { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 12px 18px 16px; }
+.acard { border-radius: 10px; padding: 12px 14px; display: grid; gap: 6px; align-content: start; background: var(--sunk); border-left: 3px solid var(--line-2); min-width: 0; }
+.acard h4 { margin: 0; font-size: 12.5px; font-weight: 600; color: var(--fg-3); display: flex; gap: 6px; align-items: center; }
+.acard p { margin: 0; font-size: 14.5px; line-height: 1.55; }
+.acard.found { border-left-color: var(--bad); }
+.acard.found h4 .ico { color: var(--bad); }
+.acard.rec { border-left-color: var(--accent); }
+.acard.rec h4 .ico { color: var(--accent); }
+.acard.why { border-left-color: var(--ok); }
+.acard.why h4 .ico { color: var(--ok); }
+.acard.sees { border-left-color: var(--rev); }
+.acard.sees h4 .ico { color: var(--rev); }
+.adiag { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(250px, 1fr); }
+.adiag.one { grid-template-columns: minmax(0, 1fr); }
+.adiag .dv { min-width: 0; border-right: 1px solid var(--line); }
+.adiag.one .dv { border-right: 0; }
+.adiag .dbar { display: flex; align-items: center; gap: 8px; padding: 10px 12px; flex-wrap: wrap; }
+.adiag .dbar > b { font-size: 13px; }
+.adiag .dbar .ctl { margin-left: auto; display: flex; gap: 4px; }
+.asteps { list-style: none; margin: 0; padding: 10px; display: grid; gap: 4px; align-content: start; }
+.asteps .hd { font-size: 12.5px; font-weight: 600; color: var(--fg-3); padding: 4px 10px 2px; }
+.asteps button { width: 100%; text-align: left; border: 1px solid transparent; background: none; border-radius: 8px; padding: 8px 10px; display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; font: inherit; font-size: 13.5px; line-height: 1.45; color: var(--fg-2); cursor: pointer; }
+.asteps button:hover { background: var(--sunk); }
+.asteps button i { font-style: normal; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--sunk); font-size: 12px; font-weight: 600; color: var(--fg-3); }
+.asteps button[aria-current="true"] { background: var(--accent-soft); color: var(--fg); }
+.asteps button[aria-current="true"] i { background: var(--accent); color: var(--on-accent); }
+.alists { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px 28px; padding: 0 18px 14px; font-size: 13.5px; }
+.alists h4 { margin: 0 0 6px; font-size: 12.5px; font-weight: 600; color: var(--fg-3); }
+.alists ul { margin: 0; padding: 0; display: grid; gap: 5px; }
+.alists li { list-style: none; display: flex; gap: 8px; align-items: baseline; color: var(--fg-2); line-height: 1.45; }
+.alists li .ico { flex: none; transform: translateY(2px); color: var(--fg-3); }
+@container (max-width: 760px) {
+  .adiag { grid-template-columns: minmax(0, 1fr); }
+  .adiag .dv { border-right: 0; border-bottom: 1px solid var(--line); }
+  .asteps { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+  .asteps .hd { grid-column: 1 / -1; }
+}
+.afoot { padding: 0 18px 16px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.an, .ae { transition: opacity 0.25s; }
+.an.dim, .ae.dim { opacity: 0.25; }
+.an.hl rect, .an.hl path.shape { stroke: var(--accent); stroke-width: 2.6; }
+.ae.hl path { stroke: var(--accent); stroke-width: 2.2; }
+.ae.hl text { fill: var(--accent); }
+
+/* ---------- pull request plan ---------- */
+.prsum { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13.5px; color: var(--fg-2); margin: 0 0 10px; }
+.prsum b { color: var(--fg); font-variant-numeric: tabular-nums; }
+.branches { display: grid; grid-template-columns: minmax(0, 1fr) 24px minmax(0, 1fr) 24px minmax(0, 1fr); gap: 8px; align-items: stretch; }
+.branches .bc { border: 1px solid var(--line); border-radius: var(--r); background: var(--panel); padding: 12px 14px; display: grid; gap: 4px; align-content: start; min-width: 0; }
+.branches .bc b { font-size: 12.5px; color: var(--fg-3); font-weight: 600; }
+.branches .bc code { font: 13px var(--mono); color: var(--fg); overflow-wrap: anywhere; }
+.branches .bc span { font-size: 13px; color: var(--fg-2); line-height: 1.4; }
+.branches .ar { display: grid; place-items: center; color: var(--fg-3); }
+.prgroups { display: grid; gap: 14px; margin-top: 14px; }
+.prg h4 { margin: 0 0 8px; font-size: 13.5px; font-weight: 600; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.prg h4 .faint { font-weight: 400; font-size: 12.5px; }
+.prg { border-top: 1px solid var(--line); padding-top: 12px; display: grid; gap: 10px; }
+.prg h4 { margin: 0; }
+.prline { display: grid; gap: 6px; }
+.plab { display: flex; gap: 6px; align-items: center; font-size: 12.5px; font-weight: 550; color: var(--fg-2); flex-wrap: wrap; }
+.plab small { font-weight: 400; color: var(--fg-3); font-size: 12px; }
+.prrow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.prc { border: 1px solid var(--line); border-left-width: 3px; background: var(--panel); border-radius: 8px; padding: 6px 10px; display: grid; gap: 2px; text-align: left; font: inherit; color: var(--fg); max-width: 280px; min-width: 0; }
+button.prc { cursor: pointer; }
+button.prc:hover { border-color: var(--line-2); }
+.prc .t { font-size: 13px; font-weight: 550; line-height: 1.3; overflow-wrap: anywhere; }
+.prc .m { font-size: 11.5px; color: var(--fg-3); display: flex; gap: 5px; align-items: center; }
+.prc.high { border-left-color: var(--bad); }
+.prc.medium { border-left-color: var(--need); }
+.prc.low { border-left-color: var(--ok); }
+.prarrow { color: var(--fg-3); display: grid; place-items: center; }
+.policy { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
+.pol { border: 1px solid var(--line); border-radius: var(--r); padding: 12px 14px; background: var(--panel); display: grid; gap: 5px; align-content: start; }
+.pol .chip { justify-self: start; }
+.pol b { font-size: 14px; }
+.pol span:not(.chip) { font-size: 13.5px; color: var(--fg-2); line-height: 1.45; }
+.checklist { list-style: none; padding: 0; margin: 0; display: grid; gap: 7px; counter-reset: c; }
+.checklist li { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 10px; font-size: 14px; align-items: baseline; line-height: 1.45; }
+.checklist li i { font-style: normal; counter-increment: c; width: 22px; height: 22px; border-radius: 6px; background: var(--sunk); display: grid; place-items: center; font-size: 12px; font-weight: 600; color: var(--fg-3); }
+.checklist li i::before { content: counter(c); }
+.plain { list-style: none; padding: 0; margin: 0; display: grid; gap: 5px; font-size: 14px; color: var(--fg-2); }
+.plain li { display: flex; gap: 8px; align-items: baseline; line-height: 1.45; }
+.plain li .ico { flex: none; transform: translateY(2px); color: var(--fg-3); }
+.plain li b { color: var(--fg); font-weight: 550; }
+.repro { margin: 0; padding-left: 18px; display: grid; gap: 3px; font-size: 14px; }
+.prompts { display: grid; gap: 12px; margin-top: 14px; }
+.kick .bar .grow { min-width: 0; }
+.kick .bar .grow b { color: var(--fg); font-weight: 600; }
+.kick .bar .acts2 { margin-left: auto; display: flex; gap: 6px; }
+.kick .bar .acts2 .btn { margin-left: 0; }
+
 /* ---------- responsive ---------- */
 @media (max-width: 1100px) {
   .shell { grid-template-columns: 196px minmax(0, 1fr); gap: 32px; }
@@ -565,6 +696,10 @@ body.agent .live.on i { animation: none; }
   .board { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .r3 { grid-template-columns: minmax(0, 1fr); }
   .pending-report .ghost { grid-template-columns: minmax(0, 1fr); }
+  .atwo, .adiag { grid-template-columns: minmax(0, 1fr); }
+  .adiag .dv { border-right: 0; border-bottom: 1px solid var(--line); }
+  .branches { grid-template-columns: minmax(0, 1fr); }
+  .branches .ar { transform: rotate(90deg); height: 18px; }
 }
 @media (max-width: 620px) {
   body { font-size: 14.5px; }
@@ -602,6 +737,10 @@ body.agent .live.on i { animation: none; }
   .le .t { grid-column: 2; grid-row: 2; text-align: left; padding: 0; }
   .le .k { grid-row: 1 / span 2; }
   .pc iframe { height: 380px; }
+  .sumhead { font-size: 21px; }
+  .atwo { padding: 10px 12px 12px; }
+  .apanel .ahead, .alists, .afoot { padding-left: 12px; padding-right: 12px; }
+  .prc { max-width: 100%; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
@@ -617,9 +756,9 @@ body.agent .live.on i { animation: none; }
 </div>
 <footer id="foot"><div class="in gutter" id="footIn"></div></footer>
 
-<script id="book" type="application/json">{"id":"invoice-export","title":"Invoice Export","tagline":"Bookkeepers get every invoice out of Fieldnote in one click, in their tool's format.","owner":{"name":"Maya Okafor","role":"Product lead"},"profile":"large","updated":"2026-10-29T15:40:00Z","links":[{"label":"Branch","value":"invoice-export-r3","url":""},{"label":"Draft PR","value":"#214","url":"https://github.com/fieldnote/app/pull/214"}],"round":{"n":3,"title":"PDF bundles and the monthly send","started":"2026-10-27","stage":"build"},"needs":[{"text":"Invite the build bot to the staging account so wave 4 can run the walk","link":"","kind":"action"},{"text":"Wave 3 starts after the wave 2 gate, about Thursday","kind":"info"}],"problem":{"statement":"Every month our customers' bookkeepers copy invoices out of Fieldnote by hand. They rebuild a spreadsheet, download PDFs one at a time, and email them on. It takes hours and the totals often drift.","today":["41 support tickets in September asked for an export","PDFs download one at a time, about 4 seconds each","Nobody can see who took which invoices out"],"quotes":[{"text":"I spend the first Monday of every month copying numbers between two tabs.","source":"Bookkeeper interview, round 1"},{"text":"Make it one button. My bookkeeper should never need to log in.","source":"Maya, round 2 feedback"}]},"outcomes":[{"id":"one-click-csv","claim":"A bookkeeper exports a month of invoices as one CSV that imports into their accounting tool with no edits.","icon":"table","done_when":["The CSV imports cleanly into the three tools we support","Totals match the invoice list to the cent"],"milestone":"csv-export"},{"id":"pdf-bundle","claim":"Anyone with the finance role downloads a zip of PDFs for any date range, 2,000 invoices in under 30 seconds.","icon":"file","done_when":["2,000 invoices zip in under 30 seconds on staging","Every PDF in the zip matches the one on screen"],"milestone":"pdf-bundle"},{"id":"monthly-send","claim":"An owner sets a monthly export once, and it lands in the bookkeeper's inbox on the day they chose.","icon":"calendar","done_when":["A test schedule sends on the chosen day in the account's time zone"],"milestone":"scheduled-export"},{"id":"audit-trail","claim":"Every export is recorded with who ran it, when, and which invoices left.","icon":"shield","done_when":["The export history shows every run, including scheduled ones"],"milestone":"csv-export"}],"findings":[{"id":"manual-csv","finding":"Bookkeepers rebuild the spreadsheet by hand every month.","evidence":[{"label":"41 tickets in Sep","ref":"support/export-tag-2026-09"},{"label":"5 of 6 interviews","ref":"agent/research/csv-layouts.md"}],"solution":"One CSV with presets for the three tools our customers use most.","impact":"high","tickets":["csv-mapping-presets","export-dialog-ui"]},{"id":"slow-pdf","finding":"PDFs render on the web server, about 4 seconds each, one at a time.","evidence":[{"label":"render.ts:88","ref":"apps/web/src/invoices/render.ts:88"},{"label":"p95 4.1 s","ref":"dashboards/pdf-render"}],"solution":"Render in a background worker, 8 at a time, and cache each PDF by invoice version.","impact":"high","tickets":["pdf-render-worker","zip-bundle-download"]},{"id":"no-record","finding":"There is no record of who downloaded which invoices.","evidence":[{"label":"No audit table","ref":"db/schema.sql"}],"solution":"Every export writes one row: who, when, filters and invoice count.","impact":"medium","tickets":["export-job-runner","export-history-page"]},{"id":"utc-months","finding":"Date filters use UTC, so month ends drift for customers in the Americas.","evidence":[{"label":"filters.ts:31","ref":"apps/web/src/invoices/filters.ts:31"}],"solution":"Filter by the account's own time zone everywhere exports run.","impact":"medium","tickets":["invoice-query-api"]}],"research":[{"id":"csv-layouts","question":"What CSV layout do the accounting tools our customers use actually import?","answer":"All three accept one row per invoice with a fixed set of columns. Two of them also accept one row per line item, which bookkeepers prefer for tax splits.","recommendations":["Ship one row per invoice as the default","Offer line items as a preset, not a setting"],"sources":[{"title":"Import format guide, tool A","url":"https://example.com/tool-a/import"},{"title":"Bookkeeper interviews, round 1","url":""}],"file":""},{"id":"pdf-speed","question":"How do we render 2,000 PDFs in under 30 seconds?","answer":"A worker pool of 8 renders about 90 PDFs a second once warm. Caching by invoice version removes most of the work for repeat exports.","recommendations":["Move rendering to a queue worker","Cache PDFs by invoice id and version"],"sources":[{"title":"Load test notes","url":""}],"file":""},{"id":"delivery","question":"Do bookkeepers want the monthly export by email or in a shared folder?","answer":"Email, by a wide margin. They forward it into their own systems and do not want another login.","recommendations":["Email a link that expires after 7 days","Skip shared folders for now"],"sources":[],"file":""}],"architecture":{"summary":"Exports run as background jobs so the web app stays fast. Each job writes a record, renders what it needs, and hands the file to storage or email.","frames":[{"title":"Today","caption":"Bookkeepers copy invoices out by hand.","nodes":[{"id":"list","label":"Invoice list","kind":"screen","x":0,"y":1},{"id":"api","label":"Web API","kind":"service","x":1,"y":1},{"id":"db","label":"Postgres","kind":"store","x":2,"y":1},{"id":"keeper","label":"Bookkeeper","kind":"external","x":0,"y":0}],"edges":[{"from":"list","to":"api","label":"loads"},{"from":"api","to":"db","label":"reads"},{"from":"keeper","to":"list","label":"copies by hand"}],"new":[]},{"title":"Export jobs","caption":"A job runner takes the work off the web server and records every run.","nodes":[{"id":"list","label":"Invoice list","kind":"screen","x":0,"y":1},{"id":"api","label":"Web API","kind":"service","x":1,"y":1},{"id":"db","label":"Postgres","kind":"store","x":2,"y":1},{"id":"keeper","label":"Bookkeeper","kind":"external","x":0,"y":0},{"id":"jobs","label":"Export jobs","kind":"queue","x":1,"y":2}],"edges":[{"from":"list","to":"api","label":"export"},{"from":"api","to":"db","label":"reads"},{"from":"api","to":"jobs","label":"queues"},{"from":"jobs","to":"db","label":"records run"},{"from":"keeper","to":"list","label":"one click"}],"new":["jobs"]},{"title":"PDF worker","caption":"A worker renders PDFs eight at a time and stores the zip.","nodes":[{"id":"list","label":"Invoice list","kind":"screen","x":0,"y":1},{"id":"api","label":"Web API","kind":"service","x":1,"y":1},{"id":"db","label":"Postgres","kind":"store","x":2,"y":1},{"id":"keeper","label":"Bookkeeper","kind":"external","x":0,"y":0},{"id":"jobs","label":"Export jobs","kind":"queue","x":1,"y":2},{"id":"pdf","label":"PDF worker","kind":"agent","x":2,"y":2},{"id":"files","label":"File storage","kind":"store","x":3,"y":2}],"edges":[{"from":"list","to":"api","label":"export"},{"from":"api","to":"db","label":"reads"},{"from":"api","to":"jobs","label":"queues"},{"from":"jobs","to":"pdf","label":"renders"},{"from":"pdf","to":"files","label":"zips"},{"from":"keeper","to":"list","label":"one click"}],"new":["pdf","files"]},{"title":"Monthly send","caption":"A schedule starts the job each month and emails a link.","nodes":[{"id":"list","label":"Invoice list","kind":"screen","x":0,"y":1},{"id":"api","label":"Web API","kind":"service","x":1,"y":1},{"id":"db","label":"Postgres","kind":"store","x":2,"y":1},{"id":"keeper","label":"Bookkeeper","kind":"external","x":0,"y":0},{"id":"jobs","label":"Export jobs","kind":"queue","x":1,"y":2},{"id":"pdf","label":"PDF worker","kind":"agent","x":2,"y":2},{"id":"files","label":"File storage","kind":"store","x":3,"y":2},{"id":"cron","label":"Scheduler","kind":"service","x":1,"y":0},{"id":"mail","label":"Email","kind":"external","x":3,"y":0}],"edges":[{"from":"list","to":"api","label":"export"},{"from":"api","to":"db","label":"reads"},{"from":"api","to":"jobs","label":"queues"},{"from":"jobs","to":"pdf","label":"renders"},{"from":"pdf","to":"files","label":"zips"},{"from":"cron","to":"jobs","label":"monthly"},{"from":"files","to":"mail","label":"link"},{"from":"mail","to":"keeper","label":"inbox"}],"new":["cron","mail"]}],"changes":[{"area":"Exports","before":"Copied by hand from the invoice list","after":"One button, CSV or PDF zip, any date range"},{"area":"PDF rendering","before":"On the web server, one at a time","after":"Queue worker, eight at a time, cached by version"},{"area":"Records","before":"None","after":"One row per export with who, when and how many"},{"area":"Time zones","before":"UTC month boundaries","after":"The account's own time zone"}]},"prototypes":[{"id":"export-dialog","title":"Export dialog","url":"","file":"proto/export-dialog.html","caption":"Pick a range, a format and a preset. Approved in round 2 with one change: presets first.","status":"approved"},{"id":"schedule-settings","title":"Monthly schedule settings","url":"https://claude.ai/artifact/example-schedule","file":"","caption":"Owner picks the day and the bookkeeper's email. Waiting on the send-day decision.","status":"draft"}],"plan":{"summary":"We build exports as background jobs in four waves of parallel agents. CSV and the job runner come first, then PDF bundles, then the monthly send. Every ticket proves itself with a test and a screenshot before the gate.","principles":[{"title":"Jobs, not requests","text":"Anything over a second runs as a job with a record."},{"title":"Presets over settings","text":"Bookkeepers pick their tool; we pick the columns."},{"title":"Account time zone","text":"Every date range uses the account's own zone."}],"milestones":[{"id":"csv-export","title":"One-click CSV","goal":"A bookkeeper exports any month as a CSV their tool imports.","done_when":["CSV imports cleanly into the three supported tools","Every export has a history row"]},{"id":"pdf-bundle","title":"PDF bundles","goal":"A zip of PDFs for any range, fast enough to wait for.","done_when":["2,000 invoices in under 30 seconds on staging"]},{"id":"scheduled-export","title":"Monthly send","goal":"Set it once and the export arrives every month.","done_when":["A test schedule sends on the chosen day","The email link expires after 7 days"]}],"tickets":[{"id":"export-job-runner","title":"Export job runner and history table","short":"Job runner and history","milestone":"csv-export","area":"Backend","size":"L","risk":"high","wave":1,"agent":"lead","problem":"Exports would block web requests and leave no record.","goal":"Any export runs as a background job and writes one history row.","done_when":["A queued export finishes with the web server under load","Each run writes who, when, filters and count"],"verify":{"code":"pnpm test jobs/export","browser":"Start an export, reload, see it finish in history"},"files":["apps/api/src/jobs/export.ts","db/migrations/0042_exports.sql"],"depends_on":[],"evidence":"agent/proof/export-job-runner-1.png"},{"id":"invoice-query-api","title":"Invoice range query in the account time zone","short":"Range query by zone","milestone":"csv-export","area":"Backend","size":"M","risk":"medium","wave":1,"agent":"api","problem":"Month filters use UTC and drift.","goal":"One query returns invoices for a range in the account's own time zone.","done_when":["October in Los Angeles returns exactly the invoices dated in October there"],"verify":{"code":"pnpm test invoices/range","browser":""},"files":["apps/api/src/invoices/range.ts"],"depends_on":[],"evidence":""},{"id":"csv-mapping-presets","title":"CSV presets for the three accounting tools","short":"CSV presets","milestone":"csv-export","area":"Backend","size":"L","risk":"medium","wave":2,"agent":"csv","problem":"Each tool wants different columns.","goal":"A bookkeeper picks a tool and gets a CSV that tool imports as is.","done_when":["Sample files import into all three tools with no edits","Totals match the invoice list to the cent"],"verify":{"code":"pnpm test export/csv","browser":"Export October with each preset and import it"},"files":["apps/api/src/export/csv.ts","apps/api/src/export/presets.ts"],"depends_on":["invoice-query-api"],"evidence":""},{"id":"pdf-render-worker","title":"PDF render worker with cache","short":"PDF worker","milestone":"pdf-bundle","area":"Worker","size":"L","risk":"high","wave":2,"agent":"pdf","problem":"PDFs render one at a time on the web server.","goal":"A worker renders eight PDFs at a time and reuses cached ones.","done_when":["500 PDFs render in under 8 seconds warm","A changed invoice renders again, an unchanged one does not"],"verify":{"code":"pnpm test worker/pdf","browser":""},"files":["apps/worker/src/pdf.ts"],"depends_on":["export-job-runner"],"evidence":""},{"id":"export-dialog-ui","title":"Export dialog on the invoice list","short":"Export dialog","milestone":"csv-export","area":"Web","size":"M","risk":"low","wave":2,"agent":"ui","problem":"There is no way to start an export.","goal":"The approved prototype, built: range, format, preset, start.","done_when":["The dialog matches the prototype at desktop and phone width","Starting an export shows progress and a download"],"verify":{"code":"pnpm test web/export-dialog","browser":"Open the invoice list, export last month as CSV"},"files":["apps/web/src/invoices/ExportDialog.tsx"],"depends_on":["invoice-query-api"],"evidence":"","order":1},{"id":"schedule-settings","title":"Monthly schedule settings","short":"Schedule settings","milestone":"scheduled-export","area":"Web","size":"M","risk":"low","wave":2,"agent":"ui","problem":"Owners must remember to export every month.","goal":"An owner sets the day, the format and the bookkeeper's email once.","done_when":["A saved schedule shows its next send date in the account's zone"],"verify":{"code":"pnpm test web/schedule","browser":"Save a schedule, see the next send date"},"files":["apps/web/src/settings/ExportSchedule.tsx"],"depends_on":["export-dialog-ui","export-job-runner"],"evidence":"","order":2},{"id":"zip-bundle-download","title":"Zip bundle download for any range","short":"Zip download","milestone":"pdf-bundle","area":"Backend","size":"M","risk":"medium","wave":3,"agent":"pdf","problem":"PDFs come one file at a time.","goal":"One zip with every PDF in the range, ready in under 30 seconds for 2,000.","done_when":["2,000 invoices zip in under 30 seconds on staging"],"verify":{"code":"pnpm test export/zip","browser":"Export a year as PDF zip"},"files":["apps/api/src/export/zip.ts"],"depends_on":["pdf-render-worker"],"evidence":""},{"id":"export-history-page","title":"Export history page","short":"History page","milestone":"csv-export","area":"Web","size":"M","risk":"low","wave":3,"agent":"csv","problem":"Owners cannot see what left the system.","goal":"A page lists every export with who, when, what and a fresh download link.","done_when":["Every run appears, scheduled ones included"],"verify":{"code":"","browser":"Run two exports, see both in history"},"files":["apps/web/src/settings/ExportHistory.tsx"],"depends_on":["export-job-runner"],"evidence":""},{"id":"monthly-email-delivery","title":"Monthly email with an expiring link","short":"Monthly email","milestone":"scheduled-export","area":"Backend","size":"M","risk":"high","wave":4,"agent":"lead","problem":"The export still has to reach the bookkeeper.","goal":"On the chosen day the job runs and emails a link that expires after 7 days.","done_when":["A test schedule sends on the chosen day","The link stops working after 7 days"],"verify":{"code":"pnpm test jobs/schedule","browser":"Trigger a test send, open the email"},"files":["apps/api/src/jobs/schedule.ts","apps/api/src/mail/export.tsx"],"depends_on":["schedule-settings","zip-bundle-download"],"evidence":""},{"id":"end-to-end-proof","title":"End to end proof on staging","short":"Staging walk","milestone":"scheduled-export","area":"QA","size":"M","risk":"medium","wave":4,"agent":"qa","problem":"Each part is proven alone, not together.","goal":"One recorded walk through every outcome on staging data.","done_when":["A video shows CSV, zip and the monthly email working on staging"],"verify":{"code":"","browser":"Full walk on staging, recorded"},"files":[],"depends_on":["csv-mapping-presets","export-history-page"],"evidence":""}],"waves":[{"n":1,"title":"Foundations","why":"Everything else reads from the query and runs as a job.","agents":[{"name":"lead","tickets":["export-job-runner"]},{"name":"api","tickets":["invoice-query-api"]}],"gate":["tests pass","two reviews","spot check"]},{"n":2,"title":"CSV, worker, dialog and schedule","why":"Independent pieces on the foundations. The UI agent builds the dialog, then the schedule.","agents":[{"name":"csv","tickets":["csv-mapping-presets"]},{"name":"pdf","tickets":["pdf-render-worker"]},{"name":"ui","tickets":["export-dialog-ui","schedule-settings"]}],"gate":["tests pass","two reviews","browser check"]},{"n":3,"title":"Bundles and history","why":"Each builds on one wave 2 piece.","agents":[{"name":"pdf","tickets":["zip-bundle-download"]},{"name":"csv","tickets":["export-history-page"]}],"gate":["tests pass","two reviews","browser check"]},{"n":4,"title":"Monthly send and proof","why":"Joins everything and proves it on staging.","agents":[{"name":"lead","tickets":["monthly-email-delivery"]},{"name":"qa","tickets":["end-to-end-proof"]}],"gate":["tests pass","refuter","your check"]}],"gate":{"steps":["Full test suite","Two fresh reviews of the wave's diff","Browser walk of what the wave changed","Lead spot check of one proof"],"baseline":["pnpm test","pnpm typecheck","pnpm lint"]},"stop_rules":["A blocking decision is still not opened","The baseline goes red and one fix does not bring it back","A review finding survives three rounds","Anything would delete customer data"],"verification":[{"where":"Every ticket","what":"Its own test command and a screenshot of the result"},{"where":"Every gate","what":"Full test suite, two fresh reviews, and a browser walk of the wave"},{"where":"Before the report","what":"A recorded walk on staging data"}],"commits":"One commit per ticket on the draft PR branch, message names the ticket title.","risks":[{"risk":"Accounting tools change their import format","mitigation":"Presets live in one file with a test per tool"},{"risk":"Large zips time out","mitigation":"Stream the zip and cap the range"}],"later":["Shared folder delivery","Exports by client or project","Direct sync with accounting tools"]},"decisions":[{"id":"dialog-placement","question":"Where does the Export button live?","why":"The dialog ticket cannot finish until we know where people start an export.","options":[{"id":"toolbar","label":"Invoice list toolbar","effect":"Found in one click. Ticket stays as planned."},{"id":"settings","label":"Settings page","effect":"Quieter list. Adds a link from the list, same wave."}],"recommended":"toolbar","attach":"ticket:export-dialog-ui","blocks":["export-dialog-ui"]},{"id":"csv-default","question":"Which CSV layout is the default?","why":"Two of three tools accept both; bookkeepers split tax by line.","options":[{"id":"per-invoice","label":"One row per invoice","effect":"Works in all three tools."},{"id":"per-line","label":"One row per line item","effect":"Better for tax splits. One tool needs a preset."}],"recommended":"per-invoice","attach":"ticket:csv-mapping-presets","blocks":["csv-mapping-presets"]},{"id":"send-day","question":"When does the monthly export send?","why":"Bookkeepers close the month on different days.","options":[{"id":"first","label":"The 1st of the month","effect":"Simplest. Late invoices miss it."},{"id":"chosen","label":"A day the owner picks","effect":"Adds one field to the schedule settings."}],"recommended":"first","attach":"milestone:scheduled-export","blocks":["schedule-settings"]},{"id":"zip-cap","question":"What is the most invoices in one zip?","why":"Bigger zips risk timeouts on slow connections.","options":[{"id":"two-k","label":"2,000","effect":"Covers 98 percent of accounts' years."},{"id":"five-k","label":"5,000","effect":"Covers everyone. Needs streaming, already planned."},{"id":"none","label":"No cap","effect":"Adds a risk of timeouts. Not advised."}],"recommended":"five-k","attach":"milestone:pdf-bundle","blocks":[]}],"kickoff":"Build Invoice Export, round 3. Read the book at https://claude.ai/artifact/example-invoice-export (agent/book.json and agent/CHECKPOINT.md first). Run waves 2 to 4 as planned, one builder per ticket, each proving its own done-when with a test and a screenshot. Write status, run and log rows as you go. Stop and ask in chat if a blocking decision is still not opened.","report":{"ready":false,"blocked_on_you":[],"changed":[],"found":[],"proof":[],"how_to_test":[],"revert":"","attention":[]},"history":[{"round":1,"title":"Research and CSV plan","dates":"6 to 10 Oct","ask":"Find out why bookkeepers hate month end and plan a CSV export.","outcome":"Six interviews, a CSV layout study and a 5 ticket plan for CSV only.","numbers":{"tickets":5,"waves":2},"file":"","links":[]},{"round":2,"title":"CSV shipped, PDFs added","dates":"13 to 24 Oct","ask":"Ship the CSV, then add PDF bundles and a monthly send.","outcome":"Job runner and range query merged. Plan grew to 10 tickets in 4 waves.","numbers":{"tickets":10,"waves":4},"file":"","links":[{"label":"Round 2 PR","url":"https://github.com/fieldnote/app/pull/198"}]}],"files":[{"path":"agent/ASK.md","title":"The ask, verbatim","kind":"md"},{"path":"agent/CHECKPOINT.md","title":"Run ledger","kind":"md"},{"path":"agent/proof/export-job-runner-1.png","title":"Proof: export history row","kind":"img"}]}</script>
-<script id="build" type="application/json">{"source":"sample-book/index.html","built":"2026-10-30T02:57:43.398Z","published":["agent/ASK.md","agent/CHECKPOINT.md","agent/book.json","agent/proof/export-job-runner-1.png","proto/export-dialog.html"]}</script>
-<script id="demo" type="application/json">{"_comment":"Sample live state for previewing the book. It is NOT published and NOT part of book.json. Each top-level key is a db collection and each inner key a document id, in the shapes from references/data-model.md. Use it two ways: (1) node scripts/build.mjs examples/sample-book --demo examples/sample-book/db-seed.json --preview embeds it, and the page shows it, labelled as sample data, only when the db is not available (local preview); (2) after a real publish, write the same documents with ArtifactData to see the live page. The status docs say: wave 1 is done with proof, wave 2 is building (csv presets doing, pdf worker in review, the dialog blocked on the dialog-placement decision), waves 3 and 4 have not started. _names maps the made-up user ids to names for the preview only.","_names":{"u_maya":"Maya Okafor","u_dan":"Dan Reyes"},"status":{"export-job-runner":{"state":"done","note":"Merged after gate and two reviews.","proof":["agent/proof/export-job-runner-1.png"],"sha":"9b03f11","at":"2026-10-28T11:20:00Z"},"invoice-query-api":{"state":"done","note":"Los Angeles October test passes.","proof":[],"sha":"9b03f11","at":"2026-10-28T10:05:00Z"},"csv-mapping-presets":{"state":"doing","note":"Tool A and B import cleanly. Tool C next.","proof":[],"sha":"4e1c9a2","at":"2026-10-29T15:10:00Z"},"pdf-render-worker":{"state":"review","note":"500 PDFs in 6.2 s warm. Two reviews running.","proof":[],"sha":"4e1c9a2","at":"2026-10-29T14:55:00Z"},"export-dialog-ui":{"state":"blocked","note":"Waiting on where the Export button lives.","proof":[],"sha":"","at":"2026-10-29T14:10:00Z"}},"run":{"current":{"wave":2,"phase":"building","note":"Three builders on wave 2. The dialog waits on your call.","at":"2026-10-29T15:12:00Z","branch":"invoice-export-r3","pr":"#214","sha":"4e1c9a2"}},"log":{"20261013090000-start":{"at":"2026-10-13T09:00:00Z","round":2,"kind":"start","text":"Round 2 started: ship CSV, plan PDFs and the monthly send.","evidence":""},"20261020170000-merge":{"at":"2026-10-20T17:00:00Z","round":2,"kind":"merge","text":"CSV export merged behind a flag.","evidence":"https://github.com/fieldnote/app/pull/198"},"20261024160000-done":{"at":"2026-10-24T16:00:00Z","round":2,"kind":"done","text":"Round 2 closed. Plan grew to 10 tickets in 4 waves.","evidence":""},"20261027090000-start":{"at":"2026-10-27T09:00:00Z","round":3,"kind":"start","text":"Round 3 started from the approved plan.","evidence":""},"20261028100500-proof":{"at":"2026-10-28T10:05:00Z","round":3,"kind":"proof","text":"Range query proven in three time zones.","evidence":""},"20261028112000-gate":{"at":"2026-10-28T11:20:00Z","round":3,"kind":"gate","text":"Wave 1 gate passed: tests, two reviews, spot check.","evidence":"agent/proof/export-job-runner-1.png"},"20261028143000-decision":{"at":"2026-10-28T14:30:00Z","round":3,"kind":"decision","text":"Send day changed to a day the owner picks.","evidence":""},"20261029141000-blocked":{"at":"2026-10-29T14:10:00Z","round":3,"kind":"blocked","text":"Export dialog waits on where the button lives.","evidence":""},"20261029145500-review":{"at":"2026-10-29T14:55:00Z","round":3,"kind":"review","text":"PDF worker in review. One finding fixed, one closed as pre-existing.","evidence":""}},"decisions":{"csv-default":{"choice":"per-invoice","state":"kept","note":"","by":"u_maya","at":"2026-10-28T09:40:00Z"},"send-day":{"choice":"chosen","state":"changed","note":"Our bookkeepers close on the 3rd.","by":"u_maya","at":"2026-10-28T14:30:00Z"}},"feedback":{"fb-01":{"section":"findings","target":"slow-pdf","text":"Can we keep the old single PDF download too?","by":"u_dan","at":"2026-10-29T12:02:00Z","round":3,"resolved":false,"answer":""},"fb-02":{"section":"plan","target":"export-history-page","text":"History should show scheduled runs too.","by":"u_maya","at":"2026-10-28T16:00:00Z","round":3,"resolved":true,"answer":"Added to its done-when."}},"gates":{"plan":{"approved":true,"by":"u_maya","at":"2026-10-27T08:50:00Z","note":""}}}</script>
+<script id="book" type="application/json">{"id":"invoice-export","title":"Invoice Export","tagline":"Bookkeepers get every invoice out of Fieldnote in one click, in their tool's format.","owner":{"name":"Maya Okafor","role":"Product lead"},"profile":"large","updated":"2026-10-29T15:40:00Z","links":[{"label":"Branch","value":"invoice-export-r3","url":""},{"label":"Draft PR","value":"#214","url":"https://github.com/fieldnote/app/pull/214"}],"round":{"n":3,"title":"PDF bundles and the monthly send","started":"2026-10-27","stage":"build"},"needs":[{"text":"Invite the build bot to the staging account so wave 4 can run the walk","link":"","kind":"action"},{"text":"Wave 3 starts after the wave 2 gate, about Thursday","kind":"info"}],"problem":{"statement":"Every month our customers' bookkeepers copy invoices out of Fieldnote by hand. They rebuild a spreadsheet, download PDFs one at a time, and email them on. It takes hours and the totals often drift.","today":["41 support tickets in September asked for an export","PDFs download one at a time, about 4 seconds each","Nobody can see who took which invoices out"],"quotes":[{"text":"I spend the first Monday of every month copying numbers between two tabs.","source":"Bookkeeper interview, round 1"},{"text":"Make it one button. My bookkeeper should never need to log in.","source":"Maya, round 2 feedback"}]},"outcomes":[{"id":"one-click-csv","claim":"A bookkeeper exports a month of invoices as one CSV that imports into their accounting tool with no edits.","icon":"table","done_when":["The CSV imports cleanly into the three tools we support","Totals match the invoice list to the cent"],"milestone":"csv-export"},{"id":"pdf-bundle","claim":"Anyone with the finance role downloads a zip of PDFs for any date range, 2,000 invoices in under 30 seconds.","icon":"file","done_when":["2,000 invoices zip in under 30 seconds on staging","Every PDF in the zip matches the one on screen"],"milestone":"pdf-bundle"},{"id":"monthly-send","claim":"An owner sets a monthly export once, and it lands in the bookkeeper's inbox on the day they chose.","icon":"calendar","done_when":["A test schedule sends on the chosen day in the account's time zone"],"milestone":"scheduled-export"},{"id":"audit-trail","claim":"Every export is recorded with who ran it, when, and which invoices left.","icon":"shield","done_when":["The export history shows every run, including scheduled ones"],"milestone":"csv-export"}],"findings":[{"id":"manual-csv","finding":"Bookkeepers rebuild the spreadsheet by hand every month.","evidence":[{"label":"41 tickets in Sep","ref":"support/export-tag-2026-09"},{"label":"5 of 6 interviews","ref":"agent/research/csv-layouts.md"}],"solution":"One CSV with presets for the three tools our customers use most.","impact":"high","tickets":["csv-mapping-presets","export-dialog-ui"],"area":"Export"},{"id":"slow-pdf","finding":"PDFs render on the web server, about 4 seconds each, one at a time.","evidence":[{"label":"render.ts:88","ref":"apps/web/src/invoices/render.ts:88"},{"label":"p95 4.1 s","ref":"dashboards/pdf-render"}],"solution":"Render in a background worker, 8 at a time, and cache each PDF by invoice version.","impact":"high","tickets":["pdf-render-worker","zip-bundle-download"],"area":"Speed","detail":"The web server renders each PDF inside the request that asked for it. A month of 300 invoices takes about 20 minutes and times out after 60 seconds, so bookkeepers download them one by one.","solution_detail":"A worker pulls render jobs from the queue, eight at a time, and stores each PDF keyed by invoice version. A second export of the same month reuses the stored files and only renders what changed."},{"id":"no-record","finding":"There is no record of who downloaded which invoices.","evidence":[{"label":"No audit table","ref":"db/schema.sql"}],"solution":"Every export writes one row: who, when, filters and invoice count.","impact":"medium","tickets":["export-job-runner","export-history-page"],"area":"Records"},{"id":"utc-months","finding":"Date filters use UTC, so month ends drift for customers in the Americas.","evidence":[{"label":"filters.ts:31","ref":"apps/web/src/invoices/filters.ts:31"}],"solution":"Filter by the account's own time zone everywhere exports run.","impact":"medium","tickets":["invoice-query-api"],"area":"Export"}],"research":[{"id":"csv-layouts","question":"What CSV layout do the accounting tools our customers use actually import?","answer":"All three accept one row per invoice with a fixed set of columns. Two of them also accept one row per line item, which bookkeepers prefer for tax splits.","recommendations":["Ship one row per invoice as the default","Offer line items as a preset, not a setting"],"sources":[{"title":"Import format guide, tool A","url":"https://example.com/tool-a/import"},{"title":"Bookkeeper interviews, round 1","url":""}],"file":""},{"id":"pdf-speed","question":"How do we render 2,000 PDFs in under 30 seconds?","answer":"A worker pool of 8 renders about 90 PDFs a second once warm. Caching by invoice version removes most of the work for repeat exports.","recommendations":["Move rendering to a queue worker","Cache PDFs by invoice id and version"],"sources":[{"title":"Load test notes","url":""}],"file":""},{"id":"delivery","question":"Do bookkeepers want the monthly export by email or in a shared folder?","answer":"Email, by a wide margin. They forward it into their own systems and do not want another login.","recommendations":["Email a link that expires after 7 days","Skip shared folders for now"],"sources":[],"file":""}],"architecture":{"summary":"Exports run as background jobs so the web app stays fast. Each job writes a record, renders what it needs, and hands the file to storage or email.","frames":[{"title":"Today","caption":"Bookkeepers copy invoices out by hand.","nodes":[{"id":"list","label":"Invoice list","kind":"screen","x":0,"y":1},{"id":"api","label":"Web API","kind":"service","x":1,"y":1},{"id":"db","label":"Postgres","kind":"store","x":2,"y":1},{"id":"keeper","label":"Bookkeeper","kind":"external","x":0,"y":0}],"edges":[{"from":"list","to":"api","label":"loads"},{"from":"api","to":"db","label":"reads"},{"from":"keeper","to":"list","label":"copies by hand"}],"new":[]},{"title":"Export jobs","caption":"A job runner takes the work off the web server and records every run.","nodes":[{"id":"list","label":"Invoice list","kind":"screen","x":0,"y":1},{"id":"api","label":"Web API","kind":"service","x":1,"y":1},{"id":"db","label":"Postgres","kind":"store","x":2,"y":1},{"id":"keeper","label":"Bookkeeper","kind":"external","x":0,"y":0},{"id":"jobs","label":"Export jobs","kind":"queue","x":1,"y":2}],"edges":[{"from":"list","to":"api","label":"export"},{"from":"api","to":"db","label":"reads"},{"from":"api","to":"jobs","label":"queues"},{"from":"jobs","to":"db","label":"records run"},{"from":"keeper","to":"list","label":"one click"}],"new":["jobs"]},{"title":"PDF worker","caption":"A worker renders PDFs eight at a time and stores the zip.","nodes":[{"id":"list","label":"Invoice list","kind":"screen","x":0,"y":1},{"id":"api","label":"Web API","kind":"service","x":1,"y":1},{"id":"db","label":"Postgres","kind":"store","x":2,"y":1},{"id":"keeper","label":"Bookkeeper","kind":"external","x":0,"y":0},{"id":"jobs","label":"Export jobs","kind":"queue","x":1,"y":2},{"id":"pdf","label":"PDF worker","kind":"agent","x":2,"y":2},{"id":"files","label":"File storage","kind":"store","x":3,"y":2}],"edges":[{"from":"list","to":"api","label":"export"},{"from":"api","to":"db","label":"reads"},{"from":"api","to":"jobs","label":"queues"},{"from":"jobs","to":"pdf","label":"renders"},{"from":"pdf","to":"files","label":"zips"},{"from":"keeper","to":"list","label":"one click"}],"new":["pdf","files"]},{"title":"Monthly send","caption":"A schedule starts the job each month and emails a link.","nodes":[{"id":"list","label":"Invoice list","kind":"screen","x":0,"y":1},{"id":"api","label":"Web API","kind":"service","x":1,"y":1},{"id":"db","label":"Postgres","kind":"store","x":2,"y":1},{"id":"keeper","label":"Bookkeeper","kind":"external","x":0,"y":0},{"id":"jobs","label":"Export jobs","kind":"queue","x":1,"y":2},{"id":"pdf","label":"PDF worker","kind":"agent","x":2,"y":2},{"id":"files","label":"File storage","kind":"store","x":3,"y":2},{"id":"cron","label":"Scheduler","kind":"service","x":1,"y":0},{"id":"mail","label":"Email","kind":"external","x":3,"y":0}],"edges":[{"from":"list","to":"api","label":"export"},{"from":"api","to":"db","label":"reads"},{"from":"api","to":"jobs","label":"queues"},{"from":"jobs","to":"pdf","label":"renders"},{"from":"pdf","to":"files","label":"zips"},{"from":"cron","to":"jobs","label":"monthly"},{"from":"files","to":"mail","label":"link"},{"from":"mail","to":"keeper","label":"inbox"}],"new":["cron","mail"]}],"changes":[{"area":"Exports","before":"Copied by hand from the invoice list","after":"One button, CSV or PDF zip, any date range"},{"area":"PDF rendering","before":"On the web server, one at a time","after":"Queue worker, eight at a time, cached by version"},{"area":"Records","before":"None","after":"One row per export with who, when and how many"},{"area":"Time zones","before":"UTC month boundaries","after":"The account's own time zone"}],"areas":[{"id":"export-jobs","title":"Exports run as background jobs","short":"Take the slow work off the web server","found":"Every export runs inside a web request. Under load the request times out after 60 seconds, and nothing records what was exported, by whom, or with which filters.","evidence":[{"label":"render.ts:88","ref":"apps/web/src/invoices/render.ts:88"},{"label":"No audit table","ref":"db/schema.sql"}],"recommend":"The web app only queues a job and returns at once. A job runner does the work, writes one history row per run, and tells the screen when the file is ready.","why":"It is the standard pattern for slow work in web apps, our framework ships a job queue already, and it gives the audit record for free.","user_sees":"The export button answers at once, a progress chip shows the job, and a history page lists every past export.","tradeoffs":["One more process to run and watch","A finished export arrives a few seconds later than a tiny one does today"],"not_building":["A custom queue; we use the framework's","Real-time streaming of partial files"],"today":{"title":"Today","caption":"The request does all the work, then nothing is recorded.","nodes":[{"id":"keeper","label":"Bookkeeper","kind":"external","x":0,"y":0},{"id":"list","label":"Invoice list","kind":"screen","x":0,"y":1},{"id":"api","label":"Web API","kind":"service","x":1,"y":1},{"id":"db","label":"Postgres","kind":"store","x":2,"y":1}],"edges":[{"from":"keeper","to":"list","label":"clicks export"},{"from":"list","to":"api","label":"waits"},{"from":"api","to":"db","label":"reads"}]},"proposed":{"title":"Proposed","caption":"The request queues a job; the runner records every run.","nodes":[{"id":"keeper","label":"Bookkeeper","kind":"external","x":0,"y":0},{"id":"list","label":"Invoice list","kind":"screen","x":0,"y":1},{"id":"api","label":"Web API","kind":"service","x":1,"y":1},{"id":"db","label":"Postgres","kind":"store","x":2,"y":1},{"id":"jobs","label":"Export jobs","kind":"queue","x":1,"y":2},{"id":"hist","label":"History","kind":"store","x":2,"y":2}],"edges":[{"from":"keeper","to":"list","label":"clicks export"},{"from":"list","to":"api","label":"queues"},{"from":"api","to":"jobs","label":"adds job"},{"from":"jobs","to":"db","label":"reads"},{"from":"jobs","to":"hist","label":"writes row"}],"new":["jobs","hist"]},"steps":[{"text":"The bookkeeper clicks export; the request adds a job and returns at once.","nodes":["keeper","list","api","jobs"]},{"text":"The runner reads the invoices with the account's own time zone.","nodes":["jobs","db"]},{"text":"Each run writes who, when, filters and count to history.","nodes":["jobs","hist"]}],"tickets":["export-job-runner","export-history-page"],"research":["delivery"]},{"id":"pdf-worker","title":"A worker renders PDFs in parallel","short":"From 20 minutes to about 2 for a month","found":"PDFs render one at a time on the web server, about 4 seconds each, so a month of 300 invoices takes 20 minutes.","evidence":[{"label":"p95 4.1 s","ref":"dashboards/pdf-render"}],"recommend":"A separate worker renders eight PDFs at a time and stores each one by invoice version, then zips the month.","why":"Rendering is the slow step and it is independent per invoice, so parallel workers cut the time almost linearly; caching by version avoids repeat work.","user_sees":"A month of PDFs arrives as one zip in about two minutes.","today":{"caption":"One PDF at a time inside the web request.","nodes":[{"id":"api","label":"Web API","kind":"service","x":0,"y":0},{"id":"render","label":"Renderer","kind":"service","x":1,"y":0}],"edges":[{"from":"api","to":"render","label":"one at a time"}]},"proposed":{"caption":"Eight at a time in a worker, cached by version.","nodes":[{"id":"api","label":"Web API","kind":"service","x":0,"y":0},{"id":"jobs","label":"Export jobs","kind":"queue","x":1,"y":0},{"id":"pdf","label":"PDF worker","kind":"agent","x":2,"y":0},{"id":"files","label":"File storage","kind":"store","x":2,"y":1}],"edges":[{"from":"api","to":"jobs","label":"queues"},{"from":"jobs","to":"pdf","label":"8 at a time"},{"from":"pdf","to":"files","label":"stores, zips"}],"new":["pdf","files"]},"steps":[{"text":"The job splits the month into one render task per invoice.","nodes":["jobs","pdf"]},{"text":"The worker skips invoices whose version is already stored.","nodes":["pdf","files"]},{"text":"When all tasks finish, the worker zips the month and links it.","nodes":["pdf","files"]}],"tickets":["pdf-render-worker","zip-bundle-download"],"research":["pdf-speed"]}]},"prototypes":[{"id":"export-dialog","title":"Export dialog","url":"","file":"proto/export-dialog.html","caption":"Pick a range, a format and a preset. Approved in round 2 with one change: presets first.","status":"approved"},{"id":"schedule-settings","title":"Monthly schedule settings","url":"https://claude.ai/artifact/example-schedule","file":"","caption":"Owner picks the day and the bookkeeper's email. Waiting on the send-day decision.","status":"draft"}],"plan":{"summary":"We build exports as background jobs in four waves of parallel agents. CSV and the job runner come first, then PDF bundles, then the monthly send. Every ticket proves itself with a test and a screenshot before the gate.","principles":[{"title":"Jobs, not requests","text":"Anything over a second runs as a job with a record."},{"title":"Presets over settings","text":"Bookkeepers pick their tool; we pick the columns."},{"title":"Account time zone","text":"Every date range uses the account's own zone."}],"milestones":[{"id":"csv-export","title":"One-click CSV","goal":"A bookkeeper exports any month as a CSV their tool imports.","done_when":["CSV imports cleanly into the three supported tools","Every export has a history row"]},{"id":"pdf-bundle","title":"PDF bundles","goal":"A zip of PDFs for any range, fast enough to wait for.","done_when":["2,000 invoices in under 30 seconds on staging"]},{"id":"scheduled-export","title":"Monthly send","goal":"Set it once and the export arrives every month.","done_when":["A test schedule sends on the chosen day","The email link expires after 7 days"]}],"tickets":[{"id":"export-job-runner","title":"Export job runner and history table","short":"Job runner and history","milestone":"csv-export","area":"Backend","size":"L","risk":"high","wave":1,"agent":"lead","problem":"Exports would block web requests and leave no record.","goal":"Any export runs as a background job and writes one history row.","done_when":["A queued export finishes with the web server under load","Each run writes who, when, filters and count"],"verify":{"code":"pnpm test jobs/export","browser":"Start an export, reload, see it finish in history","run":"Start a 300 invoice export on staging, reload the page, and watch it finish and appear in history."},"files":["apps/api/src/jobs/export.ts","db/migrations/0042_exports.sql"],"depends_on":[],"evidence":"agent/proof/export-job-runner-1.png","where_found":["apps/web/src/invoices/render.ts:88, export runs in the request","db/schema.sql, no table records exports"],"reproduce":["Open the invoice list with 300 invoices in one month","Click export as PDF","The request times out after 60 seconds and no history exists"],"solution":"Queue each export as a background job using the framework's job queue. The runner retries twice, writes one history row per run, and posts progress the screen can poll.","why_right":"The framework already ships the queue, so this adds no new service and gives the audit record in the same change.","estimate":"2 h build, 30 min review"},{"id":"invoice-query-api","title":"Invoice range query in the account time zone","short":"Range query by zone","milestone":"csv-export","area":"Backend","size":"M","risk":"medium","wave":1,"agent":"api","problem":"Month filters use UTC and drift.","goal":"One query returns invoices for a range in the account's own time zone.","done_when":["October in Los Angeles returns exactly the invoices dated in October there"],"verify":{"code":"pnpm test invoices/range","browser":""},"files":["apps/api/src/invoices/range.ts"],"depends_on":[],"evidence":""},{"id":"csv-mapping-presets","title":"CSV presets for the three accounting tools","short":"CSV presets","milestone":"csv-export","area":"Backend","size":"L","risk":"medium","wave":2,"agent":"csv","problem":"Each tool wants different columns.","goal":"A bookkeeper picks a tool and gets a CSV that tool imports as is.","done_when":["Sample files import into all three tools with no edits","Totals match the invoice list to the cent"],"verify":{"code":"pnpm test export/csv","browser":"Export October with each preset and import it"},"files":["apps/api/src/export/csv.ts","apps/api/src/export/presets.ts"],"depends_on":["invoice-query-api"],"evidence":""},{"id":"pdf-render-worker","title":"PDF render worker with cache","short":"PDF worker","milestone":"pdf-bundle","area":"Worker","size":"L","risk":"high","wave":2,"agent":"pdf","problem":"PDFs render one at a time on the web server.","goal":"A worker renders eight PDFs at a time and reuses cached ones.","done_when":["500 PDFs render in under 8 seconds warm","A changed invoice renders again, an unchanged one does not"],"verify":{"code":"pnpm test worker/pdf","browser":""},"files":["apps/worker/src/pdf.ts"],"depends_on":["export-job-runner"],"evidence":""},{"id":"export-dialog-ui","title":"Export dialog on the invoice list","short":"Export dialog","milestone":"csv-export","area":"Web","size":"M","risk":"low","wave":2,"agent":"ui","problem":"There is no way to start an export.","goal":"The approved prototype, built: range, format, preset, start.","done_when":["The dialog matches the prototype at desktop and phone width","Starting an export shows progress and a download"],"verify":{"code":"pnpm test web/export-dialog","browser":"Open the invoice list, export last month as CSV"},"files":["apps/web/src/invoices/ExportDialog.tsx"],"depends_on":["invoice-query-api"],"evidence":"","order":1},{"id":"schedule-settings","title":"Monthly schedule settings","short":"Schedule settings","milestone":"scheduled-export","area":"Web","size":"M","risk":"low","wave":2,"agent":"ui","problem":"Owners must remember to export every month.","goal":"An owner sets the day, the format and the bookkeeper's email once.","done_when":["A saved schedule shows its next send date in the account's zone"],"verify":{"code":"pnpm test web/schedule","browser":"Save a schedule, see the next send date"},"files":["apps/web/src/settings/ExportSchedule.tsx"],"depends_on":["export-dialog-ui","export-job-runner"],"evidence":"","order":2},{"id":"zip-bundle-download","title":"Zip bundle download for any range","short":"Zip download","milestone":"pdf-bundle","area":"Backend","size":"M","risk":"medium","wave":3,"agent":"pdf","problem":"PDFs come one file at a time.","goal":"One zip with every PDF in the range, ready in under 30 seconds for 2,000.","done_when":["2,000 invoices zip in under 30 seconds on staging"],"verify":{"code":"pnpm test export/zip","browser":"Export a year as PDF zip"},"files":["apps/api/src/export/zip.ts"],"depends_on":["pdf-render-worker"],"evidence":""},{"id":"export-history-page","title":"Export history page","short":"History page","milestone":"csv-export","area":"Web","size":"M","risk":"low","wave":3,"agent":"csv","problem":"Owners cannot see what left the system.","goal":"A page lists every export with who, when, what and a fresh download link.","done_when":["Every run appears, scheduled ones included"],"verify":{"code":"","browser":"Run two exports, see both in history"},"files":["apps/web/src/settings/ExportHistory.tsx"],"depends_on":["export-job-runner"],"evidence":""},{"id":"monthly-email-delivery","title":"Monthly email with an expiring link","short":"Monthly email","milestone":"scheduled-export","area":"Backend","size":"M","risk":"high","wave":4,"agent":"lead","problem":"The export still has to reach the bookkeeper.","goal":"On the chosen day the job runs and emails a link that expires after 7 days.","done_when":["A test schedule sends on the chosen day","The link stops working after 7 days"],"verify":{"code":"pnpm test jobs/schedule","browser":"Trigger a test send, open the email"},"files":["apps/api/src/jobs/schedule.ts","apps/api/src/mail/export.tsx"],"depends_on":["schedule-settings","zip-bundle-download"],"evidence":""},{"id":"end-to-end-proof","title":"End to end proof on staging","short":"Staging walk","milestone":"scheduled-export","area":"QA","size":"M","risk":"medium","wave":4,"agent":"qa","problem":"Each part is proven alone, not together.","goal":"One recorded walk through every outcome on staging data.","done_when":["A video shows CSV, zip and the monthly email working on staging"],"verify":{"code":"","browser":"Full walk on staging, recorded"},"files":[],"depends_on":["csv-mapping-presets","export-history-page"],"evidence":""}],"waves":[{"n":1,"title":"Foundations","why":"Everything else reads from the query and runs as a job.","agents":[{"name":"lead","tickets":["export-job-runner"]},{"name":"api","tickets":["invoice-query-api"]}],"gate":["tests pass","two reviews","spot check"]},{"n":2,"title":"CSV, worker, dialog and schedule","why":"Independent pieces on the foundations. The UI agent builds the dialog, then the schedule.","agents":[{"name":"csv","tickets":["csv-mapping-presets"]},{"name":"pdf","tickets":["pdf-render-worker"]},{"name":"ui","tickets":["export-dialog-ui","schedule-settings"]}],"gate":["tests pass","two reviews","browser check"]},{"n":3,"title":"Bundles and history","why":"Each builds on one wave 2 piece.","agents":[{"name":"pdf","tickets":["zip-bundle-download"]},{"name":"csv","tickets":["export-history-page"]}],"gate":["tests pass","two reviews","browser check"]},{"n":4,"title":"Monthly send and proof","why":"Joins everything and proves it on staging.","agents":[{"name":"lead","tickets":["monthly-email-delivery"]},{"name":"qa","tickets":["end-to-end-proof"]}],"gate":["tests pass","refuter","your check"]}],"gate":{"steps":["Full test suite","Two fresh reviews of the wave's diff","Browser walk of what the wave changed","Lead spot check of one proof"],"baseline":["pnpm test","pnpm typecheck","pnpm lint"]},"stop_rules":["A blocking decision is still not opened","The baseline goes red and one fix does not bring it back","A review finding survives three rounds","Anything would delete customer data"],"verification":[{"where":"Every ticket","what":"Its own test command and a screenshot of the result"},{"where":"Every gate","what":"Full test suite, two fresh reviews, and a browser walk of the wave"},{"where":"Before the report","what":"A recorded walk on staging data"}],"commits":"One commit per ticket on the draft PR branch, message names the ticket title.","risks":[{"risk":"Accounting tools change their import format","mitigation":"Presets live in one file with a test per tool"},{"risk":"Large zips time out","mitigation":"Stream the zip and cap the range"}],"later":["Shared folder delivery","Exports by client or project","Direct sync with accounting tools"],"branches":{"development":"develop","production":"main","naming":"export/\u003cticket>-\u003cpart>","naming_note":"One branch per PR, deleted on merge.","development_note":"Every merge deploys to staging.","production_note":"Released by hand after the proof on staging."},"prs":[{"id":"jobs-table","title":"History table and migration","ticket":"export-job-runner","base":"develop","kind":"stacked","lines":140,"risk":"high","stack":"job runner","review":"named person"},{"id":"jobs-runner","title":"Job runner and retries","ticket":"export-job-runner","base":"jobs-table","kind":"stacked","lines":320,"risk":"high","stack":"job runner","review":"named person"},{"id":"query-tz","title":"Invoice query in account time zone","ticket":"invoice-query-api","base":"develop","kind":"independent","lines":260,"risk":"medium"},{"id":"csv-presets","title":"CSV presets for three tools","ticket":"csv-mapping-presets","base":"develop","kind":"independent","lines":340,"risk":"low"},{"id":"pdf-worker","title":"PDF worker, eight at a time","ticket":"pdf-render-worker","base":"develop","kind":"stacked","lines":380,"risk":"medium","stack":"pdf worker"},{"id":"pdf-cache","title":"Cache PDFs by invoice version","ticket":"pdf-render-worker","base":"pdf-worker","kind":"stacked","lines":180,"risk":"medium","stack":"pdf worker"},{"id":"dialog","title":"Export dialog","ticket":"export-dialog-ui","base":"develop","kind":"independent","lines":290,"risk":"low"},{"id":"schedule","title":"Monthly schedule settings","ticket":"schedule-settings","base":"develop","kind":"independent","lines":210,"risk":"low"},{"id":"zip","title":"Zip bundle download","ticket":"zip-bundle-download","base":"develop","kind":"independent","lines":230,"risk":"low"},{"id":"history-page","title":"Export history page","ticket":"export-history-page","base":"develop","kind":"independent","lines":270,"risk":"low"},{"id":"email","title":"Monthly email with link","ticket":"monthly-email-delivery","base":"develop","kind":"independent","lines":250,"risk":"medium"},{"id":"e2e","title":"End-to-end proof on staging","ticket":"end-to-end-proof","base":"develop","kind":"independent","lines":160,"risk":"low"}],"review_policy":[{"risk":"low","who":"AI reviewer","what":"Reads the diff against the ticket's done-when and merges when nothing is open."},{"risk":"medium","who":"AI reviewer and a refuter","what":"A second agent tries to break the change; both must come back clean."},{"risk":"high","who":"A named person, after the AI review","what":"Approves on GitHub. Data changes and auth always count as high."}],"merge_checklist":["The gate is green on the PR's latest commit","The done-when proof is attached to the PR","The review for its risk level came back clean","For a stacked PR, the PR below it has merged","The ticket's live state is written to the book"],"github":[{"what":"Delete head branches on merge","why":"Stacked PRs retarget cleanly after a squash"},{"what":"Require the gate before merge","why":"Nothing lands red, even late at night"}]},"decisions":[{"id":"dialog-placement","question":"Where does the Export button live?","why":"The dialog ticket cannot finish until we know where people start an export.","options":[{"id":"toolbar","label":"Invoice list toolbar","effect":"Found in one click. Ticket stays as planned."},{"id":"settings","label":"Settings page","effect":"Quieter list. Adds a link from the list, same wave."}],"recommended":"toolbar","attach":"ticket:export-dialog-ui","blocks":["export-dialog-ui"]},{"id":"csv-default","question":"Which CSV layout is the default?","why":"Two of three tools accept both; bookkeepers split tax by line.","options":[{"id":"per-invoice","label":"One row per invoice","effect":"Works in all three tools."},{"id":"per-line","label":"One row per line item","effect":"Better for tax splits. One tool needs a preset."}],"recommended":"per-invoice","attach":"ticket:csv-mapping-presets","blocks":["csv-mapping-presets"]},{"id":"send-day","question":"When does the monthly export send?","why":"Bookkeepers close the month on different days.","options":[{"id":"first","label":"The 1st of the month","effect":"Simplest. Late invoices miss it."},{"id":"chosen","label":"A day the owner picks","effect":"Adds one field to the schedule settings."}],"recommended":"first","attach":"milestone:scheduled-export","blocks":["schedule-settings"]},{"id":"zip-cap","question":"What is the most invoices in one zip?","why":"Bigger zips risk timeouts on slow connections.","options":[{"id":"two-k","label":"2,000","effect":"Covers 98 percent of accounts' years."},{"id":"five-k","label":"5,000","effect":"Covers everyone. Needs streaming, already planned."},{"id":"none","label":"No cap","effect":"Adds a risk of timeouts. Not advised."}],"recommended":"five-k","attach":"milestone:pdf-bundle","blocks":[]}],"kickoff":"Build Invoice Export, round 3. Read the book at https://claude.ai/artifact/example-invoice-export (agent/book.json and agent/CHECKPOINT.md first). Run waves 2 to 4 as planned, one builder per ticket, each proving its own done-when with a test and a screenshot. Write status, run and log rows as you go. Stop and ask in chat if a blocking decision is still not opened.","report":{"ready":false,"blocked_on_you":[],"changed":[],"found":[],"proof":[],"how_to_test":[],"revert":"","attention":[]},"history":[{"round":1,"title":"Research and CSV plan","dates":"6 to 10 Oct","ask":"Find out why bookkeepers hate month end and plan a CSV export.","outcome":"Six interviews, a CSV layout study and a 5 ticket plan for CSV only.","numbers":{"tickets":5,"waves":2},"file":"","links":[]},{"round":2,"title":"CSV shipped, PDFs added","dates":"13 to 24 Oct","ask":"Ship the CSV, then add PDF bundles and a monthly send.","outcome":"Job runner and range query merged. Plan grew to 10 tickets in 4 waves.","numbers":{"tickets":10,"waves":4},"file":"","links":[{"label":"Round 2 PR","url":"https://github.com/fieldnote/app/pull/198"}]}],"files":[{"path":"agent/ASK.md","title":"The ask, verbatim","kind":"md"},{"path":"agent/CHECKPOINT.md","title":"Run ledger","kind":"md"},{"path":"agent/proof/export-job-runner-1.png","title":"Proof: export history row","kind":"img"}],"summary":{"headline":"Bookkeepers will export a month of invoices in one click, in their own tool's format, instead of rebuilding a spreadsheet by hand.","text":"Exports become background jobs. A worker renders PDFs eight at a time, every run leaves a record, and a schedule sends the month on its own.","numbers":[{"value":"10","label":"goal-sized tickets"},{"value":"14","label":"pull requests, about 250 lines each"},{"value":"4","label":"waves of parallel builders"},{"value":"41","label":"support tickets in September this removes"}],"timeline":[{"when":"Day 1","what":"Job runner and invoice query on staging"},{"when":"Day 2","what":"CSV presets, PDF worker, dialog, schedule"},{"when":"Day 3","what":"Zip bundles, history, monthly email"},{"when":"Day 4","what":"Proof on staging, then release"}],"points":[{"icon":"table","label":"The problem","text":"Bookkeepers copy invoices out by hand every month, and PDFs take four seconds each.","link":"#findings"},{"icon":"layers","label":"How it will work","text":"The web app queues a job; workers do the slow parts and record every run.","link":"a:export-jobs"},{"icon":"pr","label":"How it ships","text":"Fourteen small PRs into the development branch, reviewed by risk before each merge.","link":"#prs"},{"icon":"flag","label":"What we need from you","text":"Two calls: which CSV presets ship first, and which day the monthly send runs.","link":"#needs"}]},"prompts":[{"id":"progress","title":"Progress update","when":"Paste any time for a plain status","text":"Read the book at its URL and the db collections status, run and log. Tell me in five lines: what merged since yesterday, what is in review, what is blocked and on whom, what the next wave is, and anything that needs my call. Link each item to its PR."}]}</script>
+<script id="build" type="application/json">{"source":"sample-book/index.html","built":"2026-11-03T06:02:28.197Z","published":["agent/ASK.md","agent/CHECKPOINT.md","agent/book.json","agent/proof/export-job-runner-1.png","proto/export-dialog.html"]}</script>
+<script id="demo" type="application/json"></script>
 <script>
 (() => {
 "use strict";
@@ -657,7 +796,7 @@ const tn = (id) => (T[id] && (T[id].short || T[id].title)) || id;
 const REPORT = B.report || {};
 
 const L = { db: null, user: null, me: null, live: false, demo: false, readOnly: false, status: {}, run: null, log: [], decisions: {}, feedback: [], gates: {}, names: {} };
-const UI = { mode: "human", open: new Set(), pending: {}, drafts: {}, filter: "all", wave: 0, frame: 0, frameAnim: false, archTimer: null, play: { on: false, step: -1, timer: null }, file: "agent/book.json" };
+const UI = { mode: "human", open: new Set(), pending: {}, drafts: {}, filter: "all", farea: "all", wave: 0, area: 0, aview: "", astep: -1, aTimer: null, frame: 0, frameAnim: false, archTimer: null, play: { on: false, step: -1, timer: null }, file: "agent/book.json" };
 const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
 
 /* ================= dom helpers ================= */
@@ -843,6 +982,7 @@ function saveGate(id, approved) {
 
 /* ================= navigation ================= */
 const SECTIONS = [
+  { id: "summary", label: "Summary", title: "Executive summary" },
   { id: "needs", label: "Needs you", title: "Needs you" },
   { id: "problem", label: "Problem and outcome", title: "Problem and outcome", stage: "explore" },
   { id: "findings", label: "Findings", title: "Findings and solutions", stage: "explore" },
@@ -1025,6 +1165,35 @@ function section(sec, ...kids) {
 }
 const SEC = Object.fromEntries(SECTIONS.map((x) => [x.id, x]));
 
+function renderSummary() {
+  const S = B.summary || {};
+  if (!S.headline && !(S.points || []).length) return section(SEC.summary, h("p", { class: "empty", text: "The summary appears once the first findings are in." }));
+  return section(SEC.summary,
+    S.headline ? h("p", { class: "sumhead", text: S.headline }) : null,
+    S.text ? h("div", { style: "margin-top:12px" }, clamp(S.text, 3, "lede")) : null,
+    (S.numbers || []).length ? h("div", { class: "sumnums" }, S.numbers.map((n) => h("div", { class: "kpi" }, h("div", { class: "v", text: String(n.value) }), h("div", { class: "l", text: n.label })))) : null,
+    (S.timeline || []).length ? h("div", { class: "sumtl", role: "list", "aria-label": "When it happens" }, S.timeline.map((x) => h("div", { class: "tli", role: "listitem" }, h("b", { text: x.when }), h("span", { text: x.what })))) : null,
+    (S.points || []).length ? h("div", { class: "sumpts" }, S.points.map((pt) => h(pt.link ? "button" : "div", { class: "sp", type: pt.link ? "button" : null, onclick: pt.link ? () => goLink(pt.link) : null },
+      h("div", { class: "lab" }, icon(pt.icon || "target"), h("span", { text: pt.label })),
+      h("div", { class: "tx", text: pt.text }),
+      pt.link ? h("span", { class: "go" }, "Open", icon("arrow")) : null))) : null);
+}
+// A link is a section id ("#plan"), a ticket ("t:ID"), an architecture area ("a:ID") or a research question ("r:ID").
+function goLink(link) {
+  if (link.startsWith("t:")) return openTicket(link.slice(2));
+  if (link.startsWith("r:")) return openResearch(link.slice(2));
+  if (link.startsWith("a:")) {
+    const i = (B.architecture?.areas || []).findIndex((a) => a.id === link.slice(2));
+    if (i >= 0) { stopArch(); UI.area = i; UI.aview = ""; UI.astep = -1; renderHuman(); requestAnimationFrame(() => jump("architecture")); }
+    return;
+  }
+  jump(link.replace(/^#/, ""));
+}
+function openResearch(id) {
+  UI.open.add("r:" + id); renderHuman();
+  requestAnimationFrame(() => jump("r-" + id, { block: "center" }));
+}
+
 function renderNeeds() {
   const items = needsList();
   const acts = items.filter((i) => i.kind === "book" && i.n.kind === "action"), decs = items.filter((i) => i.kind === "dec"), gates = items.filter((i) => i.kind === "gate"), fb = items.filter((i) => i.kind === "fb");
@@ -1132,19 +1301,31 @@ function outcomeCard(o) {
 }
 
 function renderFindings() {
-  const F = B.findings || [];
-  const aside = { aside: h("span", { class: "faint", style: "font-size:13px", text: F.length + (F.length === 1 ? " finding" : " findings") }) };
-  return section(SEC.findings, aside,
+  const ALL = B.findings || [];
+  const areas = [...new Set(ALL.map((f) => f.area).filter(Boolean))];
+  if (UI.farea !== "all" && !areas.includes(UI.farea)) UI.farea = "all";
+  const F = ALL.filter((f) => UI.farea === "all" || f.area === UI.farea);
+  const aside = { aside: h("span", { class: "faint", style: "font-size:13px", text: ALL.length + (ALL.length === 1 ? " finding" : " findings") }) };
+  const pickArea = (a) => { UI.farea = a; replaceSection("findings", renderFindings()); };
+  const fil = areas.length > 1 ? h("div", { class: "filters", role: "group", "aria-label": "Filter findings by area" },
+    h("button", { class: "fbtn", type: "button", "aria-pressed": String(UI.farea === "all"), onclick: () => pickArea("all") }, "All", h("span", { class: "c", text: String(ALL.length) })),
+    areas.map((a) => h("button", { class: "fbtn", type: "button", "aria-pressed": String(UI.farea === a), onclick: () => pickArea(a) }, a, h("span", { class: "c", text: String(ALL.filter((f) => f.area === a).length) })))) : null;
+  return section(SEC.findings, aside, fil,
     F.length ? h("div", { class: "finds" }, F.map((f) => {
-      const k = "fb:findings:" + f.id;
+      const k = "fb:findings:" + f.id, dk = "fd:" + f.id, dOpen = UI.open.has(dk);
+      const hasD = f.detail || f.solution_detail;
       return h("div", { class: "fd", id: "f-" + f.id },
-        h("div", { class: "side" }, h("div", { class: "lab" }, h("span", { class: "imp " + (f.impact || "low"), text: (f.impact || "low") + " impact" })), h("p", { class: "txt", text: f.finding }),
-          (f.evidence || []).length ? h("div", { class: "chips" }, f.evidence.map((e) => h("span", { class: "chip", title: e.ref || "" }, icon("search"), e.label))) : null),
+        h("div", { class: "side" }, h("div", { class: "lab" }, h("span", { class: "imp " + (f.impact || "low"), text: (f.impact || "low") + " impact" }), f.area && areas.length > 1 ? h("span", { class: "area", text: f.area }) : null), h("p", { class: "txt", text: f.finding }),
+          (f.evidence || []).length || hasD ? h("div", { class: "chips" }, (f.evidence || []).map((e) => h("span", { class: "chip", title: e.ref || "" }, icon("search"), e.label)),
+            hasD ? h("button", { class: "chip acc", type: "button", "aria-expanded": String(dOpen), onclick: () => toggle(dk) }, icon(dOpen ? "x" : "book"), dOpen ? "Less" : "Details") : null) : null),
         h("div", { class: "arrow" }, icon("arrow")),
         h("div", { class: "side" }, h("div", { class: "lab", text: "Solution" }), h("p", { class: "txt", text: f.solution || "" }),
           h("div", { class: "chips" }, (f.tickets || []).filter((t) => T[t]).map((t) => h("button", { class: "chip", type: "button", onclick: () => openTicket(t) }, stDot(t), tn(t))),
             h("button", { class: "chip", type: "button", onclick: () => toggle(k) }, icon("comment"), commentCount("findings", f.id))),
-          UI.open.has(k) ? fbWrap("findings", f.id) : null));
+          UI.open.has(k) ? fbWrap("findings", f.id) : null),
+        dOpen ? h("div", { class: "fdx" },
+          f.detail ? h("div", null, h("h4", { text: "What we found" }), h("p", { text: f.detail })) : null,
+          f.solution_detail ? h("div", null, h("h4", { text: "What we will do" }), h("p", { text: f.solution_detail })) : null) : null);
     })) : h("p", { class: "empty", text: "No findings yet." }));
 }
 function stDot(id) { const st = tState(id); return h("span", { class: "st " + st, title: STATE_LABEL[st] }, h("i")); }
@@ -1169,10 +1350,79 @@ function renderResearch() {
 }
 
 /* ---------- architecture ---------- */
+// Areas explain one part of the solution each: what we found, what we recommend, a today and proposed
+// picture with numbered steps that light up the nodes they mention, why it is right, and what changes.
 function renderArch() {
   const A = B.architecture || {};
-  const FR = A.frames || [];
-  if (!FR.length) return section(SEC.architecture, A.summary ? clamp(A.summary, 2, "lede") : null, h("p", { class: "empty", text: "No architecture drawn yet." }));
+  const AR = A.areas || [], FR = A.frames || [];
+  if (!AR.length && !FR.length) return section(SEC.architecture, A.summary ? clamp(A.summary, 2, "lede") : null, h("p", { class: "empty", text: "No architecture drawn yet." }));
+  const aside = AR.length ? { aside: h("span", { class: "faint", style: "font-size:13px", text: AR.length + (AR.length === 1 ? " area" : " areas") }) } : null;
+  return section(SEC.architecture, aside,
+    A.summary ? clamp(A.summary, 3, "lede") : null,
+    AR.length ? areasView(AR) : null,
+    FR.length && AR.length ? h("h3", { class: "sub", text: "The whole system" }) : null,
+    FR.length ? framesView(FR) : null,
+    changesTable(A.changes || []),
+    h("div", { style: "margin-top:12px" }, fbWrap("architecture", "")));
+}
+function areasView(AR) {
+  UI.area = Math.min(UI.area, AR.length - 1);
+  const a = AR[UI.area];
+  const rerender = () => replaceSection("architecture", renderArch());
+  const views = [["today", a.today], ["proposed", a.proposed]].filter((v) => v[1]);
+  if (!views.some((v) => v[0] === UI.aview)) UI.aview = views.length ? views[views.length - 1][0] : "";
+  const steps = a.steps || [];
+  const stepView = (st) => st.view || (a.proposed ? "proposed" : "today");
+  const setStep = (i) => { UI.astep = i; const st = steps[i]; if (st && stepView(st) !== UI.aview) { UI.aview = stepView(st); UI.frameAnim = UI.aview === "proposed"; } rerender(); };
+  const play = () => {
+    if (UI.aTimer) { stopArch(); rerender(); return; }
+    UI.aTimer = setInterval(() => { if (UI.astep >= steps.length - 1) { stopArch(); rerender(); return; } setStep(UI.astep + 1); }, 2800);
+    setStep(0);
+  };
+  const tabs = AR.length > 1 ? h("div", { class: "areas", role: "tablist", "aria-label": "Parts of the solution" }, AR.map((x, i) => h("button", { type: "button", role: "tab", "aria-selected": String(i === UI.area), onclick: () => { stopArch(); UI.area = i; UI.aview = ""; UI.astep = -1; rerender(); } },
+    h("b", { text: String(i + 1).padStart(2, "0") }), h("span", { text: x.title }), x.short ? h("small", { text: x.short }) : null))) : null;
+  const card = (cls, ic, title, text, extra) => text ? h("div", { class: "acard " + cls }, h("h4", null, icon(ic), title), h("p", { text }), extra || null) : null;
+  const ev = a.evidence || [];
+  let diag = null;
+  if (views.length) {
+    const vi = views.findIndex((v) => v[0] === UI.aview), fr = views[vi][1];
+    const cur = steps[UI.astep];
+    const hl = cur && stepView(cur) === UI.aview ? new Set(cur.nodes || []) : null;
+    const svg = archSVG(views.map((v) => v[1]), vi, hl);
+    if (UI.frameAnim) { svg.classList.add("anim"); UI.frameAnim = false; }
+    const label = (v) => v[1].title || (v[0] === "today" ? "Today" : "Proposed");
+    diag = h("div", { class: "adiag" + (steps.length ? "" : " one") },
+      h("div", { class: "dv" },
+        h("div", { class: "dbar" },
+          views.length > 1 ? h("div", { class: "seg", role: "group", "aria-label": "Which picture" }, views.map((v) => h("button", { type: "button", "aria-pressed": String(v[0] === UI.aview), onclick: () => { stopArch(); UI.aview = v[0]; UI.astep = -1; UI.frameAnim = v[0] === "proposed"; rerender(); }, text: label(v) }))) : h("b", { text: label(views[0]) }),
+          steps.length ? h("div", { class: "ctl" },
+            h("button", { class: "iconbtn", type: "button", "aria-label": "Previous step", onclick: () => { stopArch(); setStep(Math.max(0, UI.astep - 1)); } }, icon("prev")),
+            h("button", { class: "iconbtn", type: "button", "aria-label": UI.aTimer ? "Pause" : "Walk through the steps", onclick: play }, icon(UI.aTimer ? "pause" : "play")),
+            h("button", { class: "iconbtn", type: "button", "aria-label": "Next step", onclick: () => { stopArch(); setStep(Math.min(steps.length - 1, UI.astep + 1)); } }, icon("next"))) : null),
+        h("div", { style: "overflow-x:auto" }, svg),
+        fr.caption ? h("p", { class: "archcap", text: fr.caption }) : null),
+      steps.length ? h("ol", { class: "asteps" }, h("li", { class: "hd", text: "How it works, step by step" }), steps.map((st, i) => h("li", null, h("button", { type: "button", "aria-current": String(i === UI.astep), onclick: () => { stopArch(); setStep(i === UI.astep ? -1 : i); } }, h("i", { text: String(i + 1) }), h("span", { text: st.text }))))) : null);
+  }
+  const trade = a.tradeoffs || [], notB = a.not_building || [];
+  const lists = trade.length || notB.length ? h("div", { class: "alists" },
+    trade.length ? h("div", null, h("h4", { text: "Trade-offs we accept" }), h("ul", null, trade.map((x) => h("li", null, icon("alert"), h("span", { text: x }))))) : null,
+    notB.length ? h("div", null, h("h4", { text: "What we will not build" }), h("ul", null, notB.map((x) => h("li", null, icon("x"), h("span", { text: x }))))) : null) : null;
+  const tks = (a.tickets || []).filter((t) => T[t]);
+  const rs = (a.research || []).map((r) => (B.research || []).find((x) => x.id === r)).filter(Boolean);
+  const foot = tks.length || rs.length ? h("div", { class: "afoot" },
+    tks.length ? [h("span", { class: "faint", style: "font-size:12.5px", text: "Built by" }), tks.map((t) => h("button", { class: "chip", type: "button", onclick: () => openTicket(t) }, stDot(t), tn(t)))] : null,
+    rs.length ? [h("span", { class: "faint", style: "font-size:12.5px;margin-left:6px", text: "Research" }), rs.map((r) => h("button", { class: "chip", type: "button", title: r.question, onclick: () => openResearch(r.id) }, icon("book"), r.short || r.question))] : null) : null;
+  const panel = h("div", { class: "apanel", role: AR.length > 1 ? "tabpanel" : null, id: "a-" + a.id },
+    h("div", { class: "ahead" }, h("h3", { text: a.title }), a.short ? h("p", { text: a.short }) : null),
+    a.found || a.recommend ? h("div", { class: "atwo" },
+      card("found", "search", "What we found", a.found, ev.length ? h("div", { class: "chips" }, ev.map((e) => h("span", { class: "chip", title: e.ref || "" }, icon("search"), e.label))) : null),
+      card("rec", "target", "What we recommend", a.recommend)) : null,
+    diag,
+    a.why || a.user_sees ? h("div", { class: "atwo" }, card("why", "check", "Why this is the right fix", a.why), card("sees", "eye", "What people will notice", a.user_sees)) : null,
+    lists, foot);
+  return [tabs, panel];
+}
+function framesView(FR) {
   UI.frame = Math.min(UI.frame, FR.length - 1);
   const fr = FR[UI.frame];
   const go = (i, anim) => { UI.frame = (i + FR.length) % FR.length; UI.frameAnim = anim !== false; replaceSection("architecture", renderArch()); };
@@ -1185,19 +1435,19 @@ function renderArch() {
   const svg = archSVG(FR, UI.frame);
   if (UI.frameAnim) { svg.classList.add("anim"); UI.frameAnim = false; }
   const fig = h("figure", { class: "archfig" }, h("div", { style: "overflow-x:auto" }, svg),
-    h("figcaption", { class: "archcap" }, h("b", { text: fr.title }), h("span", { text: fr.caption || "" })));
-  const changes = A.changes || [];
-  return section(SEC.architecture,
-    A.summary ? clamp(A.summary, 2, "lede") : null,
-    h("div", { class: "arch", style: "margin-top:18px" }, bar, fig),
-    changes.length ? h("h3", { class: "sub", text: "Before and after" }) : null,
-    changes.length ? h("div", { style: "overflow-x:auto" }, h("table", { class: "tbl" },
-      h("thead", null, h("tr", null, h("th", { text: "Area" }), h("th", { text: "Before" }), h("th", { text: "After" }))),
-      h("tbody", null, changes.map((c) => h("tr", null, h("td", { text: c.area }), h("td", { class: "b", text: c.before }), h("td", { class: "a", text: c.after })))))) : null,
-    h("div", { style: "margin-top:12px" }, fbWrap("architecture", "")));
+    h("figcaption", { class: "archcap" }, h("b", { text: fr.title }), h("span", { text: fr.caption || "" })),
+    (fr.points || []).length ? h("ul", { class: "archpts" }, fr.points.map((pt) => h("li", null, h("b", { text: pt.label }), h("span", { text: pt.text })))) : null);
+  return h("div", { class: "arch", style: "margin-top:18px" }, bar, fig);
 }
-function stopArch() { if (UI.archTimer) { clearInterval(UI.archTimer); UI.archTimer = null; } }
-function archSVG(FR, idx) {
+function changesTable(changes) {
+  if (!changes.length) return null;
+  return [h("h3", { class: "sub", text: "Before and after" }),
+    h("div", { style: "overflow-x:auto" }, h("table", { class: "tbl" },
+      h("thead", null, h("tr", null, h("th", { text: "Area" }), h("th", { text: "Before" }), h("th", { text: "After" }))),
+      h("tbody", null, changes.map((c) => h("tr", null, h("td", { text: c.area }), h("td", { class: "b", text: c.before }), h("td", { class: "a", text: c.after }))))))];
+}
+function stopArch() { if (UI.archTimer) { clearInterval(UI.archTimer); UI.archTimer = null; } if (UI.aTimer) { clearInterval(UI.aTimer); UI.aTimer = null; } }
+function archSVG(FR, idx, hl) {
   // x and y are grid columns and rows; values over 12 are read as pixels.
   const all = FR.flatMap((f) => f.nodes || []);
   const px = all.some((n) => n.x > 12 || n.y > 12);
@@ -1208,6 +1458,8 @@ function archSVG(FR, idx) {
   const fr = FR[idx];
   const isNew = new Set(fr.new || []);
   const nodes = Object.fromEntries((fr.nodes || []).map((n) => [n.id, n]));
+  const lit = hl && hl.size ? hl : null;
+  const nodeCls = (id) => !lit ? "" : lit.has(id) ? " hl" : " dim";
   const svg = s("svg", { class: "archsvg", viewBox: "0 0 " + W + " " + H, role: "img", "aria-label": (fr.title || "") + ". " + (fr.caption || ""), style: "min-width:" + Math.min(W, 470) + "px" });
   svg.appendChild(s("defs", null, s("marker", { id: "ah", viewBox: "0 0 10 10", refX: "9", refY: "5", markerWidth: "7", markerHeight: "7", orient: "auto-start-reverse" }, s("path", { d: "M0 1L9 5L0 9z", fill: "var(--fg-3)" })),
     s("marker", { id: "ahn", viewBox: "0 0 10 10", refX: "9", refY: "5", markerWidth: "7", markerHeight: "7", orient: "auto-start-reverse" }, s("path", { d: "M0 1L9 5L0 9z", fill: "var(--accent)" }))));
@@ -1219,13 +1471,14 @@ function archSVG(FR, idx) {
     const p1 = edgePoint(ca, cb, NW, NH), p2 = edgePoint(cb, ca, NW, NH);
     const fresh = isNew.has(e.from) || isNew.has(e.to);
     const mx = (p1.x + p2.x) / 2, my = (p1.y + p2.y) / 2;
-    svg.appendChild(s("g", { class: "ae" + (fresh ? " isnew" : "") },
-      s("path", { d: "M" + p1.x + " " + p1.y + " L" + p2.x + " " + p2.y, "marker-end": fresh ? "url(#ahn)" : "url(#ah)" }),
+    const on = lit && lit.has(e.from) && lit.has(e.to);
+    svg.appendChild(s("g", { class: "ae" + (fresh ? " isnew" : "") + (!lit ? "" : on ? " hl" : " dim") },
+      s("path", { d: "M" + p1.x + " " + p1.y + " L" + p2.x + " " + p2.y, "marker-end": fresh || on ? "url(#ahn)" : "url(#ah)" }),
       e.label ? s("text", { x: mx, y: my - 5, "text-anchor": "middle", text: e.label }) : null));
   });
   (fr.nodes || []).forEach((n) => {
     const p = pos(n), k = n.kind || "service";
-    const g = s("g", { class: "an " + (k === "external" ? "ext " : "") + (isNew.has(n.id) ? "isnew" : "") });
+    const g = s("g", { class: "an " + (k === "external" ? "ext " : "") + (isNew.has(n.id) ? "isnew" : "") + nodeCls(n.id) });
     if (k === "store") {
       const r = 7;
       g.appendChild(s("path", { class: "shape", d: `M${p.x} ${p.y + r} a${NW / 2} ${r} 0 0 1 ${NW} 0 v${NH - 2 * r} a${NW / 2} ${r} 0 0 1 ${-NW} 0z` }));
@@ -1265,8 +1518,7 @@ function renderProtos() {
         clamp(p.caption, 2, "muted"),
         h("div", { class: "acts" },
           p.file ? h("button", { class: "btn sm", type: "button", "aria-expanded": String(show), onclick: () => toggle(key) }, icon(show ? "x" : "eye"), show ? "Close" : "Try it here") : null,
-          p.file ? h("a", { class: "btn ghost sm", href: p.file, target: "_blank", rel: "noopener" }, icon("external"), "Full page") : null,
-          p.url ? h("a", { class: "btn ghost sm", href: p.url, target: "_blank", rel: "noopener" }, icon("external"), "Open") : null),
+          (p.url || p.file) ? h("a", { class: "btn ghost sm", href: p.url || p.file, target: "_blank", rel: "noopener" }, icon("external"), "Full page") : null),
         show ? h("iframe", { src: p.file, title: p.title, loading: "lazy" }) : null);
     })) : h("p", { class: "empty", text: "No prototypes yet." }));
 }
@@ -1290,10 +1542,54 @@ function renderPlan() {
     rulesBlock(),
     h("h3", { class: "sub" }, "Tickets", h("span", { class: "faint", text: TICKETS.length + " goal-sized tickets" })),
     ticketTable(),
+    prPlan(),
     DECS.length ? h("h3", { class: "sub", id: "decisions" }, "Your calls", h("span", { class: "faint", text: DECS.filter((d) => decState(d.id) === "unopened").length + " of " + DECS.length + " not opened" })) : null,
     DECS.length ? h("div", { class: "decs" }, DECS.map((d) => decisionBlock(d, false))) : null,
     planExtras(),
     h("div", { style: "margin-top:14px" }, fbWrap("plan", "")));
+}
+/* pull requests: branches, stacks, independent PRs by wave, review by risk, the merge checklist */
+function prWave(p) { return p.wave ?? T[p.ticket]?.wave ?? 0; }
+function prPlan() {
+  const PRS = P.prs || [], BR = P.branches || {}, POL = P.review_policy || [], CK = P.merge_checklist || [], GH = P.github || [];
+  if (!PRS.length && !BR.development && !POL.length && !CK.length) return null;
+  const stacked = (p) => p.kind === "stacked" && p.stack;
+  const stacks = [...new Set(PRS.filter(stacked).map((p) => p.stack))];
+  const indep = PRS.filter((p) => !stacked(p));
+  const lines = PRS.map((p) => +p.lines || 0).filter(Boolean).sort((a, b) => a - b);
+  const med = lines.length ? lines[Math.floor(lines.length / 2)] : 0;
+  const prc = (p) => h("button", { class: "prc " + (p.risk || ""), type: "button", title: [p.ticket && T[p.ticket] ? "Ticket: " + tn(p.ticket) : null, p.review ? "Review: " + p.review : null].filter(Boolean).join(". "), onclick: () => { if (p.ticket && T[p.ticket]) openTicket(p.ticket); } },
+    h("span", { class: "t", text: p.title }),
+    h("span", { class: "m" }, icon(stacked(p) ? "branch" : "pr"), [p.lines ? "about " + p.lines + " lines" : null, p.risk ? p.risk + " risk" : null].filter(Boolean).join(", ")));
+  const allWaves = [...new Set(PRS.map(prWave))].sort((a, b) => a - b);
+  return h("div", { id: "prs" },
+    h("h3", { class: "sub" }, "Pull requests", h("span", { class: "faint", text: PRS.length + (PRS.length === 1 ? " PR" : " PRs") })),
+    PRS.length ? h("div", { class: "prsum" },
+      h("span", null, h("b", { text: String(indep.length) }), " independent"),
+      stacks.length ? h("span", null, h("b", { text: String(PRS.length - indep.length) }), " in ", h("b", { text: String(stacks.length) }), stacks.length === 1 ? " stack" : " stacks") : null,
+      med ? h("span", null, "median size ", h("b", { text: "about " + med }), " lines") : null) : null,
+    BR.development ? branchFlow(BR) : null,
+    PRS.length ? h("div", { class: "prgroups" }, allWaves.map((w) => {
+      const ps = PRS.filter((p) => prWave(p) === w);
+      const ws = [...new Set(ps.filter(stacked).map((p) => p.stack))], wi = ps.filter((p) => !stacked(p));
+      return h("div", { class: "prg" },
+        h("h4", null, w ? "Wave " + w : "Any time", h("span", { class: "faint", text: ps.length + (ps.length === 1 ? " PR" : " PRs") + (ws.length ? ", " + ws.length + (ws.length === 1 ? " stack" : " stacks") : "") })),
+        ws.map((name) => { const sp = ps.filter((p) => p.stack === name); return h("div", { class: "prline" }, h("span", { class: "plab" }, icon("branch"), "Stack: " + name, h("small", { text: "each on top of the last, merged bottom first" })), h("div", { class: "prrow" }, sp.map((p, i) => [i ? h("span", { class: "prarrow" }, icon("arrow")) : null, prc(p)]))); }),
+        wi.length ? h("div", { class: "prline" }, h("span", { class: "plab" }, icon("pr"), "Independent", h("small", { text: "any order, each straight into the development branch" })), h("div", { class: "prrow" }, wi.map(prc))) : null);
+    })) : null,
+    POL.length ? [h("h3", { class: "sub", text: "Review before merge" }), h("div", { class: "policy" }, POL.map((x) => h("div", { class: "pol" },
+      h("span", { class: "chip " + (x.risk === "high" ? "bad" : x.risk === "medium" ? "need" : "ok"), text: x.risk + " risk" }), h("b", { text: x.who }), h("span", { text: x.what }))))] : null,
+    CK.length ? [h("h3", { class: "sub", text: "A PR merges only when" }), h("ol", { class: "checklist" }, CK.map((x) => h("li", null, h("i"), h("span", { text: x }))))] : null,
+    GH.length ? [h("h3", { class: "sub", text: "Repository settings to change first" }), h("ul", { class: "plain" }, GH.map((x) => h("li", null, icon(x.done ? "check" : "wrench"), h("span", null, h("b", { text: x.what }), x.why ? ". " + x.why : null))))] : null);
+}
+function branchFlow(BR) {
+  const card = (lab, name, note) => h("div", { class: "bc" }, h("b", { text: lab }), h("code", { text: name }), note ? h("span", { text: note }) : null);
+  return h("div", { class: "branches" },
+    card("Each PR", BR.naming || "one branch per PR", BR.naming_note),
+    h("div", { class: "ar" }, icon("arrow")),
+    card("Development branch", BR.development, BR.development_note),
+    h("div", { class: "ar" }, icon("arrow")),
+    BR.production ? card("Production branch", BR.production, BR.production_note) : h("div"));
 }
 function rulesBlock() {
   const G = P.gate || {}, steps = G.steps || [], base = G.baseline || [], stop = P.stop_rules || [];
@@ -1504,6 +1800,8 @@ function ticketRow(t) {
     h("span", { class: "chev" }, icon("chev")));
   if (!open) return h("div", { class: "tk", id: "t-" + t.id }, head);
   const v = t.verify || {};
+  const tprs = (P.prs || []).filter((p) => p.ticket === t.id);
+  const PRI = Object.fromEntries((P.prs || []).map((p) => [p.id, p]));
   const proofs = (live?.proof || []);
   const old = staleProof(live);
   const body = h("div", { class: "tbody" },
@@ -1512,12 +1810,19 @@ function ticketRow(t) {
     proofs.length ? h("div", { class: "thumbs" }, proofs.map((p) => thumb(p, t.title, old))) : null,
     h("dl", { class: "kv" },
       h("dt", { text: "Goal" }), h("dd", { text: t.goal || "" }),
-      t.problem ? [h("dt", { text: "Why" }), h("dd", { class: "muted", text: t.problem })] : null,
+      t.problem ? [h("dt", { text: t.solution ? "Problem" : "Why" }), h("dd", { class: "muted", text: t.problem })] : null,
+      (t.where_found || []).length ? [h("dt", { text: "Where found" }), h("dd", null, h("ul", { class: "plain" }, t.where_found.map((x) => h("li", null, icon("search"), h("span", { text: x })))))] : null,
+      (t.reproduce || []).length ? [h("dt", { text: "Reproduce" }), h("dd", null, h("ol", { class: "repro" }, t.reproduce.map((x) => h("li", { text: x }))))] : null,
+      t.solution ? [h("dt", { text: "Solution" }), h("dd", { text: t.solution })] : null,
+      t.why_right ? [h("dt", { text: "Why this fix" }), h("dd", { class: "muted", text: t.why_right })] : null,
       h("dt", { text: "Done when" }), h("dd", null, h("ul", { class: "dw" }, (t.done_when || []).map((d) => { const vv = verdictFor(d); return h("li", { class: vv ? "v-" + vClass(vv) : "" }, icon(vv === "verified" ? "check" : "target"), h("span", { text: d }), vv ? h("span", { class: "verdict " + vClass(vv), text: vLabel(vv) }) : null); }))),
-      v.code || v.browser ? [h("dt", { text: "Verify" }), h("dd", { class: "chips" }, v.code ? h("span", { class: "chip mono", title: "Test command" }, icon("wrench"), v.code) : null, v.browser ? h("span", { class: "chip", title: "Browser check" }, icon("eye"), v.browser) : null)] : null,
+      v.code || v.browser || v.run ? [h("dt", { text: "Verify" }), h("dd", { style: "display:grid;gap:6px" }, v.run ? h("span", { text: v.run }) : null,
+        v.code || v.browser ? h("div", { class: "chips" }, v.code ? h("span", { class: "chip mono", title: v.code }, icon("wrench"), v.code) : null, v.browser ? h("span", { class: "chip", title: v.browser }, icon("eye"), v.browser) : null) : null)] : null,
+      tprs.length ? [h("dt", { text: "Pull requests" }), h("dd", { class: "prrow" }, tprs.map((p, i) => [i && p.kind === "stacked" ? h("span", { class: "prarrow" }, icon("arrow")) : null,
+        h("span", { class: "prc " + (p.risk || "") }, h("span", { class: "t", text: p.title }), h("span", { class: "m", text: [p.base ? (PRI[p.base] ? "on top of " + PRI[p.base].title : "into " + p.base) : null, p.lines ? "about " + p.lines + " lines" : null, p.review ? "review: " + p.review : null].filter(Boolean).join(", ") }))]))] : null,
       (t.files || []).length ? [h("dt", { text: "Files" }), h("dd", { class: "files" }, t.files.map((f) => h("span", { text: f })))] : null,
       (t.depends_on || []).length ? [h("dt", { text: "Depends on" }), h("dd", { class: "chips" }, t.depends_on.filter((d) => T[d]).map((d) => h("button", { class: "chip", type: "button", onclick: () => openTicket(d) }, stDot(d), tn(d))))] : null,
-      h("dt", { text: "Owner" }), h("dd", { class: "chips" }, h("span", { class: "chip mono", text: t.agent }), h("span", { class: "chip", text: "Wave " + t.wave }), t.size ? h("span", { class: "chip", text: "Size " + t.size }) : null, t.risk ? h("span", { class: "chip " + (t.risk === "high" ? "bad" : t.risk === "medium" ? "need" : ""), text: t.risk + " risk" }) : null, t.area ? h("span", { class: "chip", text: t.area }) : null)),
+      h("dt", { text: "Owner" }), h("dd", { class: "chips" }, h("span", { class: "chip mono", text: t.agent }), h("span", { class: "chip", text: "Wave " + t.wave }), t.size ? h("span", { class: "chip", text: "Size " + t.size }) : null, t.estimate ? h("span", { class: "chip", title: "Agent time" }, icon("clock"), t.estimate) : null, t.risk ? h("span", { class: "chip " + (t.risk === "high" ? "bad" : t.risk === "medium" ? "need" : ""), text: t.risk + " risk" }) : null, t.area ? h("span", { class: "chip", text: t.area }) : null)),
     decs.map((d) => decisionBlock(d, true)),
     fbWrap("plan", t.id));
   return h("div", { class: "tk open", id: "t-" + t.id }, head, body);
@@ -1549,11 +1854,22 @@ function planExtras() {
 
 function renderKickoff() {
   const text = B.kickoff || "";
+  const PS = B.prompts || [];
   return section(SEC.kickoff,
     text ? h("div", { class: "kick" },
       h("div", { class: "bar" }, icon("chat"), "Paste into a fresh Claude Code chat to start or resume the run.",
         h("button", { class: "btn sm pri", type: "button", onclick: (e) => copyText(text, e.currentTarget) }, icon("copy"), "Copy")),
-      h("pre", { text })) : h("p", { class: "empty", text: "The kickoff prompt appears once the plan is ready." }));
+      h("pre", { text })) : h("p", { class: "empty", text: "The kickoff prompt appears once the plan is ready." }),
+    PS.length ? [h("h3", { class: "sub" }, "Other prompts", h("span", { class: "faint", text: PS.length + (PS.length === 1 ? " prompt" : " prompts") })),
+      h("div", { class: "prompts" }, PS.map((pm) => {
+        const key = "pm:" + pm.id, open = UI.open.has(key);
+        return h("div", { class: "kick", id: "pm-" + pm.id },
+          h("div", { class: "bar" }, icon("chat"), h("span", { class: "grow" }, h("b", { text: pm.title }), pm.when ? ". " + pm.when : null),
+            h("span", { class: "acts2" },
+              h("button", { class: "btn sm ghost", type: "button", "aria-expanded": String(open), onclick: () => toggle(key), text: open ? "Hide" : "Show" }),
+              h("button", { class: "btn sm pri", type: "button", onclick: (e) => copyText(pm.text, e.currentTarget) }, icon("copy"), "Copy"))),
+          open ? h("pre", { text: pm.text }) : null);
+      }))] : null);
 }
 
 /* ---------- progress ---------- */
@@ -1672,8 +1988,8 @@ function renderHistory() {
 }
 
 /* ================= human render ================= */
-const RENDER = { needs: renderNeeds, problem: renderProblem, findings: renderFindings, research: renderResearch, architecture: renderArch, prototypes: renderProtos, plan: renderPlan, kickoff: renderKickoff, progress: renderProgress, report: renderReport, history: renderHistory };
-function replaceSection(id, node) { const old = document.getElementById(id); if (old) { old.replaceWith(node); wireClamps(node); } }
+const RENDER = { summary: renderSummary, needs: renderNeeds, problem: renderProblem, findings: renderFindings, research: renderResearch, architecture: renderArch, prototypes: renderProtos, plan: renderPlan, kickoff: renderKickoff, progress: renderProgress, report: renderReport, history: renderHistory };
+function replaceSection(id, node) { const old = document.getElementById(id); if (old) { if (spyObs) spyObs.unobserve(old); old.replaceWith(node); wireClamps(node); if (spyObs) spyObs.observe(node); } }
 function renderHuman() {
   const main = document.getElementById("human");
   const act = document.activeElement, key = act?.dataset?.key, selS = act?.selectionStart, selE = act?.selectionEnd;

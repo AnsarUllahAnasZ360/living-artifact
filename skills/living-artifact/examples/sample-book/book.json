@@ -114,7 +114,8 @@
       "tickets": [
         "csv-mapping-presets",
         "export-dialog-ui"
-      ]
+      ],
+      "area": "Export"
     },
     {
       "id": "slow-pdf",
@@ -134,7 +135,10 @@
       "tickets": [
         "pdf-render-worker",
         "zip-bundle-download"
-      ]
+      ],
+      "area": "Speed",
+      "detail": "The web server renders each PDF inside the request that asked for it. A month of 300 invoices takes about 20 minutes and times out after 60 seconds, so bookkeepers download them one by one.",
+      "solution_detail": "A worker pulls render jobs from the queue, eight at a time, and stores each PDF keyed by invoice version. A second export of the same month reuses the stored files and only renders what changed."
     },
     {
       "id": "no-record",
@@ -150,7 +154,8 @@
       "tickets": [
         "export-job-runner",
         "export-history-page"
-      ]
+      ],
+      "area": "Records"
     },
     {
       "id": "utc-months",
@@ -165,7 +170,8 @@
       "impact": "medium",
       "tickets": [
         "invoice-query-api"
-      ]
+      ],
+      "area": "Export"
     }
   ],
   "research": [
@@ -571,6 +577,322 @@
         "before": "UTC month boundaries",
         "after": "The account's own time zone"
       }
+    ],
+    "areas": [
+      {
+        "id": "export-jobs",
+        "title": "Exports run as background jobs",
+        "short": "Take the slow work off the web server",
+        "found": "Every export runs inside a web request. Under load the request times out after 60 seconds, and nothing records what was exported, by whom, or with which filters.",
+        "evidence": [
+          {
+            "label": "render.ts:88",
+            "ref": "apps/web/src/invoices/render.ts:88"
+          },
+          {
+            "label": "No audit table",
+            "ref": "db/schema.sql"
+          }
+        ],
+        "recommend": "The web app only queues a job and returns at once. A job runner does the work, writes one history row per run, and tells the screen when the file is ready.",
+        "why": "It is the standard pattern for slow work in web apps, our framework ships a job queue already, and it gives the audit record for free.",
+        "user_sees": "The export button answers at once, a progress chip shows the job, and a history page lists every past export.",
+        "tradeoffs": [
+          "One more process to run and watch",
+          "A finished export arrives a few seconds later than a tiny one does today"
+        ],
+        "not_building": [
+          "A custom queue; we use the framework's",
+          "Real-time streaming of partial files"
+        ],
+        "today": {
+          "title": "Today",
+          "caption": "The request does all the work, then nothing is recorded.",
+          "nodes": [
+            {
+              "id": "keeper",
+              "label": "Bookkeeper",
+              "kind": "external",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "id": "list",
+              "label": "Invoice list",
+              "kind": "screen",
+              "x": 0,
+              "y": 1
+            },
+            {
+              "id": "api",
+              "label": "Web API",
+              "kind": "service",
+              "x": 1,
+              "y": 1
+            },
+            {
+              "id": "db",
+              "label": "Postgres",
+              "kind": "store",
+              "x": 2,
+              "y": 1
+            }
+          ],
+          "edges": [
+            {
+              "from": "keeper",
+              "to": "list",
+              "label": "clicks export"
+            },
+            {
+              "from": "list",
+              "to": "api",
+              "label": "waits"
+            },
+            {
+              "from": "api",
+              "to": "db",
+              "label": "reads"
+            }
+          ]
+        },
+        "proposed": {
+          "title": "Proposed",
+          "caption": "The request queues a job; the runner records every run.",
+          "nodes": [
+            {
+              "id": "keeper",
+              "label": "Bookkeeper",
+              "kind": "external",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "id": "list",
+              "label": "Invoice list",
+              "kind": "screen",
+              "x": 0,
+              "y": 1
+            },
+            {
+              "id": "api",
+              "label": "Web API",
+              "kind": "service",
+              "x": 1,
+              "y": 1
+            },
+            {
+              "id": "db",
+              "label": "Postgres",
+              "kind": "store",
+              "x": 2,
+              "y": 1
+            },
+            {
+              "id": "jobs",
+              "label": "Export jobs",
+              "kind": "queue",
+              "x": 1,
+              "y": 2
+            },
+            {
+              "id": "hist",
+              "label": "History",
+              "kind": "store",
+              "x": 2,
+              "y": 2
+            }
+          ],
+          "edges": [
+            {
+              "from": "keeper",
+              "to": "list",
+              "label": "clicks export"
+            },
+            {
+              "from": "list",
+              "to": "api",
+              "label": "queues"
+            },
+            {
+              "from": "api",
+              "to": "jobs",
+              "label": "adds job"
+            },
+            {
+              "from": "jobs",
+              "to": "db",
+              "label": "reads"
+            },
+            {
+              "from": "jobs",
+              "to": "hist",
+              "label": "writes row"
+            }
+          ],
+          "new": [
+            "jobs",
+            "hist"
+          ]
+        },
+        "steps": [
+          {
+            "text": "The bookkeeper clicks export; the request adds a job and returns at once.",
+            "nodes": [
+              "keeper",
+              "list",
+              "api",
+              "jobs"
+            ]
+          },
+          {
+            "text": "The runner reads the invoices with the account's own time zone.",
+            "nodes": [
+              "jobs",
+              "db"
+            ]
+          },
+          {
+            "text": "Each run writes who, when, filters and count to history.",
+            "nodes": [
+              "jobs",
+              "hist"
+            ]
+          }
+        ],
+        "tickets": [
+          "export-job-runner",
+          "export-history-page"
+        ],
+        "research": [
+          "delivery"
+        ]
+      },
+      {
+        "id": "pdf-worker",
+        "title": "A worker renders PDFs in parallel",
+        "short": "From 20 minutes to about 2 for a month",
+        "found": "PDFs render one at a time on the web server, about 4 seconds each, so a month of 300 invoices takes 20 minutes.",
+        "evidence": [
+          {
+            "label": "p95 4.1 s",
+            "ref": "dashboards/pdf-render"
+          }
+        ],
+        "recommend": "A separate worker renders eight PDFs at a time and stores each one by invoice version, then zips the month.",
+        "why": "Rendering is the slow step and it is independent per invoice, so parallel workers cut the time almost linearly; caching by version avoids repeat work.",
+        "user_sees": "A month of PDFs arrives as one zip in about two minutes.",
+        "today": {
+          "caption": "One PDF at a time inside the web request.",
+          "nodes": [
+            {
+              "id": "api",
+              "label": "Web API",
+              "kind": "service",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "id": "render",
+              "label": "Renderer",
+              "kind": "service",
+              "x": 1,
+              "y": 0
+            }
+          ],
+          "edges": [
+            {
+              "from": "api",
+              "to": "render",
+              "label": "one at a time"
+            }
+          ]
+        },
+        "proposed": {
+          "caption": "Eight at a time in a worker, cached by version.",
+          "nodes": [
+            {
+              "id": "api",
+              "label": "Web API",
+              "kind": "service",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "id": "jobs",
+              "label": "Export jobs",
+              "kind": "queue",
+              "x": 1,
+              "y": 0
+            },
+            {
+              "id": "pdf",
+              "label": "PDF worker",
+              "kind": "agent",
+              "x": 2,
+              "y": 0
+            },
+            {
+              "id": "files",
+              "label": "File storage",
+              "kind": "store",
+              "x": 2,
+              "y": 1
+            }
+          ],
+          "edges": [
+            {
+              "from": "api",
+              "to": "jobs",
+              "label": "queues"
+            },
+            {
+              "from": "jobs",
+              "to": "pdf",
+              "label": "8 at a time"
+            },
+            {
+              "from": "pdf",
+              "to": "files",
+              "label": "stores, zips"
+            }
+          ],
+          "new": [
+            "pdf",
+            "files"
+          ]
+        },
+        "steps": [
+          {
+            "text": "The job splits the month into one render task per invoice.",
+            "nodes": [
+              "jobs",
+              "pdf"
+            ]
+          },
+          {
+            "text": "The worker skips invoices whose version is already stored.",
+            "nodes": [
+              "pdf",
+              "files"
+            ]
+          },
+          {
+            "text": "When all tasks finish, the worker zips the month and links it.",
+            "nodes": [
+              "pdf",
+              "files"
+            ]
+          }
+        ],
+        "tickets": [
+          "pdf-render-worker",
+          "zip-bundle-download"
+        ],
+        "research": [
+          "pdf-speed"
+        ]
+      }
     ]
   },
   "prototypes": [
@@ -654,14 +976,27 @@
         ],
         "verify": {
           "code": "pnpm test jobs/export",
-          "browser": "Start an export, reload, see it finish in history"
+          "browser": "Start an export, reload, see it finish in history",
+          "run": "Start a 300 invoice export on staging, reload the page, and watch it finish and appear in history."
         },
         "files": [
           "apps/api/src/jobs/export.ts",
           "db/migrations/0042_exports.sql"
         ],
         "depends_on": [],
-        "evidence": "agent/proof/export-job-runner-1.png"
+        "evidence": "agent/proof/export-job-runner-1.png",
+        "where_found": [
+          "apps/web/src/invoices/render.ts:88, export runs in the request",
+          "db/schema.sql, no table records exports"
+        ],
+        "reproduce": [
+          "Open the invoice list with 300 invoices in one month",
+          "Click export as PDF",
+          "The request times out after 60 seconds and no history exists"
+        ],
+        "solution": "Queue each export as a background job using the framework's job queue. The runner retries twice, writes one history row per run, and posts progress the screen can poll.",
+        "why_right": "The framework already ships the queue, so this adds no new service and gives the audit record in the same change.",
+        "estimate": "2 h build, 30 min review"
       },
       {
         "id": "invoice-query-api",
@@ -1067,6 +1402,164 @@
       "Shared folder delivery",
       "Exports by client or project",
       "Direct sync with accounting tools"
+    ],
+    "branches": {
+      "development": "develop",
+      "production": "main",
+      "naming": "export/<ticket>-<part>",
+      "naming_note": "One branch per PR, deleted on merge.",
+      "development_note": "Every merge deploys to staging.",
+      "production_note": "Released by hand after the proof on staging."
+    },
+    "prs": [
+      {
+        "id": "jobs-table",
+        "title": "History table and migration",
+        "ticket": "export-job-runner",
+        "base": "develop",
+        "kind": "stacked",
+        "lines": 140,
+        "risk": "high",
+        "stack": "job runner",
+        "review": "named person"
+      },
+      {
+        "id": "jobs-runner",
+        "title": "Job runner and retries",
+        "ticket": "export-job-runner",
+        "base": "jobs-table",
+        "kind": "stacked",
+        "lines": 320,
+        "risk": "high",
+        "stack": "job runner",
+        "review": "named person"
+      },
+      {
+        "id": "query-tz",
+        "title": "Invoice query in account time zone",
+        "ticket": "invoice-query-api",
+        "base": "develop",
+        "kind": "independent",
+        "lines": 260,
+        "risk": "medium"
+      },
+      {
+        "id": "csv-presets",
+        "title": "CSV presets for three tools",
+        "ticket": "csv-mapping-presets",
+        "base": "develop",
+        "kind": "independent",
+        "lines": 340,
+        "risk": "low"
+      },
+      {
+        "id": "pdf-worker",
+        "title": "PDF worker, eight at a time",
+        "ticket": "pdf-render-worker",
+        "base": "develop",
+        "kind": "stacked",
+        "lines": 380,
+        "risk": "medium",
+        "stack": "pdf worker"
+      },
+      {
+        "id": "pdf-cache",
+        "title": "Cache PDFs by invoice version",
+        "ticket": "pdf-render-worker",
+        "base": "pdf-worker",
+        "kind": "stacked",
+        "lines": 180,
+        "risk": "medium",
+        "stack": "pdf worker"
+      },
+      {
+        "id": "dialog",
+        "title": "Export dialog",
+        "ticket": "export-dialog-ui",
+        "base": "develop",
+        "kind": "independent",
+        "lines": 290,
+        "risk": "low"
+      },
+      {
+        "id": "schedule",
+        "title": "Monthly schedule settings",
+        "ticket": "schedule-settings",
+        "base": "develop",
+        "kind": "independent",
+        "lines": 210,
+        "risk": "low"
+      },
+      {
+        "id": "zip",
+        "title": "Zip bundle download",
+        "ticket": "zip-bundle-download",
+        "base": "develop",
+        "kind": "independent",
+        "lines": 230,
+        "risk": "low"
+      },
+      {
+        "id": "history-page",
+        "title": "Export history page",
+        "ticket": "export-history-page",
+        "base": "develop",
+        "kind": "independent",
+        "lines": 270,
+        "risk": "low"
+      },
+      {
+        "id": "email",
+        "title": "Monthly email with link",
+        "ticket": "monthly-email-delivery",
+        "base": "develop",
+        "kind": "independent",
+        "lines": 250,
+        "risk": "medium"
+      },
+      {
+        "id": "e2e",
+        "title": "End-to-end proof on staging",
+        "ticket": "end-to-end-proof",
+        "base": "develop",
+        "kind": "independent",
+        "lines": 160,
+        "risk": "low"
+      }
+    ],
+    "review_policy": [
+      {
+        "risk": "low",
+        "who": "AI reviewer",
+        "what": "Reads the diff against the ticket's done-when and merges when nothing is open."
+      },
+      {
+        "risk": "medium",
+        "who": "AI reviewer and a refuter",
+        "what": "A second agent tries to break the change; both must come back clean."
+      },
+      {
+        "risk": "high",
+        "who": "A named person, after the AI review",
+        "what": "Approves on GitHub. Data changes and auth always count as high."
+      }
+    ],
+    "merge_checklist": [
+      "The gate is green on the PR's latest commit",
+      "The done-when proof is attached to the PR",
+      "The review for its risk level came back clean",
+      "For a stacked PR, the PR below it has merged",
+      "The ticket's live state is written to the book"
+    ],
+    "github": [
+      {
+        "what": "Delete head branches on merge",
+        "why": "Stacked PRs retarget cleanly after a squash"
+      },
+      {
+        "what": "Require the gate before merge",
+        "why": "Nothing lands red, even late at night"
+      }
     ]
   },
   "decisions": [
@@ -1221,6 +1714,80 @@
       "path": "agent/proof/export-job-runner-1.png",
       "title": "Proof: export history row",
       "kind": "img"
+    }
+  ],
+  "summary": {
+    "headline": "Bookkeepers will export a month of invoices in one click, in their own tool's format, instead of rebuilding a spreadsheet by hand.",
+    "text": "Exports become background jobs. A worker renders PDFs eight at a time, every run leaves a record, and a schedule sends the month on its own.",
+    "numbers": [
+      {
+        "value": "10",
+        "label": "goal-sized tickets"
+      },
+      {
+        "value": "14",
+        "label": "pull requests, about 250 lines each"
+      },
+      {
+        "value": "4",
+        "label": "waves of parallel builders"
+      },
+      {
+        "value": "41",
+        "label": "support tickets in September this removes"
+      }
+    ],
+    "timeline": [
+      {
+        "when": "Day 1",
+        "what": "Job runner and invoice query on staging"
+      },
+      {
+        "when": "Day 2",
+        "what": "CSV presets, PDF worker, dialog, schedule"
+      },
+      {
+        "when": "Day 3",
+        "what": "Zip bundles, history, monthly email"
+      },
+      {
+        "when": "Day 4",
+        "what": "Proof on staging, then release"
+      }
+    ],
+    "points": [
+      {
+        "icon": "table",
+        "label": "The problem",
+        "text": "Bookkeepers copy invoices out by hand every month, and PDFs take four seconds each.",
+        "link": "#findings"
+      },
+      {
+        "icon": "layers",
+        "label": "How it will work",
+        "text": "The web app queues a job; workers do the slow parts and record every run.",
+        "link": "a:export-jobs"
+      },
+      {
+        "icon": "pr",
+        "label": "How it ships",
+        "text": "Fourteen small PRs into the development branch, reviewed by risk before each merge.",
+        "link": "#prs"
+      },
+      {
+        "icon": "flag",
+        "label": "What we need from you",
+        "text": "Two calls: which CSV presets ship first, and which day the monthly send runs.",
+        "link": "#needs"
+      }
+    ]
+  },
+  "prompts": [
+    {
+      "id": "progress",
+      "title": "Progress update",
+      "when": "Paste any time for a plain status",
+      "text": "Read the book at its URL and the db collections status, run and log. Tell me in five lines: what merged since yesterday, what is in review, what is blocked and on whom, what the next wave is, and anything that needs my call. Link each item to its PR."
     }
   ]
 }
