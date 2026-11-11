@@ -54,7 +54,7 @@ Decisions appear once. Under a section one line shows ("2 decisions shaped this"
 
 | Element | Words |
 |---|---|
-| Book title; menu label | 8; 3 |
+| Book title; menu label | 8; 4 |
 | Story claim; section claim | 12; 14, one sentence, no colon |
 | Story lead; section lead | 30; 40 |
 | Depth row title | 6, says what is inside (the page adds the size) |
@@ -62,9 +62,9 @@ Decisions appear once. Under a section one line shows ("2 decisions shaped this"
 | Paragraph | 60, two in a row at most, then a table, list or figure |
 | Table cell; row detail | 25; 120 |
 | List item | 20 |
-| Number label | 6 |
+| Story number value; label | 6; 8 |
 | Flow step title, text | 5, 20 |
-| Map part name, line | 2, 4 |
+| Map part name, line | 6, 6 (a real name and its job: "Front door: CloudFront + WAF"); size and cost 8, why 20 |
 | Capability name, line | 6, 15 |
 | Risk name, what happens then | 6, 20 |
 | Ticket title, goal, each done-when, problem | 10, 30, 15, 60. The full acceptance has no limit and sits under the plain lines |

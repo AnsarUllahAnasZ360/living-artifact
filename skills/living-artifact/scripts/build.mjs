@@ -319,7 +319,7 @@ if (isObj(plan)) {
       const list = (k) => { if (V[k] === undefined) return []; if (isArr(V[k])) return V[k]; err(`plan.verification.${k}: must be a list`); return []; };
       const READY = list("ready"), RUNS = list("runs"), CHECKS = list("checks");
       ids(READY, "plan.verification.ready");
-      READY.forEach((r, i) => { if (!nonEmptyStr(r?.need)) err(`plan.verification.ready[${i}]: needs need`); if (r?.state !== undefined && !["ok", "missing", "unknown"].includes(r.state)) err(`plan.verification.ready[${i}]: state is ok, missing or unknown`); });
+      READY.forEach((r, i) => { if (!nonEmptyStr(r?.need) && !nonEmptyStr(r?.what)) err(`plan.verification.ready[${i}]: needs need (or what), what must be ready`); if (r?.state !== undefined && !["ok", "missing", "unknown"].includes(r.state)) err(`plan.verification.ready[${i}]: state is ok, missing or unknown`); });
       ids(RUNS, "plan.verification.runs");
       const runAt = new Map(RUNS.filter((r) => nonEmptyStr(r?.id)).map((r) => [r.id, RUNS.indexOf(r)]));
       RUNS.forEach((r, i) => { if (r?.needs && !(runAt.get(r.needs) < i)) err(`plan.verification.runs[${i}]: needs "${r.needs}", which must be an earlier run`); });
@@ -415,7 +415,7 @@ function checkFigure(f, where) {
     f.items.forEach((x, i) => {
       if (!nonEmptyStr(x?.label)) err(`${where}.items[${i}]: needs label`);
       if (f.type !== "layers" && typeof x?.value !== "number") err(`${where}.items[${i}].value: a number`);
-      H(`${where}.items[${i}].label`, x?.label, 8, false, true); H(`${where}.items[${i}].note`, x?.note, 20, false, true); H(`${where}.items[${i}].wall`, x?.wall, 20, false, true);
+      H(`${where}.items[${i}].label`, x?.label, 12, false, true); H(`${where}.items[${i}].note`, x?.note, 20, false, true); H(`${where}.items[${i}].wall`, x?.wall, 20, false, true);
     });
   }
   H(`${where}.note`, f.note, 40, false, true);
@@ -441,7 +441,7 @@ function checkDepth(sec, w) {
     const r = roleOf(b); if (nonEmptyStr(r)) { if (!ROLES.has(r)) ROLES.set(r, []); ROLES.get(r).push({ sec, block: b }); }
     depthBlocks.push({ sec, block: b, where: ww });
     if (b.kind === "table") {
-      if (!nonEmptyArr(d.columns) || !d.columns.every(nonEmptyStr)) { err(`${ww}.data.columns: a list of column names`); return; }
+      if (!nonEmptyArr(d.columns) || !d.columns.every((c, k) => nonEmptyStr(c) || (k === 0 && c === ""))) { err(`${ww}.data.columns: a list of column names (only the first may be empty, for row labels)`); return; }
       d.columns.forEach((c, k) => H(`${ww}.data.columns[${k}]`, c, 6, false, true));
       if (!nonEmptyArr(d.rows)) err(`${ww}.data.rows: needs rows`);
       (d.rows || []).forEach((row, k) => {
@@ -494,7 +494,7 @@ SECS.forEach((sec, i) => {
   }
   H(`${w}.lead`, sec.lead, comp === "story" ? 30 : 40); checkPlaceholders(sec.lead, `${w}.lead`, extra);
   H(`${w}.label`, sec.label, 4); H(`${w}.promise`, sec.promise, 6, false);
-  if (sec.nav !== undefined && sec.nav !== false) { if (!nonEmptyStr(sec.nav)) err(`${w}.nav: the menu label, a word or three`); else H(`${w}.nav`, sec.nav, 3); }
+  if (sec.nav !== undefined && sec.nav !== false) { if (!nonEmptyStr(sec.nav)) err(`${w}.nav: the menu label, a word or four`); else H(`${w}.nav`, sec.nav, 4); }
   if (GROUPS.size) { if (comp !== "story" && !GROUPS.has(sec.group)) err(`${w}.group: one of ${[...GROUPS].join(", ")}; the side menu lists sections by group`); }
   else if (sec.group !== undefined) err(`${w}.group: "${sec.group}" but book.groups is missing`);
   const T = sec.table || d.table;
@@ -510,7 +510,7 @@ SECS.forEach((sec, i) => {
       if (n?.live !== undefined && n.live !== "proven") err(`${ww}.live: only "proven"`);
       if (!CERTAINTY.includes(n?.certainty) && n?.live !== "proven") warn(`${ww}: no certainty; say measured, estimated or designed`);
       if (isStr(n?.value) && /^[\d.,\s]+$/.test(n.value) && words(n.label) < 2) warn(`${ww}: "${n.value}" has no unit; the label must say what it counts`);
-      H(`${ww}.label`, n?.label, 6); H(`${ww}.value`, n?.value, 4);
+      H(`${ww}.label`, n?.label, 8); H(`${ww}.value`, n?.value, 6);
     });
     if (d.after !== undefined) { H(`${w}.data.after.claim`, d.after.claim, 12, false); H(`${w}.data.after.lead`, d.after.lead, 30, false); }
     H(`${w}.data.changed`, d.changed, 25, false);
@@ -527,7 +527,10 @@ SECS.forEach((sec, i) => {
       if (nid.has(n.id)) err(`${ww}: duplicate id "${n.id}"`); nid.add(n.id); nodeName.set(n.id, n.name);
       if (!isArr(n.wide) || n.wide.length !== 4) err(`${ww}.wide: [x, y, width, height] for the wide layout`);
       if (n.tall !== undefined && (!isArr(n.tall) || n.tall.length !== 4)) err(`${ww}.tall: [x, y, width, height]`);
-      H(`${ww}.name`, n.name, n.zone ? 3 : 2); if (!n.zone) H(`${ww}.does`, n.does, 4);
+      H(`${ww}.name`, n.name, n.zone ? 8 : 6); if (!n.zone) H(`${ww}.does`, n.does, 6);
+      for (const k of ["size", "cost"]) H(`${ww}.${k}`, n[k], 8, false, true);
+      H(`${ww}.why`, n.why, 20, false, true);
+      if (n.origin !== undefined && !["open", "aws", "ours", "yours"].includes(n.origin)) err(`${ww}.origin: open, aws, ours or yours`);
     });
     if (nodes.length && nodes.some((n) => !n?.tall)) warn(`${w}: some parts have no tall layout; on a phone the wide map shrinks instead of being redrawn`);
     const eid = new Set();
@@ -1027,7 +1030,7 @@ const out = path.join(dir, "index.html");
 fs.writeFileSync(out, html);
 const kb = Buffer.byteLength(html) / 1024;
 const fontKb = Buffer.byteLength(fontFaces) / 1024;
-if (kb - fontKb > 400) warn(`index.html is ${kb.toFixed(0)} KB (${(kb - fontKb).toFixed(0)} KB without the embedded fonts); keep it under 400 KB without fonts by moving long text into agent files`);
+if (kb - fontKb > 1500) warn(`index.html is ${kb.toFixed(0)} KB (${(kb - fontKb).toFixed(0)} KB without the embedded fonts); over 1,500 KB a phone loads it slowly, so move raw text into agent files and link it with a file depth row`);
 if (preview) {
   const empty = '<script id="book-demo" type="application/json"></script>';
   if (!html.includes(empty)) { console.error("error: template is missing the book-demo block"); process.exit(1); }

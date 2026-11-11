@@ -84,6 +84,12 @@ for (const w of WIDTHS) {
         return bottom - top > 900 ? `${s.id} (${Math.round(bottom - top)} px)` : null;
       }).filter(Boolean));
       tall.forEach((x) => fail(`1280 px human: the surface of ${x} is taller than 900 px; move detail into depth`));
+      const spill = await p.evaluate(() => Array.from(document.querySelectorAll("#main section.sec > .stage .node")).flatMap((g) => {
+        const box = g.querySelector(".n-box, .n-zone"); if (!box) return [];
+        const r = box.getBoundingClientRect(); if (!r.width) return [];
+        return Array.from(g.querySelectorAll("text, tspan")).filter((t) => !t.children.length && t.textContent.trim()).map((t) => { const q = t.getBoundingClientRect(); return q.right > r.right + 2 || q.left < r.left - 2 ? `"${t.textContent.trim().slice(0, 40)}" in ${g.closest("section").id}` : null; }).filter(Boolean);
+      }));
+      [...new Set(spill)].forEach((x) => fail(`1280 px human: map text ${x} spills out of its box; widen the box (wide and tall) or shorten the words`));
       // a ticket opens in a drawer with every field
       const tk = (B.plan?.tickets || [])[0];
       if (tk) { await p.evaluate((id) => { location.hash = "plan/" + id; }, tk.id); await p.waitForTimeout(200); const ok = await p.evaluate(() => !document.getElementById("tdrawer").hidden && /Goal/.test(document.getElementById("tdrawer").textContent) && /How it is verified/.test(document.getElementById("tdrawer").textContent)); if (!ok) fail("1280 px human: a ticket link does not open its drawer with goal and verification"); }

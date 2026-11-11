@@ -43,7 +43,7 @@
 :root[data-theme="light"] { color-scheme: light; }
 :root[data-theme="dark"] { color-scheme: dark; }
 *, *::before, *::after { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; scroll-padding-top: 72px; }
+html { -webkit-text-size-adjust: 100%; scroll-padding-top: 72px; }
 body { margin: 0; background: var(--bg); color: var(--text); font: 400 14px/1.5 var(--font-sans); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; overflow-x: hidden; }
 h1, h2, h3, h4, p, ol, ul, figure, dl, dd, pre { margin: 0; }
 ol, ul { padding: 0; list-style: none; }
@@ -550,6 +550,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb { outline: 2px solid var(-
 .fbars span { color: var(--text-2); }
 .fbars i { display: block; height: 10px; border-radius: 3px; background: var(--series-2); }
 .fbars b { font-weight: 500; font-variant-numeric: tabular-nums; }
+@media (min-width: 1100px) { .fbars--two { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 32px; } .fbars--two div { grid-template-columns: minmax(0, 12em) minmax(0, 1fr) auto; } }
 .flayers { display: grid; gap: 6px; max-width: 760px; }
 .flayers div { display: grid; grid-template-columns: minmax(0, 12em) minmax(0, 1fr); gap: 16px; padding: 10px 14px; border: 1px solid var(--line-strong); border-radius: var(--r); background: var(--bg); }
 .flayers div:nth-child(2) { margin: 0 12px; } .flayers div:nth-child(3) { margin: 0 24px; } .flayers div:nth-child(4) { margin: 0 36px; } .flayers div:nth-child(n+5) { margin: 0 48px; }
@@ -557,13 +558,17 @@ input[type=range]:focus-visible::-webkit-slider-thumb { outline: 2px solid var(-
 .flayers span { color: var(--text-2); font-size: 13px; }
 .fline svg { width: 100%; overflow: visible; }
 /* inventory, cards, research cards, ops */
-.inv { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 28px; }
+.inv { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 22px; }
+.inv .src { display: block; margin-top: 2px; }
 .inv h3 { display: flex; gap: 8px; align-items: center; font-size: 13px; font-weight: 600; padding-bottom: 8px; border-bottom: 1px solid var(--line-strong); }
 .inv h3 small { margin-left: auto; color: var(--text-3); font-weight: 400; }
 .inv li { padding: 9px 0; border-bottom: 1px solid var(--line); display: grid; gap: 2px; }
 .inv li b { font-weight: 500; }
 .inv li span { color: var(--text-2); font-size: 13px; }
-.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.cards--tight .card { padding: 12px 14px; gap: 4px; }
+.cards--tight .card b { font-size: 13.5px; line-height: 18px; }
+.cards--tight .card p { font-size: 13px; line-height: 18px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .card { padding: 16px; border: 1px solid var(--line-strong); border-radius: var(--r-lg); display: grid; gap: 6px; align-content: start; background: var(--bg); }
 .card b { font-weight: 600; line-height: 20px; }
 .card p { color: var(--text-2); font-size: 13.5px; }
@@ -617,7 +622,8 @@ button.card:hover { border-color: var(--text-3); }
 .kick__go .btn--pri { height: 40px; padding: 0 18px; font-size: 14px; }
 .ready { margin-top: 24px; max-width: 760px; }
 .ready h3 { font-size: 12px; font-weight: 500; color: var(--text-3); margin-bottom: 4px; }
-.ready li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; padding: 8px 0; border-top: 1px solid var(--line); color: var(--text-2); }
+.ready li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; padding: 7px 0; border-top: 1px solid var(--line); color: var(--text-2); font-size: 13.5px; }
+.ready .more summary { margin-top: 6px; }
 .toc { margin-top: 40px; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 18px 28px; }
 .toc h3 { font-size: 11.5px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 4px; }
 .toc a { display: block; padding: 3px 0; font-size: 13.5px; }
@@ -1483,6 +1489,13 @@ COMP.map = function (stage, d, sec) {
       $$("text.n-t, text.n-s", g).forEach(function (tx) {
         var w = tx.getComputedTextLength ? tx.getComputedTextLength() : 0, fs = parseFloat(getComputedStyle(tx).fontSize) || 13;
         if (w > room && w > 0) tx.style.fontSize = Math.max(11.5, fs * room / w) + "px";
+        /* a job line that still does not fit wraps to a second line when the box has room for it */
+        if (tx.classList.contains("n-s") && w > 0 && tx.getComputedTextLength() > room + 28 - 24 && b[3] >= 62) {
+          var words = tx.textContent.split(" "), one = [], two = [], x0 = tx.getAttribute("x"), y0 = +tx.getAttribute("y");
+          tx.textContent = "";
+          var t1 = s("tspan", { x: x0, y: y0 }), t2 = s("tspan", { x: x0, y: y0 + 15 }); add(tx, [t1, t2]);
+          words.forEach(function (wd) { if (!two.length) { t1.textContent = one.concat(wd).join(" "); if (tx.getComputedTextLength() > b[2] - 24 && one.length) { two.push(wd); t1.textContent = one.join(" "); } else one.push(wd); } else two.push(wd); t2.textContent = two.join(" "); });
+        }
       });
     });
     edges.forEach(function (e) {
@@ -2236,11 +2249,19 @@ function depthEl(sec, blocks) {
   });
   return box;
 }
+/* figures above a target draw a frame later and change its place; land again until the reader acts */
+function land(el, block) {
+  var go = function () { el.scrollIntoView({ block: block || "start", behavior: "instant" }); };
+  go(); var t0 = Date.now();
+  [60, 200, 500, 1000].forEach(function (ms) { setTimeout(function () { if (!userScrolled || Date.now() - t0 < 30) go(); }, ms); });
+}
+var userScrolled = false;
+["wheel", "touchmove", "keydown", "pointerdown"].forEach(function (e) { window.addEventListener(e, function () { userScrolled = true; }, { capture: true, passive: true }); });
 function openDepth(secId, blockId, instant) {
   var el = document.getElementById(secId + "/" + blockId);
   if (!el) return false;
   el.open = true;
-  requestAnimationFrame(function () { el.scrollIntoView({ block: "start", behavior: instant || calm() ? "instant" : "smooth" }); var sm = $("summary", el); if (sm) sm.focus({ preventScroll: true }); });
+  requestAnimationFrame(function () { if (instant) land(el); else el.scrollIntoView({ block: "start", behavior: calm() ? "instant" : "smooth" }); var sm = $("summary", el); if (sm) sm.focus({ preventScroll: true }); });
   return true;
 }
 function setAllDepth(open) { DEPTH_ALL.forEach(function (b) { if (b.el) b.el.open = open; }); }
@@ -2335,7 +2356,10 @@ COMP.inventory = function (stage, d) {
   add(stage, h("div", { class: "inv" }, (d.columns || []).map(function (c) {
     var st = INVST[c.state] || ["", c.state];
     return h("div", {}, h("h3", {}, h("span", { class: "dot " + st[0] }), c.label || st[1], h("small", { text: String((c.items || []).length) })),
-      h("ul", {}, (c.items || []).map(function (x) { return h("li", {}, h("b", { text: x.name }), x.note ? h("span", { text: x.note }) : null, x.source ? srcLink(x.source) : null); })));
+      (function () {
+        var li = function (x) { return h("li", {}, h("b", { text: x.name }), x.note ? h("span", { text: x.note }) : null, x.source ? srcLink(x.source) : null); }, all = c.items || [];
+        return [h("ul", {}, all.slice(0, 5).map(li)), all.length > 5 ? h("details", { class: "more" }, h("summary", { text: (all.length - 5) + " more" }), h("ul", {}, all.slice(5).map(li))) : null];
+      })());
   })));
 };
 function cardEl(x, onclick) {
@@ -2352,7 +2376,7 @@ COMP.research = function (stage, d, sec) {
   if (!R.length) { add(stage, h("p", { class: "empty", text: "No research notes yet." })); return; }
   var HS = { measured: "measured", estimated: "estimated", designed: "designed" }, rest = 0;
   var F = R.filter(function (r) { return r.featured; }); if (F.length) { rest = R.length - F.length; R = F; }
-  add(stage, h("div", { class: "cards" }, R.map(function (r) {
+  add(stage, h("div", { class: "cards cards--tight" }, R.map(function (r) {
     return cardEl({ title: r.question, text: String(r.answer || "").split(/(?<=\.)\s/)[0], certainty: HS[String(r.how_sure || "").toLowerCase()] || null }, function () { openDepth(sec.id, "notes"); });
   })));
   if (rest) add(stage, h("p", { class: "fine", style: "margin-top:12px" }, rest + " more research notes are in the table below. ", h("button", { type: "button", class: "linkbtn", text: "Open every note", onclick: function () { openDepth(sec.id, "notes"); } })));
@@ -2379,9 +2403,11 @@ COMP.kickoff = function (stage, d) {
   var V = ver(), R = V.ready || [];
   if (R.length) {
     var ul = h("ul");
-    var draw = function () { ul.textContent = ""; R.forEach(function (r) { var w = readyWord(r); add(ul, h("li", {}, h("span", { text: r.need || r.what || "" }), stateEl(w === "Ready" ? "ok" : w === "Missing" ? "err" : "", w))); }); };
+    var ul2 = h("ul"), more = R.length > 6 ? h("details", { class: "more" }, h("summary", { text: "All " + R.length + " ready checks" }), ul2) : null;
+    var row = function (r) { var w = readyWord(r); return h("li", {}, h("span", { text: r.need || r.what || "" }), stateEl(w === "Ready" ? "ok" : w === "Missing" ? "err" : "", w)); };
+    var draw = function () { ul.textContent = ""; ul2.textContent = ""; R.slice(0, 6).forEach(function (r) { add(ul, row(r)); }); R.slice(6).forEach(function (r) { add(ul2, row(r)); }); };
     onLive(draw); draw();
-    add(stage, h("div", { class: "ready" }, h("h3", { text: "Before you paste" }), ul));
+    add(stage, h("div", { class: "ready" }, h("h3", { text: "Before you paste" }), ul, more));
   }
 };
 COMP.verification = function (stage) {
@@ -2394,8 +2420,8 @@ COMP.verification = function (stage) {
   add(stage, h("ol", { class: "gpic" }, steps.map(function (x) { return h("li", {}, h("div", {}, h("b", { text: x[0] }), h("span", { text: x[1] }))); })));
 };
 COMP.progress = function (stage) {
-  var C = 2 * Math.PI * 17, track = h("div", { class: "waves", role: "group", "aria-label": "Progress by wave" }), bars = h("div", { class: "fbars", style: "margin-top:28px" }), log = h("ul", { class: "ticks-list", style: "margin-top:20px" });
-  WAVES.forEach(function (w) { add(track, h("div", { class: "wave" }, h("span", { class: "ring" }, s("svg", { viewBox: "0 0 40 40", "aria-hidden": "true" }, s("circle", { class: "trk", cx: 20, cy: 20, r: 17 }), s("circle", { class: "arc", cx: 20, cy: 20, r: 17, "stroke-dasharray": C.toFixed(2), "stroke-dashoffset": C.toFixed(2) })), h("em")), h("b", { text: (w.i + 1) + ". " + w.name }), h("span", { class: "st" }))); });
+  var C = 2 * Math.PI * 17, track = h("div", { class: "waves", role: "group", "aria-label": "Progress by wave" }), bars = h("div", { class: "fbars fbars--two", style: "margin-top:28px" }), log = h("ul", { class: "ticks-list", style: "margin-top:20px" });
+  WAVES.forEach(function (w) { add(track, h("div", { class: "wave" }, h("span", { class: "ring" }, s("svg", { viewBox: "0 0 40 40", "aria-hidden": "true" }, s("circle", { class: "trk", cx: 20, cy: 20, r: 17 }), s("circle", { class: "arc", cx: 20, cy: 20, r: 17, "stroke-dasharray": C.toFixed(2), "stroke-dashoffset": C.toFixed(2) })), h("em")), h("b", { text: "Wave " + w.n + ". " + w.name }), h("span", { class: "st" }))); });
   add(stage, [track, bars, log]);
   function draw() {
     var pr = progress();
@@ -2461,7 +2487,7 @@ COMP.plan = function (stage, d, sec) {
         w.src.on_fail ? [h("h4", { text: "If it fails" }), h("p", { style: "color:var(--text-2)", text: w.src.on_fail })] : null) : null;
       var band = h("div", { class: "wband", id: "wave-" + w.n, "data-id": w.id },
         h("div", { class: "wband__h" }, h("span", { class: "ring" }, h("em", { style: "position:static;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--line-strong)", text: x.done + "/" + x.n })),
-          h("b", {}, "Wave " + (i + 1) + ". " + w.name, w.src.when ? h("span", { class: "when", text: w.src.when }) : null), stateEl(word[0], word[1]), w.what ? h("p", { text: w.what }) : null), more);
+          h("b", {}, "Wave " + w.n + ". " + w.name, w.src.when ? h("span", { class: "when", text: w.src.when }) : null), stateEl(word[0], word[1]), w.what ? h("p", { text: w.what }) : null), more);
       var prs = wavePRs(w);
       if (prs.length) add(band, h("div", { class: "prgrid" }, prs.map(prCard)));
       else add(band, h("div", { class: "prgrid" }, h("div", { class: "prc" }, w.tickets.map(function (t, k) { return ticketRow(t, k); }))));
@@ -2489,7 +2515,7 @@ function openTicket(id) {
   add(D, [
     h("div", { class: "tdrawer__bar" }, stateEl(ps[0], ps[1]), h("button", { type: "button", class: "btn", text: "Close", onclick: closeTicket })),
     h("h2", { id: "tdrawer-h", text: title(t) }),
-    h("dl", { class: "facts" }, [["Wave", w ? (w.i + 1) + ". " + w.name : ""], ["Pull request", pr ? pr.title : ""], ["Branch", pr ? pr.branch || "" : ""], ["Hours", t.hours != null ? hrs(t.hours) : ""], ["Size", t.size || ""], ["Risk", t.risk || ""], ["Area", t.area || ""], ["Model", t.model || ""], ["Id", t.id]].filter(function (x) { return x[1]; }).map(function (x) { return h("div", {}, h("dt", { text: x[0] }), h("dd", { class: x[0] === "Branch" || x[0] === "Id" ? "mono" : null, text: x[1] })); })),
+    h("dl", { class: "facts" }, [["Wave", w ? w.n + ". " + w.name : ""], ["Pull request", pr ? pr.title : ""], ["Branch", pr ? pr.branch || "" : ""], ["Hours", t.hours != null ? hrs(t.hours) : ""], ["Size", t.size || ""], ["Risk", t.risk || ""], ["Area", t.area || ""], ["Model", t.model || ""], ["Id", t.id]].filter(function (x) { return x[1]; }).map(function (x) { return h("div", {}, h("dt", { text: x[0] }), h("dd", { class: x[0] === "Branch" || x[0] === "Id" ? "mono" : null, text: x[1] })); })),
     t.problem ? [h("h4", { text: "Problem" }), h("p", { text: t.problem })] : null,
     h("h4", { text: "Goal" }), h("p", { text: t.goal || "" }),
     (t.done_when || []).length ? [h("h4", { text: "Done when" }), h("ul", { class: "chk" }, t.done_when.map(function (c, i) { var ok = checks ? !!checks[i] : p === "proven"; return h("li", { class: ok ? "ok" : "" }, h("span", { class: "dot " + (ok ? "ok" : "") }), h("span", {}, c, h("span", { class: "sr", text: ok ? ", passed" : ", not yet" }))); }))] : null,
@@ -2818,7 +2844,8 @@ function route(e) {
   if (T[x]) { openTicket(x); return; }
   var parts = x.split("/");
   if (parts.length === 2 && openDepth(parts[0], parts[1], instant)) return;
-  var el = document.getElementById(x); if (el) el.scrollIntoView({ behavior: instant ? "instant" : "smooth" });
+  var el = document.getElementById(x); if (!el) return;
+  if (instant) { userScrolled = false; land(el); } else el.scrollIntoView({ behavior: calm() ? "instant" : "smooth" });
 }
 
 /* ================= boot ================= */

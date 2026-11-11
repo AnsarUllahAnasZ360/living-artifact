@@ -13,7 +13,7 @@ A section:
 ```
 
 - `group`: one of `book.groups[].id` (`{ id, label }` in menu order). The side menu lists sections by group.
-- `nav`: the menu label, 3 words. `promise`: 6 words under it in the story's "What is in this book". `nav: false` keeps a section out of the menu.
+- `nav`: the menu label, 4 words. `promise`: 6 words under it in the story's "What is in this book". `nav: false` keeps a section out of the menu.
 - `label`: the small grey line above the claim, 4 words.
 - `claim`: a full sentence a stranger understands, 14 words (12 on the story). Never a label like "Architecture".
 - `lead`: optional, 40 words (30 on the story). The one fact the claim needs. Never instructions.
