@@ -1,75 +1,89 @@
-# How human mode reads
+# How a book reads
 
-The reader is the owner or a teammate, busy, not reading code. The template in `assets/book.html` does the layout; this file is about what you put in the data so the page stays calm.
+The reader opens the link cold. They have no context, they read about a fifth of the words, and they give it about three minutes. So: show the answer, let them play with it, and let them read only if they want more. Each section is one claim, one picture that moves, and at most 25 words. Everything else is one click deeper or in agent mode.
 
-## The first screen
+## The shape of a plan and architecture book
 
-The executive summary and Needs you share the first screen: the summary on the left (one headline a stranger understands, up to six numbers, when things land, up to eight points that each open their detail), Needs you on the right in a tinted panel (what waits on the reader, with jump links). On a laptop or wider they sit side by side; on a tablet or phone Needs you follows the summary. The stage stepper sits on top. If a reader stops there, they know the problem, the fix, when it lands, the stage and their next action.
+Eight sections in this order. Skip a section with nothing to say. A title is always a claim a stranger understands ("A job is saved before any work starts"), never a label ("Architecture").
 
-## Layout
+| # | Section | Holds | Component |
+|---|---|---|---|
+| 1 | The story | The headline claim, one sentence on today's pain and what we build, three numbers with a certainty mark, the status line | `story` |
+| 2 | Why | The problem in one concrete case (a bill, a failure, a wait), what changes for whom, what we will not build | `compare` |
+| 3 | How it works | The system as 5 to 12 named parts and one job moving through them, plus one failure story | `map`, `steps` |
+| 4 | What it can do | Each capability as one line and a state: works today, being built, later | `capabilities` |
+| 5 | Safety, recovery and cost | What can go wrong and what happens then; what it costs as use grows, with assumptions the reader can change | `risks`, `scale`, `cost` |
+| 6 | What exists today | Only what is built and proven, with proof one click away | `capabilities` with `only: "today"` |
+| 7 | The build | The steps in order with live status; each piece of work with its goal, done-when and proof | `build` |
+| 8 | Beyond | Three to five things that come next, each with the signal that starts it | `roadmap` |
+| R | Reference | Every id, file, status, decision, finding, research note, kickoff, review and round | agent mode only |
 
-The page is fluid, not a fixed column. Running text keeps a reading measure (about 68 characters); grids, diagrams and the wave plan spread across the width. Sections lay themselves out by the width they get (container queries), so the same rules hold in a narrow window on a big screen:
+This order answers an onboarding engineer's questions: what and why, how it is built, what it does, security, edge cases and cost, what is built, how we build the rest, what comes after. A feature book uses a subset (story, how it works, the build). An audit book uses story, why (what we found, as before and after), risks, and the build if fixes follow. A `decided` section at the end lists every decision; each other section shows the ones that affect it.
 
-| Width | What changes |
+## Page rules
+
+- Section pattern: a small label, the claim as the heading, a lead of at most 25 words, then one component. No second paragraph on load.
+- Top bar: book name, at most six anchors, the Human and Agent switch, the theme switch. Nothing else.
+- No side list, no greyed or empty sections, no box around text, no coloured side borders. One hairline is the only divider. The build refuses a coloured side border and any network font, stylesheet or script.
+- One shared set of assumptions per book (`book.model`). A control in one figure moves every figure that uses the same input.
+- "Show the numbers" opens the table behind a figure. The table is never the first thing.
+- A section appears when it has content. Progress, proof and the report are states of the same sections, not new ones.
+
+## Writing
+
+**Budgets.** The checker counts and warns.
+
+| Element | Words |
 |---|---|
-| Phone, 375 | One column, 16 px gutters, no sideways page scroll; the wave plan runs top to bottom, wave by wave; the PR detail fills the screen |
-| Tablet, 768 to 1023 | The section list becomes a drawer behind the menu button; findings and research go two up |
-| Laptop, 1280 | Summary and Needs you side by side; the wave plan in columns with arrows |
-| Wide, 1600 and up | More columns where the content allows (research up to three); a PR block wider than about 540 px lists its commits in two columns |
+| Book title | 8 |
+| Story claim; section claim | 12; 14, one sentence, no colon |
+| Lead | 25 (40 on the story) |
+| Number label | 6 |
+| Flow step title, text | 5, 20 |
+| Map part name, line | 2, 4 |
+| Capability name, line | 6, 15 |
+| Risk name, what happens then | 6, 20 |
+| Step name, what it gives | 2, 8 |
+| Piece of work title, goal, each done-when | 10, 30, 15 |
+| Decided what, why | 10, 25 |
+| Visible on load, whole book | 600 feature, 900 audit, 1,500 large |
 
-Calm comes from whitespace, type and hairlines, with tinted bands for the few things that must stand apart (Needs you, the wave plan, a diagram, the blocked-on-you band). Borders are for controls only. Never a bordered box around a paragraph.
+**Names.** Name a thing by what it does, in the reader's words: "the waiting line", "the front door", "workers start from zero and return to zero". Human text never holds a ticket id, a decision number, a wave or milestone code, a pull request number, a branch, a file path or a file name. Ids live in `id` fields and show in agent mode. Number steps by order ("Step 3 of 5"); a code ("W2", "D7") is not information. A product or vendor name is fine when the reader must recognise it, explained once ("Langfuse, the open-source tool that stores traces").
 
-## The plan reads as waves of PRs
+**Terms.** Use the plain word when one exists. When a term is needed, the sentence that first uses it explains it in under ten words. No glossary. No abbreviation unless people say it aloud that way.
 
-The wave plan is the hero of the Plan section. Waves are columns left to right; each holds the PR blocks built at the same time, each block showing its category, title, its commits in order with status dots, the commit count, risk and approver. Arrows show which PR waits for which; hovering or focusing a block lights its arrows. Each wave ends with its gate. A stacked PR carries a small "On top of" tag, a hotfix a small branch-off, a dropped commit is struck through. Opening a block shows the PR detail: problem, outcome, risk, approver, what it waits for and unblocks, the branch, the commits in order with each done-when, the proof shown before it opens, the areas it owns and the files it also edits. Milestones list the PRs whose merge reaches them. Write PR titles and outcomes so the wave plan alone tells the story.
+**No assumed context.** No "as discussed", "see above", "after your second brief", "the earlier plan". No sentence about the document itself.
 
-How it ships draws the two loops (for every commit, for every PR), the branches, review by risk, the merge rules and a preview of the PR body. The report opens on what is blocked on the reader, then big numbers (PRs opened and merged, approvals, commits, lines added and deleted), where the lines went, the tests by kind, then what works, what is proven and what is not.
+**Numbers.** Every number has a unit and a period ("$187 a month", "41 seconds"). Every number carries one certainty mark: Measured (we ran it), Estimated (computed from stated prices or assumptions), Designed, not yet tested (a target). Round to what the certainty supports. State a shape honestly: a straight line is a straight line.
 
-## Architecture explains, it does not just draw
+**Style.** Short sentences, one idea each. Verbs first in names of work. Sentence case. No em or en dashes, no hedging, no praise, no "we will leverage".
 
-A diagram alone tells a busy reader nothing. Each architecture area answers, in order: what did we find (one concrete example, with evidence they can open), what do we recommend, how does it work (today and proposed pictures, then numbered steps that light up the parts they name), why is this the right fix, what will people notice, what do we accept and what will we not build, and which tickets build it. Write each as if to someone who has not read the findings. Name parts as the user would ("the lead agent", "the product library"), never by file or class names; files go in the evidence chips.
+The checker warns on: a short code (`W2`, `CP-3`), a numbered reference ("decision 130", "round 3"), a file path or name, any id of this book, a reference to context the reader may not have, a word budget overrun, a claim that reads as a label, a number without a unit or certainty, and the whole book over 80% of its budget. It refuses a dash anywhere. Fix every warning before publishing.
 
-## Word budgets
+## Motion and access
 
-| Field | Budget |
-|---|---|
-| tagline | 15 words |
-| problem.statement | 50 words |
-| an outcome claim | 30 words |
-| a finding, a solution | 25 words each |
-| a research answer | 40 words; recommendations 15 words each |
-| architecture frame caption | 20 words |
-| summary headline; each summary point | 25 words; 40 words |
-| architecture area: found, recommend | 90 words each |
-| architecture area: why, user sees | 70 and 50 words |
-| architecture area: each step | 30 words |
-| finding detail, solution detail | 80 words each |
-| ticket problem, solution, why this fix | 60, 120 and 60 words |
-| PR title; PR problem; PR outcome | 10, 40 and 30 words |
-| ticket goal | 50 words; each done-when 20 words |
-| decision question and why | 15 and 30 words; each option effect 12 words |
-| report lines (blocked on you, changed, found, works now, not proven) | 25 words each |
+- State changes 150 ms. Movement across a figure 600 to 900 ms, ease in and out. Entrances staggered, 360 ms in total at most. Nothing loops except the 7 px live dot. A figure may play once when it first scrolls into view, then stops.
+- Reduced motion: no autoplay, no travelling dot, no stagger; figures jump to the end state of each step.
+- Every control is a real button or input, 28 px tall at least. Colour never stands alone: a state is a dot and a word. Each figure has a text reading that updates. Visible focus. Everything works by keyboard.
+- Phone: a figure is redrawn for the width (the map has a tall layout, the timeline turns vertical), never shrunk below 11.5 px text. No sideways page scroll.
+- Colour: the template's tokens only, light and dark. One accent for the thing to look at now; greys for other series; green, amber and red only in small dots.
+- 3D only for physical objects. A software system is a graph; draw it flat.
 
-Anything longer goes into an agent file and the field links it.
+## Live progress without clutter
 
-## Pictures over prose
+- One status line on the story is the only place that says what is happening now: "Step 2 of 4, files, is being built." It reads `run/current.note` when set.
+- One place for detail: the build. A ring fills as pieces are proven; the piece being built carries the accent dot.
+- Four states for a person: Waiting, Building, In review, Proven, plus Stopped with its reason. Finer states are agent mode.
+- A change while the page is open animates its ring once and the line reads "Updated just now". No toasts, feeds or badge counts.
+- When the last write is older than the run's heartbeat, the line reads "No update for 3 hours" with an amber dot, so the page never shows stale green.
 
-- Every outcome has an icon; every architecture area has a today and a proposed picture with steps; every plan has the wave plan of PRs, the milestone roadmap and How it ships (the two loops, branches, review by risk, the merge rules, the PR body).
-- A diagram has at most 12 nodes and a caption. More detail is a second frame, not a bigger picture.
-- Use numbers where they exist: tickets, PRs, waves, latency, lines deleted.
-- Motion explains order (frames stepping in, a PR block lifting on hover) and nothing else. It respects reduced motion.
+## Human mode and agent mode
 
-## Words
+| | Human mode | Agent mode |
+|---|---|---|
+| For | Understand and trust in three minutes | Find anything, resume the work |
+| Shows | The sections, pictures first, names only | The same page with ids beside every name, plus the Reference section |
+| Words | Budgeted | Unbounded, dense |
+| Status | Status line, rings, a dot and a word | Raw db documents with times |
 
-- The user's vocabulary, short sentences, verbs first in titles.
-- No em or en dashes, no internal codes (ticket ids, gate numbers, decision numbers) in human text. Ids live in `id` fields and agent mode.
-- No "we will leverage", no hedging, no praise.
-- Every claim about today's product has evidence one click away.
-
-## Greyed, never hidden
-
-Sections whose stage has not come (prototypes before explore ends, progress before the run, the report before it is ready) show greyed with one line on when they fill in. The reader sees the whole shape of the work from day one.
-
-## Agent mode
-
-Monochrome and dense: the file tree, raw files, raw book.json, every db collection, and the copy digest. It is for an agent or an engineer who wants the truth without design.
+Nothing exists only in human mode. Every sentence a person sees comes from a field an agent can read.
