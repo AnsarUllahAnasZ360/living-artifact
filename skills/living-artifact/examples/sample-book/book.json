@@ -1,188 +1,1398 @@
 {
   "id": "invoice-export",
   "title": "Invoice export",
-  "terms": ["Xero", "QuickBooks", "Sage"],
+  "terms": [
+    "Xero",
+    "QuickBooks",
+    "Sage"
+  ],
   "subtitle": "The plan",
   "kind": "Plan and architecture",
-  "owner": { "name": "Maya", "role": "Founder of Fieldnote" },
+  "owner": {
+    "name": "Maya",
+    "role": "Founder of Fieldnote"
+  },
   "profile": "large",
   "updated": "2026-11-11T09:00:00Z",
-  "round": { "n": 3, "title": "PDF bundles and the monthly send", "started": "2026-10-27", "stage": "build" },
-  "links": [ { "label": "Branch", "value": "invoice-export-r3" }, { "label": "Code", "value": "fieldnote/app", "url": "https://github.com/example/fieldnote", "header": true } ],
-
+  "round": {
+    "n": 3,
+    "title": "PDF bundles and the monthly send",
+    "started": "2026-10-27",
+    "stage": "build"
+  },
+  "links": [
+    {
+      "label": "Branch",
+      "value": "invoice-export-r3"
+    },
+    {
+      "label": "Code",
+      "value": "fieldnote/app",
+      "url": "https://github.com/example/fieldnote",
+      "header": true
+    }
+  ],
   "sections": [
     {
-      "id": "story", "component": "story", "label": "Plan and architecture",
+      "id": "story",
+      "component": "story",
+      "label": "Plan and architecture",
       "claim": "Bookkeepers get every invoice out in one click, in their tool's format.",
       "lead": "Today a bookkeeper copies every invoice by hand at month end, about three hours. One export button will build the file in the background and send it monthly.",
       "data": {
-        "figure": { "from": "how" },
+        "figure": {
+          "from": "how"
+        },
         "numbers": [
-          { "value": "3 hours", "label": "saved per bookkeeper each month", "certainty": "estimated", "source": "agent/research/formats.md" },
-          { "value": "Under 1 minute", "label": "for a month of 5,000 invoices", "certainty": "designed" },
-          { "value": "0 of 0", "label": "pieces of work proven", "live": "proven", "certainty": "measured" }
+          {
+            "value": "3 hours",
+            "label": "saved per bookkeeper each month",
+            "certainty": "estimated",
+            "source": "agent/research/formats.md"
+          },
+          {
+            "value": "Under 1 minute",
+            "label": "for a month of 5,000 invoices",
+            "certainty": "designed"
+          },
+          {
+            "value": "0 of 0",
+            "label": "pieces of work proven",
+            "live": "proven",
+            "certainty": "measured"
+          }
         ],
-        "after": { "claim": "Bookkeepers now get every invoice out in one click.", "lead": "The export button, the three file formats and the monthly email are built and proven. What is not proven yet is listed below." }
-      }
-    },
-    {
-      "id": "why", "component": "compare", "label": "Why", "nav": false,
-      "claim": "Month end takes three hours because invoices leave the app one at a time.",
-      "lead": "Nobody types an invoice twice, and the accounting tool takes the file as it is.",
-      "data": {
-        "before": { "label": "Today", "points": ["A bookkeeper opens each invoice and copies it", "Mistakes show up only when the books do not balance"],
-          "numbers": [ { "value": "3 hours", "label": "a month per bookkeeper", "certainty": "estimated" } ] },
-        "after": { "label": "With export", "points": ["One button builds the whole month as one file", "The file matches what the accounting tool imports"],
-          "numbers": [ { "value": "2 minutes", "label": "a month per bookkeeper", "certainty": "designed" } ] },
-        "parts": [
-          { "name": "Bookkeeper", "before": "Copies by hand", "after": "Presses one button" },
-          { "name": "Invoice screen", "before": "One invoice at a time", "after": "One invoice at a time" },
-          { "name": "Spreadsheet", "before": "Typed in by hand", "after": null },
-          { "name": "Export job", "before": null, "after": "Builds the file in the background" },
-          { "name": "Accounting tool", "before": "Fixed by hand", "after": "Imports the file as is" }
-        ]
-      },
-      "source": "agent/research/formats.md"
-    },
-    {
-      "id": "how", "component": "map", "label": "How it works", "nav": "How it works",
-      "claim": "An export is saved as a job first, so a crash never loses it.",
-      "lead": "Two workers share the work. If one stops halfway, the other goes on from the last finished page.",
-      "data": {
-        "nodes": [
-          { "id": "person", "name": "Bookkeeper", "does": "Asks for a month", "wide": [8, 44, 136, 56], "tall": [104, 8, 150, 54] },
-          { "id": "button", "name": "Export button", "does": "Checks and accepts", "wide": [172, 44, 136, 56], "tall": [104, 96, 150, 54] },
-          { "id": "queue", "name": "Job list", "does": "Exports not started", "wide": [336, 44, 136, 56], "tall": [104, 184, 150, 54] },
-          { "id": "workers", "name": "Export workers", "zone": true, "wide": [500, 8, 156, 122], "tall": [92, 272, 174, 122] },
-          { "id": "wa", "name": "Worker A", "dot": true, "wide": [512, 36, 132, 38], "tall": [104, 300, 150, 38] },
-          { "id": "wb", "name": "Worker B", "dot": true, "wide": [512, 82, 132, 38], "tall": [104, 346, 150, 38] },
-          { "id": "files", "name": "File store", "does": "Keeps 30 days", "wide": [688, 44, 128, 56], "tall": [192, 442, 156, 54] },
-          { "id": "invoices", "name": "Invoices", "does": "Read, never changed", "wide": [504, 178, 148, 56], "tall": [10, 442, 156, 54] }
-        ],
-        "edges": [
-          { "id": "ask", "from": "person", "to": "button", "verb": "asks", "wide": "M144 72H172", "tall": "M179 62V96" },
-          { "id": "save", "from": "button", "to": "queue", "verb": "saves the job", "wide": "M308 72H336", "tall": "M179 150V184" },
-          { "id": "take", "from": "queue", "to": "workers", "verb": "hands out", "wide": "M472 72H500", "tall": "M179 238V272" },
-          { "id": "write", "from": "workers", "to": "files", "verb": "writes the file", "wide": "M656 72H688", "tall": "M214 394V418H270V442" },
-          { "id": "read", "from": "workers", "to": "invoices", "verb": "reads pages", "wide": "M578 130V178", "tall": "M144 394V418H88V442" }
-        ],
-        "stories": [
-          { "id": "normal", "name": "A normal export", "steps": [
-            { "title": "A month is asked for", "text": "The bookkeeper picks October and a format, then presses export.", "edge": "ask", "on": ["button"] },
-            { "title": "The job is saved", "text": "It joins the job list. The screen says the file is on its way.", "edge": "save", "on": ["queue"] },
-            { "title": "A worker takes it", "text": "The first free worker picks up the job.", "edge": "take", "on": ["wa"], "busy": ["wa"] },
-            { "title": "Invoices are read in pages", "text": "The worker reads 500 invoices at a time and marks each page done.", "edge": "read", "on": ["invoices"], "busy": ["wa"] },
-            { "title": "The file is written", "text": "One file in the tool's own format lands in the file store.", "edge": "write", "on": ["files"], "busy": ["wa"] },
-            { "title": "The bookkeeper downloads it", "text": "The link appears on the screen and in the email.", "edge": "ask", "reverse": true, "on": ["person"] }
-          ] },
-          { "id": "crash", "name": "A worker stops", "steps": [
-            { "title": "A month is asked for", "text": "The bookkeeper picks October and a format, then presses export.", "edge": "ask", "on": ["button"] },
-            { "title": "The job is saved", "text": "It joins the job list before any work starts.", "edge": "save", "on": ["queue"] },
-            { "title": "Worker A starts", "text": "It reads the first pages and marks each one done.", "edge": "read", "on": ["invoices"], "busy": ["wa"] },
-            { "title": "Worker A stops", "text": "A deploy restarts the machine halfway through the month.", "on": [], "dead": ["wa"] },
-            { "title": "Worker B continues", "text": "It reads the last page marked done and goes on from there. Nothing is read twice.", "edge": "read", "on": ["wb"], "busy": ["wb"], "dead": ["wa"] },
-            { "title": "The file arrives anyway", "text": "The bookkeeper sees a short wait, not an error.", "edge": "write", "on": ["files"], "busy": ["wb"], "dead": ["wa"] }
-          ] }
-        ]
-      }
-    },
-    {
-      "id": "can", "component": "capabilities", "label": "What it can do", "nav": "What it can do",
-      "claim": "Three formats and a monthly email, with more formats later.",
-      "data": {
-        "items": [
-          { "name": "Export runs in the background", "line": "Big months never time out.", "state": "today", "ticket": "export-job-runner" },
-          { "name": "A stopped export goes on", "line": "Another worker continues from the last finished page.", "state": "today", "ticket": "export-resume" },
-          { "name": "Files for Xero", "line": "Imports into Xero as it is.", "state": "today", "ticket": "csv-xero" },
-          { "name": "Files for QuickBooks", "line": "Imports into QuickBooks as it is.", "state": "building", "ticket": "csv-quickbooks" },
-          { "name": "One PDF bundle per month", "line": "Every invoice as a PDF, in one download.", "state": "building", "ticket": "pdf-bundle" },
-          { "name": "The monthly email", "line": "The file arrives on the day the books close.", "state": "building", "ticket": "monthly-send" }
-        ]
-      }
-    },
-    {
-      "id": "scale", "component": "scale", "label": "Safety, recovery and cost", "nav": "Safety and cost",
-      "claim": "The same design holds for one invoice a month and for a hundred thousand.",
-      "lead": "Workers are added and removed by the system, never by a person.",
-      "data": {
-        "input": "invoices",
-        "inputs": ["exports"],
-        "rows": [
-          { "name": "Workers", "does": "Each writes 2,500 invoices a minute.", "value": "workers", "unit": ["worker", "workers"], "kind": "cells", "cap": 40 },
-          { "name": "Wait", "does": "Until the file is ready.", "value": "wait", "unit": "seconds", "kind": "bar", "max": 60 },
-          { "name": "File size", "does": "Per export.", "value": "size", "kind": "sizes", "labels": ["Small", "Medium", "Large"] }
-        ],
-        "say": [
-          { "when": "invoices == 0", "text": "Nothing to export, so no worker runs. The base costs {ours|money} a month." },
-          { "when": "workers == 1", "text": "One worker writes every file. Each file is ready in about {wait} seconds." },
-          { "text": "{workers} workers share each export. Each file is ready in about {wait} seconds, for about {ours|money} a month." }
-        ],
-        "flags": [ { "when": "batch > 20000", "text": "Past 20,000 invoices in one export, the file comes in parts of 20,000 inside one zip.", "tone": "warn" } ],
-        "calm": "Nothing changes by hand at this size.", "certainty": "estimated"
-      }
-    },
-    {
-      "id": "cost", "component": "cost", "label": "Safety, recovery and cost",
-      "claim": "Both costs grow in {shape}. Ours grows about {ratio|times} slower.",
-      "lead": "The sync service charges per invoice; our cost is mostly a small always-on part.",
-      "data": {
-        "x": { "input": "invoices" },
-        "controls": ["invoices", "exports"],
-        "series": [ { "name": "A sync service", "value": "vendor" }, { "name": "Our export", "value": "ours", "ours": true } ],
-        "readouts": [ { "label": "Saved each month", "value": "vendor - ours", "big": true } ],
-        "split": { "label": "Where our cost goes", "parts": [ { "name": "Always on", "value": "base" }, { "name": "Workers", "value": "compute" }, { "name": "Files and email", "value": "storage" } ] },
-        "certainty": "estimated",
-        "note": "Sample prices, made up for this example.",
-        "table": {
-          "label": "Show the numbers",
-          "columns": ["Item", "Price", "Where the price comes from"],
-          "keys": ["item", "price", "from"],
-          "rows": [
-            { "item": "Sync service, per invoice", "price": "$0.010", "from": "Sample price list, read 10 Nov" },
-            { "item": "Sync service, base", "price": "$29 a month", "from": "Sample price list, read 10 Nov" },
-            { "item": "Our worker, per minute", "price": "$0.05", "from": "Sample cloud price, read 10 Nov" },
-            { "item": "Our file storage and email, per invoice", "price": "$0.0004", "from": "Sample cloud price, read 10 Nov" },
-            { "item": "Our always-on part", "price": "$12 a month", "from": "Sample cloud price, read 10 Nov" }
-          ]
+        "after": {
+          "claim": "Bookkeepers now get every invoice out in one click.",
+          "lead": "The export button, the three file formats and the monthly email are built and proven. What is not proven yet is listed below."
         }
       }
     },
     {
-      "id": "risks", "component": "risks", "label": "Safety, recovery and cost",
+      "id": "why",
+      "component": "compare",
+      "label": "Why",
+      "claim": "Month end takes three hours because invoices leave the app one at a time.",
+      "lead": "Nobody types an invoice twice, and the accounting tool takes the file as it is.",
+      "data": {
+        "before": {
+          "label": "Today",
+          "points": [
+            "A bookkeeper opens each invoice and copies it",
+            "Mistakes show up only when the books do not balance"
+          ],
+          "numbers": [
+            {
+              "value": "3 hours",
+              "label": "a month per bookkeeper",
+              "certainty": "measured"
+            }
+          ]
+        },
+        "after": {
+          "label": "With export",
+          "points": [
+            "One button builds the whole month as one file",
+            "The file matches what the accounting tool imports"
+          ],
+          "numbers": [
+            {
+              "value": "2 minutes",
+              "label": "a month per bookkeeper",
+              "certainty": "designed"
+            }
+          ]
+        },
+        "parts": [
+          {
+            "name": "Bookkeeper",
+            "before": "Copies by hand",
+            "after": "Presses one button"
+          },
+          {
+            "name": "Invoice screen",
+            "before": "One invoice at a time",
+            "after": "One invoice at a time"
+          },
+          {
+            "name": "Spreadsheet",
+            "before": "Typed in by hand",
+            "after": null
+          },
+          {
+            "name": "Export job",
+            "before": null,
+            "after": "Builds the file in the background"
+          },
+          {
+            "name": "Accounting tool",
+            "before": "Fixed by hand",
+            "after": "Imports the file as is"
+          }
+        ]
+      },
+      "source": "agent/research/formats.md",
+      "group": "understand",
+      "promise": "Three hours a month by hand",
+      "nav": "Why",
+      "depth": [
+        {
+          "id": "month-end-today",
+          "title": "Month end today, step by step",
+          "kind": "table",
+          "source": "agent/research/formats.md",
+          "data": {
+            "columns": [
+              "Step",
+              "Time",
+              "How we know"
+            ],
+            "rows": [
+              [
+                "Open each invoice",
+                "70 minutes",
+                "Measured with two bookkeepers, Oct"
+              ],
+              [
+                "Copy into the spreadsheet",
+                "80 minutes",
+                "Measured with two bookkeepers, Oct"
+              ],
+              [
+                "Fix rows the tool rejects",
+                "30 minutes",
+                "Measured with two bookkeepers, Oct"
+              ]
+            ],
+            "note": "Measured on two real month ends; a sample example."
+          }
+        }
+      ]
+    },
+    {
+      "id": "today",
+      "group": "understand",
+      "nav": "Today",
+      "promise": "What is built and proven",
+      "component": "inventory",
+      "label": "What exists today",
+      "claim": "The job list is built and proven; the formats are still planned.",
+      "data": {
+        "columns": [
+          {
+            "state": "proven",
+            "label": "Built and proven",
+            "items": [
+              {
+                "name": "Export job record",
+                "note": "One row per export, who and when",
+                "source": "agent/proof/export-job-runner-1.png"
+              }
+            ]
+          },
+          {
+            "state": "built",
+            "label": "Built, not proven",
+            "items": [
+              {
+                "name": "Resume from the last page",
+                "note": "Waiting for its review"
+              }
+            ]
+          },
+          {
+            "state": "planned",
+            "label": "Planned",
+            "items": [
+              {
+                "name": "Xero and QuickBooks files"
+              },
+              {
+                "name": "PDF bundle"
+              },
+              {
+                "name": "Monthly email"
+              }
+            ]
+          }
+        ]
+      },
+      "depth": [
+        {
+          "id": "evidence",
+          "title": "The proof for each item",
+          "kind": "table",
+          "source": "agent/CHECKPOINT.md",
+          "data": {
+            "columns": [
+              "Item",
+              "Proof",
+              "Date"
+            ],
+            "rows": [
+              [
+                "Export job record",
+                {
+                  "label": "Screenshot of the record row",
+                  "file": "agent/proof/export-job-runner-1.png"
+                },
+                "10 Nov"
+              ],
+              [
+                "Resume from the last page",
+                "Test written, review pending",
+                "10 Nov"
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "can",
+      "component": "capabilities",
+      "label": "What it can do",
+      "nav": "Capabilities",
+      "claim": "Three formats and a monthly email, with more formats later.",
+      "data": {
+        "items": [
+          {
+            "name": "Export runs in the background",
+            "line": "Big months never time out.",
+            "state": "today",
+            "ticket": "export-job-runner"
+          },
+          {
+            "name": "A stopped export goes on",
+            "line": "Another worker continues from the last finished page.",
+            "state": "today",
+            "ticket": "export-resume"
+          },
+          {
+            "name": "Files for Xero",
+            "line": "Imports into Xero as it is.",
+            "state": "today",
+            "ticket": "csv-xero"
+          },
+          {
+            "name": "Files for QuickBooks",
+            "line": "Imports into QuickBooks as it is.",
+            "state": "building",
+            "ticket": "csv-quickbooks"
+          },
+          {
+            "name": "One PDF bundle per month",
+            "line": "Every invoice as a PDF, in one download.",
+            "state": "building",
+            "ticket": "pdf-bundle"
+          },
+          {
+            "name": "The monthly email",
+            "line": "The file arrives on the day the books close.",
+            "state": "building",
+            "ticket": "monthly-send"
+          }
+        ]
+      },
+      "group": "understand",
+      "promise": "Three formats and an email",
+      "depth": [
+        {
+          "id": "not-in-scope",
+          "role": "out-of-scope",
+          "title": "Not in this version",
+          "kind": "list",
+          "source": "agent/ASK.md",
+          "data": {
+            "items": [
+              "Picking your own columns",
+              "More than one email address",
+              "Sending straight into the tool without a file"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "how",
+      "component": "map",
+      "label": "How it works",
+      "nav": "Architecture",
+      "claim": "An export is saved as a job first, so a crash never loses it.",
+      "lead": "Two workers share the work. If one stops halfway, the other goes on from the last finished page.",
+      "data": {
+        "nodes": [
+          {
+            "id": "person",
+            "name": "Bookkeeper",
+            "does": "Asks for a month",
+            "wide": [
+              8,
+              44,
+              136,
+              56
+            ],
+            "tall": [
+              104,
+              8,
+              150,
+              54
+            ]
+          },
+          {
+            "id": "button",
+            "name": "Export button",
+            "does": "Checks and accepts",
+            "wide": [
+              172,
+              44,
+              136,
+              56
+            ],
+            "tall": [
+              104,
+              96,
+              150,
+              54
+            ]
+          },
+          {
+            "id": "queue",
+            "name": "Job list",
+            "does": "Exports not started",
+            "wide": [
+              336,
+              44,
+              136,
+              56
+            ],
+            "tall": [
+              104,
+              184,
+              150,
+              54
+            ]
+          },
+          {
+            "id": "workers",
+            "name": "Export workers",
+            "zone": true,
+            "wide": [
+              500,
+              8,
+              156,
+              122
+            ],
+            "tall": [
+              92,
+              272,
+              174,
+              122
+            ]
+          },
+          {
+            "id": "wa",
+            "name": "Worker A",
+            "dot": true,
+            "wide": [
+              512,
+              36,
+              132,
+              38
+            ],
+            "tall": [
+              104,
+              300,
+              150,
+              38
+            ]
+          },
+          {
+            "id": "wb",
+            "name": "Worker B",
+            "dot": true,
+            "wide": [
+              512,
+              82,
+              132,
+              38
+            ],
+            "tall": [
+              104,
+              346,
+              150,
+              38
+            ]
+          },
+          {
+            "id": "files",
+            "name": "File store",
+            "does": "Keeps 30 days",
+            "wide": [
+              688,
+              44,
+              128,
+              56
+            ],
+            "tall": [
+              192,
+              442,
+              156,
+              54
+            ]
+          },
+          {
+            "id": "invoices",
+            "name": "Invoices",
+            "does": "Read, never changed",
+            "wide": [
+              504,
+              178,
+              148,
+              56
+            ],
+            "tall": [
+              10,
+              442,
+              156,
+              54
+            ]
+          }
+        ],
+        "edges": [
+          {
+            "id": "ask",
+            "from": "person",
+            "to": "button",
+            "verb": "asks",
+            "wide": "M144 72H172",
+            "tall": "M179 62V96"
+          },
+          {
+            "id": "save",
+            "from": "button",
+            "to": "queue",
+            "verb": "saves the job",
+            "wide": "M308 72H336",
+            "tall": "M179 150V184"
+          },
+          {
+            "id": "take",
+            "from": "queue",
+            "to": "workers",
+            "verb": "hands out",
+            "wide": "M472 72H500",
+            "tall": "M179 238V272"
+          },
+          {
+            "id": "write",
+            "from": "workers",
+            "to": "files",
+            "verb": "writes the file",
+            "wide": "M656 72H688",
+            "tall": "M214 394V418H270V442"
+          },
+          {
+            "id": "read",
+            "from": "workers",
+            "to": "invoices",
+            "verb": "reads pages",
+            "wide": "M578 130V178",
+            "tall": "M144 394V418H88V442"
+          }
+        ],
+        "stories": [
+          {
+            "id": "normal",
+            "name": "A normal export",
+            "steps": [
+              {
+                "title": "A month is asked for",
+                "text": "The bookkeeper picks October and a format, then presses export.",
+                "edge": "ask",
+                "on": [
+                  "button"
+                ]
+              },
+              {
+                "title": "The job is saved",
+                "text": "It joins the job list. The screen says the file is on its way.",
+                "edge": "save",
+                "on": [
+                  "queue"
+                ]
+              },
+              {
+                "title": "A worker takes it",
+                "text": "The first free worker picks up the job.",
+                "edge": "take",
+                "on": [
+                  "wa"
+                ],
+                "busy": [
+                  "wa"
+                ]
+              },
+              {
+                "title": "Invoices are read in pages",
+                "text": "The worker reads 500 invoices at a time and marks each page done.",
+                "edge": "read",
+                "on": [
+                  "invoices"
+                ],
+                "busy": [
+                  "wa"
+                ]
+              },
+              {
+                "title": "The file is written",
+                "text": "One file in the tool's own format lands in the file store.",
+                "edge": "write",
+                "on": [
+                  "files"
+                ],
+                "busy": [
+                  "wa"
+                ]
+              },
+              {
+                "title": "The bookkeeper downloads it",
+                "text": "The link appears on the screen and in the email.",
+                "edge": "ask",
+                "reverse": true,
+                "on": [
+                  "person"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "crash",
+            "name": "A worker stops",
+            "steps": [
+              {
+                "title": "A month is asked for",
+                "text": "The bookkeeper picks October and a format, then presses export.",
+                "edge": "ask",
+                "on": [
+                  "button"
+                ]
+              },
+              {
+                "title": "The job is saved",
+                "text": "It joins the job list before any work starts.",
+                "edge": "save",
+                "on": [
+                  "queue"
+                ]
+              },
+              {
+                "title": "Worker A starts",
+                "text": "It reads the first pages and marks each one done.",
+                "edge": "read",
+                "on": [
+                  "invoices"
+                ],
+                "busy": [
+                  "wa"
+                ]
+              },
+              {
+                "title": "Worker A stops",
+                "text": "A deploy restarts the machine halfway through the month.",
+                "on": [],
+                "dead": [
+                  "wa"
+                ]
+              },
+              {
+                "title": "Worker B continues",
+                "text": "It reads the last page marked done and goes on from there. Nothing is read twice.",
+                "edge": "read",
+                "on": [
+                  "wb"
+                ],
+                "busy": [
+                  "wb"
+                ],
+                "dead": [
+                  "wa"
+                ]
+              },
+              {
+                "title": "The file arrives anyway",
+                "text": "The bookkeeper sees a short wait, not an error.",
+                "edge": "write",
+                "on": [
+                  "files"
+                ],
+                "busy": [
+                  "wb"
+                ],
+                "dead": [
+                  "wa"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "group": "how",
+      "promise": "Eight parts and how a job flows",
+      "depth": [
+        {
+          "id": "parts",
+          "role": "parts",
+          "title": "Every part on the map",
+          "kind": "table",
+          "source": "agent/research/formats.md",
+          "data": {
+            "columns": [
+              "Part",
+              "Choice",
+              "Does",
+              "Why",
+              "Cost a month",
+              "Source"
+            ],
+            "rows": [
+              {
+                "node": "person",
+                "cells": [
+                  "Bookkeeper",
+                  "A signed-in user",
+                  "Asks for a month",
+                  "Only owners and bookkeepers may export",
+                  "$0",
+                  "The ask"
+                ]
+              },
+              {
+                "node": "button",
+                "cells": [
+                  "Export button",
+                  "A web form in the app",
+                  "Checks the month, saves the job",
+                  "Answers at once, never waits for the file",
+                  "$0",
+                  "Design"
+                ]
+              },
+              {
+                "node": "queue",
+                "cells": [
+                  "Job list",
+                  "A table in the main database",
+                  "Holds exports not started",
+                  "A saved job survives a crash",
+                  "$0, inside the database",
+                  "Design"
+                ]
+              },
+              {
+                "node": "wa",
+                "cells": [
+                  "Worker A",
+                  "A small background worker",
+                  "Reads pages, writes the file",
+                  "Two workers share the load",
+                  "$0.05 a minute while busy",
+                  "Sample cloud price"
+                ]
+              },
+              {
+                "node": "wb",
+                "cells": [
+                  "Worker B",
+                  "The same worker, a second copy",
+                  "Takes over from a stopped worker",
+                  "A stopped worker loses no work",
+                  "$0.05 a minute while busy",
+                  "Sample cloud price"
+                ]
+              },
+              {
+                "node": "files",
+                "cells": [
+                  "File store",
+                  "Object storage",
+                  "Keeps each file 30 days",
+                  "Cheap, and a link expires by itself",
+                  "$0.0004 per invoice",
+                  "Sample cloud price"
+                ]
+              },
+              {
+                "node": "invoices",
+                "cells": [
+                  "Invoices",
+                  "The existing invoice table",
+                  "Read in pages, never changed",
+                  "No copy of the data to keep in step",
+                  "$0",
+                  "Design"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "open-source",
+          "role": "open-source",
+          "title": "Open source we build on",
+          "kind": "table",
+          "source": "agent/research/formats.md",
+          "data": {
+            "columns": [
+              "Part",
+              "Licence",
+              "Version",
+              "What it does"
+            ],
+            "rows": [
+              [
+                "PostgreSQL",
+                "PostgreSQL licence",
+                "16",
+                "The job list and the invoices"
+              ],
+              [
+                "pg-boss",
+                "MIT",
+                "10",
+                "Hands jobs to workers with a lease"
+              ],
+              [
+                "PDFKit",
+                "MIT",
+                "0.15",
+                "Draws each invoice PDF"
+              ]
+            ]
+          }
+        },
+        {
+          "id": "failures",
+          "role": "failures",
+          "title": "Every failure and the way back",
+          "kind": "table",
+          "source": "agent/research/formats.md",
+          "data": {
+            "columns": [
+              "What fails",
+              "What is lost",
+              "Back in",
+              "How"
+            ],
+            "rows": [
+              [
+                "A worker stops",
+                "Nothing",
+                "Under 1 minute",
+                "The other worker takes the lease"
+              ],
+              [
+                "The database restarts",
+                "Nothing",
+                "About 2 minutes",
+                "Jobs wait and start again"
+              ],
+              [
+                "The file store is down",
+                "Nothing",
+                "When it returns",
+                "The job retries every minute"
+              ],
+              [
+                "The email bounces",
+                "Nothing",
+                "At once",
+                "The file stays on the screen"
+              ]
+            ]
+          }
+        },
+        {
+          "id": "backups",
+          "role": "backups",
+          "title": "Backups and restore",
+          "kind": "list",
+          "source": "agent/research/formats.md",
+          "data": {
+            "items": [
+              {
+                "label": "Database:",
+                "text": "the usual nightly backup, kept 14 days"
+              },
+              {
+                "label": "Files:",
+                "text": "not backed up; any export can be built again"
+              },
+              {
+                "label": "Restore drill:",
+                "text": "once before launch, on a copy"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "scale",
+      "component": "scale",
+      "label": "Safety, recovery and cost",
+      "nav": "Scaling",
+      "claim": "The same design holds for one invoice a month and for a hundred thousand.",
+      "lead": "Workers are added and removed by the system, never by a person.",
+      "data": {
+        "input": "invoices",
+        "inputs": [
+          "exports"
+        ],
+        "rows": [
+          {
+            "name": "Workers",
+            "does": "Each writes 2,500 invoices a minute.",
+            "value": "workers",
+            "unit": [
+              "worker",
+              "workers"
+            ],
+            "kind": "cells",
+            "cap": 40
+          },
+          {
+            "name": "Wait",
+            "does": "Until the file is ready.",
+            "value": "wait",
+            "unit": "seconds",
+            "kind": "bar",
+            "max": 60
+          },
+          {
+            "name": "File size",
+            "does": "Per export.",
+            "value": "size",
+            "kind": "sizes",
+            "labels": [
+              "Small",
+              "Medium",
+              "Large"
+            ]
+          }
+        ],
+        "say": [
+          {
+            "when": "invoices == 0",
+            "text": "Nothing to export, so no worker runs. The base costs {ours|money} a month."
+          },
+          {
+            "when": "workers == 1",
+            "text": "One worker writes every file. Each file is ready in about {wait} seconds."
+          },
+          {
+            "text": "{workers} workers share each export. Each file is ready in about {wait} seconds, for about {ours|money} a month."
+          }
+        ],
+        "flags": [
+          {
+            "when": "batch > 20000",
+            "text": "Past 20,000 invoices in one export, the file comes in parts of 20,000 inside one zip.",
+            "tone": "warn"
+          }
+        ],
+        "calm": "Nothing changes by hand at this size.",
+        "certainty": "estimated"
+      },
+      "group": "how",
+      "promise": "Workers follow the work",
+      "depth": [
+        {
+          "id": "rule",
+          "role": "scale-rule",
+          "title": "The scaling rule",
+          "kind": "code",
+          "source": "agent/research/formats.md",
+          "data": {
+            "text": "workers = ceil(invoices in one export / 2,500), at most 40\nwait in seconds = 4 + invoices per worker / 60"
+          }
+        },
+        {
+          "id": "up",
+          "role": "scale-up",
+          "title": "Scaling up, worked",
+          "kind": "table",
+          "source": "agent/research/formats.md",
+          "data": {
+            "columns": [
+              "Invoices in one export",
+              "Workers",
+              "Wait"
+            ],
+            "rows": [
+              [
+                "1,000",
+                "1",
+                "About 21 seconds"
+              ],
+              [
+                "10,000",
+                "4",
+                "About 46 seconds"
+              ],
+              [
+                "100,000",
+                "40",
+                "About 46 seconds"
+              ]
+            ]
+          }
+        },
+        {
+          "id": "down",
+          "role": "scale-down",
+          "title": "Scaling down to zero",
+          "kind": "list",
+          "source": "agent/research/formats.md",
+          "data": {
+            "items": [
+              "No export waiting means no worker runs",
+              "A worker stops 2 minutes after its last job",
+              "Only the $12 always-on part stays"
+            ]
+          }
+        },
+        {
+          "id": "limits",
+          "role": "limits",
+          "title": "Limits",
+          "kind": "list",
+          "source": "agent/research/formats.md",
+          "data": {
+            "items": [
+              "At most 40 workers at once",
+              "Past 20,000 invoices the file comes in parts",
+              "One export per customer at a time"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "cost",
+      "component": "cost",
+      "label": "Safety, recovery and cost",
+      "claim": "Both costs grow in {shape}. Ours grows about {ratio|times} slower.",
+      "lead": "The sync service charges per invoice; our cost is mostly a small always-on part.",
+      "data": {
+        "x": {
+          "input": "invoices"
+        },
+        "controls": [
+          "invoices",
+          "exports"
+        ],
+        "series": [
+          {
+            "name": "A sync service",
+            "value": "vendor"
+          },
+          {
+            "name": "Our export",
+            "value": "ours",
+            "ours": true
+          }
+        ],
+        "readouts": [
+          {
+            "label": "Saved each month",
+            "value": "vendor - ours",
+            "big": true
+          }
+        ],
+        "split": {
+          "label": "Where our cost goes",
+          "parts": [
+            {
+              "name": "Always on",
+              "value": "base"
+            },
+            {
+              "name": "Workers",
+              "value": "compute"
+            },
+            {
+              "name": "Files and email",
+              "value": "storage"
+            }
+          ]
+        },
+        "certainty": "estimated",
+        "note": "Sample prices, made up for this example."
+      },
+      "group": "how",
+      "nav": "Cost",
+      "promise": "Cost math, step by step",
+      "depth": [
+        {
+          "id": "prices",
+          "role": "unit-prices",
+          "title": "Unit prices and their sources",
+          "kind": "table",
+          "source": "agent/research/formats.md",
+          "data": {
+            "columns": [
+              "Item",
+              "Price",
+              "Source",
+              "Read"
+            ],
+            "rows": [
+              [
+                "Sync service, per invoice",
+                "$0.010",
+                "Sample price list",
+                "10 Nov 2026"
+              ],
+              [
+                "Sync service, base",
+                "$29 a month",
+                "Sample price list",
+                "10 Nov 2026"
+              ],
+              [
+                "Our worker, per minute",
+                "$0.05",
+                "Sample cloud price",
+                "10 Nov 2026"
+              ],
+              [
+                "Our file storage and email, per invoice",
+                "$0.0004",
+                "Sample cloud price",
+                "10 Nov 2026"
+              ],
+              [
+                "Our always-on part",
+                "$12 a month",
+                "Sample cloud price",
+                "10 Nov 2026"
+              ]
+            ]
+          }
+        },
+        {
+          "id": "formula",
+          "role": "cost-formula",
+          "title": "The formula",
+          "kind": "code",
+          "source": "agent/research/formats.md",
+          "data": {
+            "text": "ours = $12 always on\n     + invoices / 2,500 x $0.05 worker minutes + exports x $0.02 start\n     + invoices x $0.0004 files and email"
+          }
+        },
+        {
+          "id": "example",
+          "role": "cost-example",
+          "title": "Worked example at the default",
+          "kind": "list",
+          "source": "agent/research/formats.md",
+          "data": {
+            "ordered": true,
+            "items": [
+              "5,000 invoices a month, exported weekly",
+              "Always on: $12",
+              "Workers: 2 minutes x $0.05 + 4 starts x $0.02 = $0.18",
+              "Files and email: 5,000 x $0.0004 = $2",
+              "Total: about $14 a month"
+            ],
+            "result": "$14",
+            "check": "ours"
+          }
+        },
+        {
+          "id": "excluded",
+          "role": "cost-excluded",
+          "title": "Not in these numbers",
+          "kind": "list",
+          "source": "agent/research/formats.md",
+          "data": {
+            "items": [
+              "The main database, which exists already",
+              "People's time to set it up",
+              "Sales tax"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "risks",
+      "component": "risks",
+      "label": "Safety, recovery and cost",
       "claim": "Five things can go wrong, and four have work planned to cover them.",
       "data": {
         "risks": [
-          { "name": "A worker stops halfway", "likelihood": 3, "impact": 1, "then": "Another worker goes on from the last finished page.", "covered": "yes", "ticket": "export-resume" },
-          { "name": "The tool rejects the file", "likelihood": 2, "impact": 2, "then": "Each format is tested against the tool's own sample import before it ships.", "covered": "yes", "ticket": "csv-xero" },
-          { "name": "Another customer's invoice gets in", "likelihood": 1, "impact": 3, "then": "Every read is limited to one customer, and a test tries to cross the line on every build.", "covered": "yes", "ticket": "tenant-check" },
-          { "name": "The email lands in spam", "likelihood": 2, "impact": 2, "then": "The file stays on the screen too, and the owner is told when an email bounces.", "covered": "partly", "ticket": "monthly-send" },
-          { "name": "A huge month runs too long", "likelihood": 1, "impact": 2, "then": "The file splits into parts, so no single part takes more than a minute.", "covered": "yes", "ticket": "pdf-large" }
+          {
+            "name": "A worker stops halfway",
+            "likelihood": 3,
+            "impact": 1,
+            "then": "Another worker goes on from the last finished page.",
+            "covered": "yes",
+            "ticket": "export-resume"
+          },
+          {
+            "name": "The tool rejects the file",
+            "likelihood": 2,
+            "impact": 2,
+            "then": "Each format is tested against the tool's own sample import before it ships.",
+            "covered": "yes",
+            "ticket": "csv-xero"
+          },
+          {
+            "name": "Another customer's invoice gets in",
+            "likelihood": 1,
+            "impact": 3,
+            "then": "Every read is limited to one customer, and a test tries to cross the line on every build.",
+            "covered": "yes",
+            "ticket": "tenant-check"
+          },
+          {
+            "name": "The email lands in spam",
+            "likelihood": 2,
+            "impact": 2,
+            "then": "The file stays on the screen too, and the owner is told when an email bounces.",
+            "covered": "partly",
+            "ticket": "monthly-send"
+          },
+          {
+            "name": "A huge month runs too long",
+            "likelihood": 1,
+            "impact": 2,
+            "then": "The file splits into parts, so no single part takes more than a minute.",
+            "covered": "yes",
+            "ticket": "pdf-large"
+          }
+        ]
+      },
+      "group": "how",
+      "nav": "Security",
+      "promise": "Who may export, and the walls",
+      "depth": [
+        {
+          "id": "who",
+          "role": "who-may-act",
+          "title": "Who may export",
+          "kind": "list",
+          "source": "agent/ASK.md",
+          "data": {
+            "items": [
+              "The owner and bookkeepers of one customer",
+              "Nobody at Fieldnote, unless the owner invites them"
+            ]
+          }
+        },
+        {
+          "id": "walls",
+          "role": "walls",
+          "title": "The walls, path by path",
+          "kind": "table",
+          "source": "agent/research/formats.md",
+          "data": {
+            "columns": [
+              "Path",
+              "Wall"
+            ],
+            "rows": [
+              [
+                "Export button",
+                "Signed in, and the month belongs to the customer"
+              ],
+              [
+                "Worker reading invoices",
+                "Every query names one customer"
+              ],
+              [
+                "Download link",
+                "Signed, expires in 30 days"
+              ]
+            ]
+          }
+        },
+        {
+          "id": "secrets",
+          "role": "secrets",
+          "title": "Secrets and keys",
+          "kind": "list",
+          "source": "agent/research/formats.md",
+          "data": {
+            "items": [
+              "The email key lives in the secret store, never in code",
+              "Download links are signed with a key that rotates monthly"
+            ]
+          }
+        },
+        {
+          "id": "accepted",
+          "role": "accepted-risks",
+          "title": "Risks accepted for now",
+          "kind": "table",
+          "source": "agent/ASK.md",
+          "data": {
+            "columns": [
+              "Risk",
+              "Who accepted it",
+              "Why"
+            ],
+            "rows": [
+              [
+                "An email may land in spam",
+                "Maya",
+                "The file stays on the screen too"
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "research",
+      "group": "proof",
+      "nav": "Research",
+      "promise": "What we checked first",
+      "component": "research",
+      "label": "Research",
+      "claim": "One question shaped the formats, and its answer is checked against real files."
+    },
+    {
+      "id": "decisions",
+      "group": "proof",
+      "nav": "Decisions",
+      "promise": "Every choice, who and why",
+      "component": "decisions",
+      "label": "Decisions",
+      "claim": "Five choices are already made, each with who made it and why."
+    },
+    {
+      "id": "build",
+      "component": "plan",
+      "label": "The build",
+      "nav": "The plan",
+      "claim": "Four waves, each proven before the next one starts.",
+      "lead": "Every ticket says what done means, how it is verified and what it waits for.",
+      "group": "build",
+      "promise": "Waves, pull requests, tickets"
+    },
+    {
+      "id": "proof",
+      "group": "build",
+      "nav": "Verification",
+      "promise": "How each piece is proven",
+      "component": "verification",
+      "label": "Verification",
+      "claim": "Nothing counts as done until its check passes on a fresh copy."
+    },
+    {
+      "id": "kickoff",
+      "group": "build",
+      "nav": "Kickoff",
+      "promise": "The prompt that starts it",
+      "component": "kickoff",
+      "label": "Kickoff",
+      "claim": "One prompt starts the whole build in a fresh session.",
+      "data": {
+        "steps": [
+          "Read the book",
+          "Check what is ready",
+          "The first wave",
+          "Run to the end"
         ]
       }
     },
     {
-      "id": "build", "component": "build", "label": "The build", "nav": "The build",
-      "claim": "Four steps, each proven before the next one starts.",
-      "lead": "Every piece of work says what done means and shows its proof."
+      "id": "progress",
+      "group": "build",
+      "nav": "Progress",
+      "promise": "Live status and the log",
+      "component": "progress",
+      "label": "Progress",
+      "claim": "Progress shows here as the build writes it."
     },
     {
-      "id": "beyond", "component": "roadmap", "label": "Beyond", "nav": "Beyond",
+      "id": "beyond",
+      "component": "roadmap",
+      "label": "Beyond",
+      "nav": "Beyond",
       "claim": "Three things come next, each started by a clear signal.",
       "lead": "None has a date. Each starts when its signal shows up.",
       "data": {
         "items": [
-          { "name": "Pick your own columns", "trigger": "after 50 customers ask for another tool", "line": "One screen to map our fields to any tool's columns." },
-          { "name": "A whole year at once", "trigger": "before the first tax season", "line": "Twelve months in one file, split by month." },
-          { "name": "Direct sync", "trigger": "after 1,000 exports a month", "line": "Send invoices straight into the tool, no file." }
+          {
+            "name": "Pick your own columns",
+            "trigger": "after 50 customers ask for another tool",
+            "line": "One screen to map our fields to any tool's columns."
+          },
+          {
+            "name": "A whole year at once",
+            "trigger": "before the first tax season",
+            "line": "Twelve months in one file, split by month."
+          },
+          {
+            "name": "Direct sync",
+            "trigger": "after 1,000 exports a month",
+            "line": "Send invoices straight into the tool, no file."
+          }
         ]
-      }
+      },
+      "group": "after",
+      "promise": "What comes next"
     }
   ],
-
   "model": {
     "inputs": [
-      { "id": "invoices", "label": "Invoices a month", "unit": "invoices a month", "stops": [0, 100, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000], "default": 5000, "ticks": [0, 1000, 10000, 100000] },
-      { "id": "exports", "label": "How often they export", "options": [ { "value": 1, "label": "Monthly" }, { "value": 4, "label": "Weekly" }, { "value": 30, "label": "Daily" } ], "default": 4 }
+      {
+        "id": "invoices",
+        "label": "Invoices a month",
+        "unit": "invoices a month",
+        "stops": [
+          0,
+          100,
+          500,
+          1000,
+          2000,
+          5000,
+          10000,
+          20000,
+          50000,
+          100000
+        ],
+        "default": 5000,
+        "ticks": [
+          0,
+          1000,
+          10000,
+          100000
+        ]
+      },
+      {
+        "id": "exports",
+        "label": "How often they export",
+        "options": [
+          {
+            "value": 1,
+            "label": "Monthly"
+          },
+          {
+            "value": 4,
+            "label": "Weekly"
+          },
+          {
+            "value": 30,
+            "label": "Daily"
+          }
+        ],
+        "default": 4
+      }
     ],
     "values": {
       "batch": "invoices / exports",
@@ -196,85 +1406,789 @@
       "vendor": "29 + invoices * 0.01"
     }
   },
-
   "decided": [
-    { "id": "jobs-not-requests", "what": "Exports run as background jobs", "who": "model", "when": "2026-10-08", "why": "A big month takes minutes, and a web request times out after one.", "section": "how" },
-    { "id": "no-live-sync", "what": "No live sync with accounting tools this round", "who": "Maya", "when": "2026-10-13", "why": "A file covers every tool now. Sync waits until enough exports show which tools matter.", "section": "why" },
-    { "id": "keep-30-days", "what": "Files are kept for 30 days", "who": "model", "when": "2026-10-27", "why": "Long enough to download again after the books close, short enough to keep storage small.", "section": "risks" },
-    { "id": "tool-columns", "what": "Columns follow each tool's own import page", "who": "model", "when": "2026-10-09", "why": "A file the tool imports as is beats a neat file someone must fix.", "section": "can" },
-    { "id": "send-day", "what": "The owner picks the day the email goes out", "who": "Maya", "when": "2026-10-28", "why": "Books close on different days, and a file that arrives early is incomplete.", "section": "can" }
+    {
+      "id": "jobs-not-requests",
+      "what": "Exports run as background jobs",
+      "who": "model",
+      "when": "2026-10-08",
+      "why": "A big month takes minutes, and a web request times out after one.",
+      "section": "how"
+    },
+    {
+      "id": "no-live-sync",
+      "what": "No live sync with accounting tools this round",
+      "who": "Maya",
+      "when": "2026-10-13",
+      "why": "A file covers every tool now. Sync waits until enough exports show which tools matter.",
+      "section": "why"
+    },
+    {
+      "id": "keep-30-days",
+      "what": "Files are kept for 30 days",
+      "who": "model",
+      "when": "2026-10-27",
+      "why": "Long enough to download again after the books close, short enough to keep storage small.",
+      "section": "risks"
+    },
+    {
+      "id": "tool-columns",
+      "what": "Columns follow each tool's own import page",
+      "who": "model",
+      "when": "2026-10-09",
+      "why": "A file the tool imports as is beats a neat file someone must fix.",
+      "section": "can"
+    },
+    {
+      "id": "send-day",
+      "what": "The owner picks the day the email goes out",
+      "who": "Maya",
+      "when": "2026-10-28",
+      "why": "Books close on different days, and a file that arrives early is incomplete.",
+      "section": "can"
+    }
   ],
-
   "findings": [
-    { "id": "export-in-request", "finding": "Export as PDF runs inside the web request and times out at 300 invoices.", "evidence": [ { "label": "render.ts:88", "ref": "apps/web/src/invoices/render.ts:88" } ], "impact": "high", "tickets": ["export-job-runner"] },
-    { "id": "no-history", "finding": "No record of who exported what, so a bookkeeper cannot find last month's file.", "evidence": [ { "label": "schema.sql", "ref": "db/schema.sql" } ], "impact": "medium", "tickets": ["export-job-runner"] }
+    {
+      "id": "export-in-request",
+      "finding": "Export as PDF runs inside the web request and times out at 300 invoices.",
+      "evidence": [
+        {
+          "label": "render.ts:88",
+          "ref": "apps/web/src/invoices/render.ts:88"
+        }
+      ],
+      "impact": "high",
+      "tickets": [
+        "export-job-runner"
+      ]
+    },
+    {
+      "id": "no-history",
+      "finding": "No record of who exported what, so a bookkeeper cannot find last month's file.",
+      "evidence": [
+        {
+          "label": "schema.sql",
+          "ref": "db/schema.sql"
+        }
+      ],
+      "impact": "medium",
+      "tickets": [
+        "export-job-runner"
+      ]
+    }
   ],
   "research": [
-    { "id": "formats", "question": "What does each accounting tool import?", "answer": "Xero and QuickBooks each publish a sample import file. Matching their columns exactly removes every manual fix we saw.", "file": "agent/research/formats.md" }
+    {
+      "id": "formats",
+      "question": "What does each accounting tool import?",
+      "answer": "Xero and QuickBooks each publish a sample import file. Matching their columns exactly removes every manual fix we saw.",
+      "file": "agent/research/formats.md"
+    }
   ],
-
   "plan": {
     "summary": "Nine pieces of work in four steps, shipped as four pull requests. Each is proven on the local stack and reviewed before the next step starts.",
     "start": "Each step ends with proof a person can check: a test, a screenshot or a run log under its card. A step starts only when the one before it is proven.",
     "heartbeat_minutes": 180,
-    "branches": { "development": "develop", "production": "main", "naming": "export/<category>" },
+    "branches": {
+      "development": "develop",
+      "production": "main",
+      "naming": "export/<category>"
+    },
     "waves": [
-      { "n": 1, "id": "wave-1", "name": "Jobs", "what": "Exports run as jobs that survive restarts.", "prs": ["export-jobs"] },
-      { "n": 2, "id": "wave-2", "name": "Files", "what": "A file in each tool's own format.", "prs": ["csv-export"] },
-      { "n": 3, "id": "wave-3", "name": "PDFs", "what": "Every invoice as one PDF bundle.", "prs": ["pdf-bundles"] },
-      { "n": 4, "id": "wave-4", "name": "Email", "what": "The file arrives on the right day.", "prs": ["monthly-send"] }
+      {
+        "n": 1,
+        "id": "wave-1",
+        "name": "Jobs",
+        "what": "Exports run as jobs that survive restarts.",
+        "prs": [
+          "export-jobs"
+        ],
+        "when": "Hours 0 to 6",
+        "why": "Jobs first, because every format runs inside one.",
+        "lanes": [
+          "Builder: the job runner, then resume",
+          "Reviewer: the cross-customer test"
+        ],
+        "gate": [
+          "Every ticket's checks pass",
+          "The wave review finds no blocker"
+        ],
+        "review": "review-wave-1",
+        "on_fail": "Fix and review again; the next wave waits."
+      },
+      {
+        "n": 2,
+        "id": "wave-2",
+        "name": "Files",
+        "what": "A file in each tool's own format.",
+        "prs": [
+          "csv-export"
+        ],
+        "when": "Hours 6 to 11",
+        "why": "The two formats share one export path.",
+        "lanes": [
+          "Builder: Xero, then QuickBooks",
+          "Builder: the export button"
+        ],
+        "gate": [
+          "Every ticket's checks pass",
+          "The wave review finds no blocker"
+        ],
+        "review": "review-wave-2",
+        "on_fail": "Fix and review again; the next wave waits."
+      },
+      {
+        "n": 3,
+        "id": "wave-3",
+        "name": "PDFs",
+        "what": "Every invoice as one PDF bundle.",
+        "prs": [
+          "pdf-bundles"
+        ],
+        "when": "Hours 11 to 16",
+        "why": "PDFs reuse the job and the file store.",
+        "lanes": [
+          "Builder: the bundle, then the split"
+        ],
+        "gate": [
+          "Every ticket's checks pass",
+          "The wave review finds no blocker"
+        ],
+        "review": "review-wave-3",
+        "on_fail": "Fix and review again; the next wave waits."
+      },
+      {
+        "n": 4,
+        "id": "wave-4",
+        "name": "Email",
+        "what": "The file arrives on the right day.",
+        "prs": [
+          "monthly-send"
+        ],
+        "when": "Hours 16 to 19",
+        "why": "The email needs a finished file to send.",
+        "lanes": [
+          "Builder: the monthly send"
+        ],
+        "gate": [
+          "Every ticket's checks pass",
+          "The wave review finds no blocker"
+        ],
+        "review": "review-wave-4",
+        "on_fail": "Fix and review again; the next wave waits."
+      }
     ],
     "tickets": [
-      { "id": "export-job-runner", "title": "Exports run as background jobs with a record", "goal": "Any export runs outside the web request, and every run leaves one record of who, when and how many.", "done_when": ["A month of 2,000 invoices finishes while the app stays fast", "Each run records who, when, the month and the count"], "risk": "high", "size": "L", "files": ["apps/api/src/jobs/export.ts", "db/migrations/0042_exports.sql"], "depends_on": [] },
-      { "id": "export-resume", "title": "A stopped export goes on where it stopped", "goal": "When a worker stops halfway, another one continues from the last finished page.", "done_when": ["Stopping a worker halfway loses no page", "No page is written twice"], "risk": "high", "size": "M", "file": "agent/tickets/export-resume.md", "files": ["apps/api/src/jobs/export.ts"], "depends_on": ["export-job-runner"] },
-      { "id": "tenant-check", "title": "An export only ever reads one customer's invoices", "goal": "Make it impossible for one customer's file to hold another customer's invoice.", "done_when": ["A test that tries to cross customers finds nothing", "The test runs on every build"], "risk": "high", "size": "M", "files": ["apps/api/src/jobs/scope.ts"], "depends_on": ["export-job-runner"] },
-      { "id": "csv-xero", "title": "Files for Xero import with no changes", "goal": "A month exported for Xero imports into Xero exactly as it is.", "done_when": ["Columns match the Xero sales import sample", "A test account imports the file with no warnings"], "risk": "medium", "size": "M", "files": ["apps/api/src/export/xero.ts"], "depends_on": ["export-job-runner"] },
-      { "id": "csv-quickbooks", "title": "Files for QuickBooks import with no changes", "goal": "A month exported for QuickBooks imports into QuickBooks exactly as it is.", "done_when": ["Columns match the QuickBooks invoice import sample", "A test account imports the file with no warnings"], "risk": "medium", "size": "M", "files": ["apps/api/src/export/quickbooks.ts"], "depends_on": ["csv-xero"] },
-      { "id": "export-button", "title": "One export button on the invoice list", "goal": "Pick a month and a format, press one button, and see the file arrive on the same screen.", "done_when": ["The button sits on the invoice list on every screen size", "The file link appears without a reload"], "risk": "low", "size": "M", "files": ["apps/web/src/invoices/ExportButton.tsx"], "depends_on": ["csv-xero"] },
-      { "id": "pdf-bundle", "title": "Every invoice of a month in one PDF download", "goal": "One download holds every invoice of the month as a PDF, in invoice number order.", "done_when": ["A month of 300 invoices downloads as one zip", "Each PDF matches the one on screen"], "risk": "medium", "size": "L", "files": ["apps/api/src/export/pdf.ts"], "depends_on": ["export-resume"] },
-      { "id": "pdf-large", "title": "Huge months come in parts that each finish fast", "goal": "A month too big for one file splits into parts, so no part takes more than a minute.", "done_when": ["A month of 50,000 invoices finishes in parts of 20,000", "Each part finishes in under a minute"], "risk": "medium", "size": "M", "files": ["apps/api/src/export/split.ts"], "depends_on": ["pdf-bundle"] },
-      { "id": "monthly-send", "title": "The file arrives by email when the books close", "goal": "The owner picks a day once, and the bookkeeper gets the file that day without logging in.", "done_when": ["The email arrives on the chosen day in the owner's time zone", "A bounced email is shown to the owner"], "after_merge": ["The first real monthly email reaches a customer's bookkeeper"], "risk": "high", "size": "L", "files": ["apps/api/src/jobs/send.ts", "apps/web/src/settings/Send.tsx"], "depends_on": ["export-button"] }
+      {
+        "id": "export-job-runner",
+        "title": "Exports run as background jobs with a record",
+        "goal": "Any export runs outside the web request, and every run leaves one record of who, when and how many.",
+        "done_when": [
+          "A month of 2,000 invoices finishes while the app stays fast",
+          "Each run records who, when, the month and the count"
+        ],
+        "risk": "high",
+        "size": "L",
+        "files": [
+          "apps/api/src/jobs/export.ts",
+          "db/migrations/0042_exports.sql"
+        ],
+        "depends_on": [],
+        "problem": "A big month times out because the file is built inside the web request.",
+        "hours": 6,
+        "verify": {
+          "run": "Export a seeded month of 2,000 invoices",
+          "expect": "The app answers at once and the file arrives in under a minute"
+        }
+      },
+      {
+        "id": "export-resume",
+        "title": "A stopped export goes on where it stopped",
+        "goal": "When a worker stops halfway, another one continues from the last finished page.",
+        "done_when": [
+          "Stopping a worker halfway loses no page",
+          "No page is written twice"
+        ],
+        "risk": "high",
+        "size": "M",
+        "file": "agent/tickets/export-resume.md",
+        "files": [
+          "apps/api/src/jobs/export.ts"
+        ],
+        "depends_on": [
+          "export-job-runner"
+        ],
+        "problem": "A worker that stops halfway loses the whole export.",
+        "hours": 3,
+        "verify": {
+          "run": "Stop a worker halfway through an export",
+          "expect": "The other worker finishes from the last page"
+        }
+      },
+      {
+        "id": "tenant-check",
+        "title": "An export only ever reads one customer's invoices",
+        "goal": "Make it impossible for one customer's file to hold another customer's invoice.",
+        "done_when": [
+          "A test that tries to cross customers finds nothing",
+          "The test runs on every build"
+        ],
+        "risk": "high",
+        "size": "M",
+        "files": [
+          "apps/api/src/jobs/scope.ts"
+        ],
+        "depends_on": [
+          "export-job-runner"
+        ],
+        "problem": "A query without a customer filter could read another customer's invoices.",
+        "hours": 2,
+        "verify": {
+          "run": "The cross-customer test in CI",
+          "expect": "It finds nothing on every build"
+        }
+      },
+      {
+        "id": "csv-xero",
+        "title": "Files for Xero import with no changes",
+        "goal": "A month exported for Xero imports into Xero exactly as it is.",
+        "done_when": [
+          "Columns match the Xero sales import sample",
+          "A test account imports the file with no warnings"
+        ],
+        "risk": "medium",
+        "size": "M",
+        "files": [
+          "apps/api/src/export/xero.ts"
+        ],
+        "depends_on": [
+          "export-job-runner"
+        ],
+        "problem": "Xero rejects rows whose columns do not match its sample.",
+        "hours": 3,
+        "verify": {
+          "run": "Import the file into a Xero test account",
+          "expect": "Every row imports with no fix"
+        }
+      },
+      {
+        "id": "csv-quickbooks",
+        "title": "Files for QuickBooks import with no changes",
+        "goal": "A month exported for QuickBooks imports into QuickBooks exactly as it is.",
+        "done_when": [
+          "Columns match the QuickBooks invoice import sample",
+          "A test account imports the file with no warnings"
+        ],
+        "risk": "medium",
+        "size": "M",
+        "files": [
+          "apps/api/src/export/quickbooks.ts"
+        ],
+        "depends_on": [
+          "csv-xero"
+        ],
+        "problem": "QuickBooks needs different columns and date formats.",
+        "hours": 3,
+        "verify": {
+          "run": "Import the file into a QuickBooks test account",
+          "expect": "Every row imports with no fix"
+        }
+      },
+      {
+        "id": "export-button",
+        "title": "One export button on the invoice list",
+        "goal": "Pick a month and a format, press one button, and see the file arrive on the same screen.",
+        "done_when": [
+          "The button sits on the invoice list on every screen size",
+          "The file link appears without a reload"
+        ],
+        "risk": "low",
+        "size": "M",
+        "files": [
+          "apps/web/src/invoices/ExportButton.tsx"
+        ],
+        "depends_on": [
+          "csv-xero"
+        ],
+        "problem": "There is no way to ask for a month's file.",
+        "hours": 2,
+        "verify": {
+          "run": "Click the button on the local stack",
+          "expect": "The progress shows and the download appears"
+        }
+      },
+      {
+        "id": "pdf-bundle",
+        "title": "Every invoice of a month in one PDF download",
+        "goal": "One download holds every invoice of the month as a PDF, in invoice number order.",
+        "done_when": [
+          "A month of 300 invoices downloads as one zip",
+          "Each PDF matches the one on screen"
+        ],
+        "risk": "medium",
+        "size": "L",
+        "files": [
+          "apps/api/src/export/pdf.ts"
+        ],
+        "depends_on": [
+          "export-resume"
+        ],
+        "problem": "Bookkeepers also need every invoice as a PDF.",
+        "hours": 4,
+        "verify": {
+          "run": "Export a month as PDFs",
+          "expect": "One zip with one PDF per invoice"
+        }
+      },
+      {
+        "id": "pdf-large",
+        "title": "Huge months come in parts that each finish fast",
+        "goal": "A month too big for one file splits into parts, so no part takes more than a minute.",
+        "done_when": [
+          "A month of 50,000 invoices finishes in parts of 20,000",
+          "Each part finishes in under a minute"
+        ],
+        "risk": "medium",
+        "size": "M",
+        "files": [
+          "apps/api/src/export/split.ts"
+        ],
+        "depends_on": [
+          "pdf-bundle"
+        ],
+        "problem": "A huge month makes one file too big to download.",
+        "hours": 2,
+        "verify": {
+          "run": "Export 25,000 invoices",
+          "expect": "Two parts inside one zip"
+        }
+      },
+      {
+        "id": "monthly-send",
+        "title": "The file arrives by email when the books close",
+        "goal": "The owner picks a day once, and the bookkeeper gets the file that day without logging in.",
+        "done_when": [
+          "The email arrives on the chosen day in the owner's time zone",
+          "A bounced email is shown to the owner"
+        ],
+        "after_merge": [
+          "The first real monthly email reaches a customer's bookkeeper"
+        ],
+        "risk": "high",
+        "size": "L",
+        "files": [
+          "apps/api/src/jobs/send.ts",
+          "apps/web/src/settings/Send.tsx"
+        ],
+        "depends_on": [
+          "export-button"
+        ],
+        "problem": "The owner forgets to send the file each month.",
+        "hours": 3,
+        "verify": {
+          "run": "Set the clock to the closing day",
+          "expect": "One email with a working link"
+        }
+      }
     ],
     "prs": [
-      { "id": "export-jobs", "title": "Exports run as jobs", "category": "Reliability", "wave": 1, "base": "develop", "branch": "export/jobs", "tickets": ["export-job-runner", "export-resume", "tenant-check"], "risk": "high", "approver": "Maya", "areas": ["apps/api/src/jobs/", "db/migrations/"] },
-      { "id": "csv-export", "title": "Files for each accounting tool", "category": "Formats", "wave": 2, "base": "export-jobs", "branch": "export/csv", "tickets": ["csv-xero", "csv-quickbooks", "export-button"], "risk": "medium", "approver": "AI reviewers", "areas": ["apps/api/src/export/", "apps/web/src/invoices/"] },
-      { "id": "pdf-bundles", "title": "One PDF bundle per month", "category": "Formats", "wave": 3, "base": "csv-export", "branch": "export/pdf", "tickets": ["pdf-bundle", "pdf-large"], "risk": "medium", "approver": "AI reviewers", "areas": ["apps/api/src/export/pdf.ts", "apps/api/src/export/split.ts"] },
-      { "id": "monthly-send", "title": "The monthly email", "category": "Delivery", "wave": 4, "base": "pdf-bundles", "branch": "export/send", "tickets": ["monthly-send"], "risk": "high", "approver": "Maya", "areas": ["apps/api/src/jobs/send.ts", "apps/web/src/settings/"] }
+      {
+        "id": "export-jobs",
+        "title": "Exports run as jobs",
+        "category": "Reliability",
+        "wave": 1,
+        "base": "develop",
+        "branch": "export/jobs",
+        "tickets": [
+          "export-job-runner",
+          "export-resume",
+          "tenant-check"
+        ],
+        "risk": "high",
+        "approver": "Maya",
+        "areas": [
+          "apps/api/src/jobs/",
+          "db/migrations/"
+        ]
+      },
+      {
+        "id": "csv-export",
+        "title": "Files for each accounting tool",
+        "category": "Formats",
+        "wave": 2,
+        "base": "export-jobs",
+        "branch": "export/csv",
+        "tickets": [
+          "csv-xero",
+          "csv-quickbooks",
+          "export-button"
+        ],
+        "risk": "medium",
+        "approver": "AI reviewers",
+        "areas": [
+          "apps/api/src/export/",
+          "apps/web/src/invoices/"
+        ]
+      },
+      {
+        "id": "pdf-bundles",
+        "title": "One PDF bundle per month",
+        "category": "Formats",
+        "wave": 3,
+        "base": "csv-export",
+        "branch": "export/pdf",
+        "tickets": [
+          "pdf-bundle",
+          "pdf-large"
+        ],
+        "risk": "medium",
+        "approver": "AI reviewers",
+        "areas": [
+          "apps/api/src/export/pdf.ts",
+          "apps/api/src/export/split.ts"
+        ]
+      },
+      {
+        "id": "monthly-send",
+        "title": "The monthly email",
+        "category": "Delivery",
+        "wave": 4,
+        "base": "pdf-bundles",
+        "branch": "export/send",
+        "tickets": [
+          "monthly-send"
+        ],
+        "risk": "high",
+        "approver": "Maya",
+        "areas": [
+          "apps/api/src/jobs/send.ts",
+          "apps/web/src/settings/"
+        ]
+      }
     ],
-    "flow": { "ticket": ["Build on the PR branch", "Run the area tests", "Prove each done-when on the local stack", "A fresh reviewer reads the commit", "Fix what it finds", "Commit"], "pr": ["Every commit is in", "Whole PR review", "End to end on the local stack", "Open on top of the stack", "CI green", "Stays open for Maya"] },
-    "review_policy": [ { "risk": "high", "who": "Maya, after the AI review", "what": "Approves on GitHub before merge." }, { "risk": "medium", "who": "Two AI reviewers and a refuter", "what": "Findings fixed before the PR opens." }, { "risk": "low", "who": "One AI reviewer", "what": "Correctness only." } ],
-    "stop_rules": ["The local stack cannot be made healthy after two tries", "Real data shows the plan is wrong", "An action needs a yes the book does not give"],
+    "flow": {
+      "ticket": [
+        "Build on the PR branch",
+        "Run the area tests",
+        "Prove each done-when on the local stack",
+        "A fresh reviewer reads the commit",
+        "Fix what it finds",
+        "Commit"
+      ],
+      "pr": [
+        "Every commit is in",
+        "Whole PR review",
+        "End to end on the local stack",
+        "Open on top of the stack",
+        "CI green",
+        "Stays open for Maya"
+      ]
+    },
+    "review_policy": [
+      {
+        "risk": "high",
+        "who": "Maya, after the AI review",
+        "what": "Approves on GitHub before merge."
+      },
+      {
+        "risk": "medium",
+        "who": "Two AI reviewers and a refuter",
+        "what": "Findings fixed before the PR opens."
+      },
+      {
+        "risk": "low",
+        "who": "One AI reviewer",
+        "what": "Correctness only."
+      }
+    ],
+    "stop_rules": [
+      "The local stack cannot be made healthy after two tries",
+      "Real data shows the plan is wrong",
+      "An action needs a yes the book does not give"
+    ],
     "verification": {
       "summary": "One pass on a fresh local copy built from the top of the stack: two code checks, then one month-end run on a seeded account. About 40 minutes, no paid services.",
       "where": "A fresh local copy built from the top of the PR stack",
       "ready": [
-        { "id": "stack", "need": "The local stack starts on the newest code", "check": "The app answers on port 3000", "who": "agent", "state": "ok" },
-        { "id": "seed", "need": "A seeded account with 2,000 invoices", "check": "The seed script reports 2,000 invoices", "who": "agent", "state": "ok" },
-        { "id": "tool-logins", "need": "Test logins for Xero and QuickBooks", "check": "Each tool opens its import screen", "who": "Maya", "state": "ok" }
+        {
+          "id": "stack",
+          "need": "The local stack starts on the newest code",
+          "check": "The app answers on port 3000",
+          "who": "agent",
+          "state": "ok"
+        },
+        {
+          "id": "seed",
+          "need": "A seeded account with 2,000 invoices",
+          "check": "The seed script reports 2,000 invoices",
+          "who": "agent",
+          "state": "ok"
+        },
+        {
+          "id": "tool-logins",
+          "need": "Test logins for Xero and QuickBooks",
+          "check": "Each tool opens its import screen",
+          "who": "Maya",
+          "state": "ok"
+        }
       ],
-      "runs": [ { "id": "month-end", "title": "A month end on the seeded account", "what": "Export October in all three formats, then set up the monthly email", "cost": "$0", "time": "30 min" } ],
+      "runs": [
+        {
+          "id": "month-end",
+          "title": "A month end on the seeded account",
+          "what": "Export October in all three formats, then set up the monthly email",
+          "cost": "$0",
+          "time": "30 min"
+        }
+      ],
       "checks": [
-        { "id": "no-cross-customer", "title": "No export reads another customer", "kind": "code", "tickets": ["tenant-check"], "expect": "The cross-customer test runs in CI and finds nothing.", "pass": "The test passes on the top of the stack." },
-        { "id": "resume-halfway", "title": "A stopped export finishes anyway", "kind": "code", "tickets": ["export-job-runner", "export-resume"], "expect": "Killing a worker halfway still produces the full file.", "pass": "The file has every invoice exactly once." },
-        { "id": "imports-clean", "title": "Both tools import the files as they are", "kind": "screen", "run": "month-end", "tickets": ["csv-xero", "csv-quickbooks", "export-button"], "expect": "Each file imports with no warnings.", "pass": "Both test accounts show October's invoices." },
-        { "id": "pdf-month", "title": "The PDF bundle matches the screen", "kind": "watch", "run": "month-end", "tickets": ["pdf-bundle", "pdf-large"], "expect": "The zip holds every invoice in order, and a big month comes in parts.", "pass": "Ten sampled PDFs match their screens." },
-        { "id": "email-day", "title": "The email arrives on the chosen day", "kind": "watch", "run": "month-end", "tickets": ["monthly-send"], "expect": "With the clock moved to the chosen day, the email arrives with the file.", "pass": "The test mailbox shows the email and the file opens." }
+        {
+          "id": "no-cross-customer",
+          "title": "No export reads another customer",
+          "kind": "code",
+          "tickets": [
+            "tenant-check"
+          ],
+          "expect": "The cross-customer test runs in CI and finds nothing.",
+          "pass": "The test passes on the top of the stack."
+        },
+        {
+          "id": "resume-halfway",
+          "title": "A stopped export finishes anyway",
+          "kind": "code",
+          "tickets": [
+            "export-job-runner",
+            "export-resume"
+          ],
+          "expect": "Killing a worker halfway still produces the full file.",
+          "pass": "The file has every invoice exactly once."
+        },
+        {
+          "id": "imports-clean",
+          "title": "Both tools import the files as they are",
+          "kind": "screen",
+          "run": "month-end",
+          "tickets": [
+            "csv-xero",
+            "csv-quickbooks",
+            "export-button"
+          ],
+          "expect": "Each file imports with no warnings.",
+          "pass": "Both test accounts show October's invoices."
+        },
+        {
+          "id": "pdf-month",
+          "title": "The PDF bundle matches the screen",
+          "kind": "watch",
+          "run": "month-end",
+          "tickets": [
+            "pdf-bundle",
+            "pdf-large"
+          ],
+          "expect": "The zip holds every invoice in order, and a big month comes in parts.",
+          "pass": "Ten sampled PDFs match their screens."
+        },
+        {
+          "id": "email-day",
+          "title": "The email arrives on the chosen day",
+          "kind": "watch",
+          "run": "month-end",
+          "tickets": [
+            "monthly-send"
+          ],
+          "expect": "With the clock moved to the chosen day, the email arrives with the file.",
+          "pass": "The test mailbox shows the email and the file opens."
+        }
       ]
-    }
+    },
+    "critical_path": [
+      {
+        "step": "Jobs that survive restarts",
+        "hours": 6
+      },
+      {
+        "step": "The Xero file",
+        "hours": 4
+      },
+      {
+        "step": "The PDF bundle",
+        "hours": 5
+      },
+      {
+        "step": "The monthly email",
+        "hours": 3
+      },
+      {
+        "step": "Final checks",
+        "hours": 1
+      }
+    ],
+    "totals": {
+      "agent_hours": 28,
+      "wall_hours_range": "about 19"
+    },
+    "reviews": [
+      {
+        "id": "review-wave-1",
+        "title": "Review of jobs",
+        "wave": 1,
+        "scope": "Exports run as jobs that survive restarts.",
+        "checks": [
+          "Each done-when proven with evidence",
+          "No customer can read another's invoices",
+          "The tests would fail without the change"
+        ],
+        "hard_gate": true
+      },
+      {
+        "id": "review-wave-2",
+        "title": "Review of files",
+        "wave": 2,
+        "scope": "A file in each tool's own format.",
+        "checks": [
+          "Each done-when proven with evidence",
+          "No customer can read another's invoices",
+          "The tests would fail without the change"
+        ],
+        "hard_gate": false
+      },
+      {
+        "id": "review-wave-3",
+        "title": "Review of pdfs",
+        "wave": 3,
+        "scope": "Every invoice as one PDF bundle.",
+        "checks": [
+          "Each done-when proven with evidence",
+          "No customer can read another's invoices",
+          "The tests would fail without the change"
+        ],
+        "hard_gate": false
+      },
+      {
+        "id": "review-wave-4",
+        "title": "Review of email",
+        "wave": 4,
+        "scope": "The file arrives on the right day.",
+        "checks": [
+          "Each done-when proven with evidence",
+          "No customer can read another's invoices",
+          "The tests would fail without the change"
+        ],
+        "hard_gate": false
+      }
+    ],
+    "coverage_lines": [
+      {
+        "kind": "unit",
+        "what": "Each format matches the tool's sample file",
+        "where": "CI",
+        "result": "unknown"
+      },
+      {
+        "kind": "fault",
+        "what": "A worker stopped halfway, the file still arrives",
+        "where": "Local stack",
+        "result": "pass",
+        "evidence": "agent/proof/export-job-runner-1.png",
+        "commit": "a1b2c3d"
+      },
+      {
+        "kind": "security",
+        "what": "No export reads another customer",
+        "where": "CI",
+        "result": "unknown"
+      },
+      {
+        "kind": "browser",
+        "what": "The button, the progress and the download",
+        "where": "Local stack",
+        "result": "unknown"
+      }
+    ],
+    "principles": [
+      "Every export is a saved job first",
+      "Read invoices, never change them",
+      "One customer per query, always"
+    ]
   },
-
   "kickoff": "Run Invoice export, round 3, from its book: <book URL>.\nOpen this chat in the Fieldnote repo. The book is the source of truth: read it with the Artifact tool, restore its files if this machine lacks them, read status, run and log with ArtifactData, and follow the living-artifact skill's run.md.\nI opt in to workflows of up to 8 agents per wave.\nStart from run/current. Ship one PR per category, stacked on develop, one commit per ticket. Prove and review every ticket before its commit is final. Decide what you can and record it in decided; ask me in chat only when a choice is mine and blocks the work.\nWhen every PR is open, run the agreed checklist once on a fresh copy built from the top of the stack.",
-  "prompts": [ { "id": "progress", "title": "Progress update", "when": "Paste any time", "text": "Read the book at <book URL> with the Artifact tool and its status, run and log collections with ArtifactData. Change nothing. In under ten lines and plain words: what step we are on, what each open pull request waits on, what stopped and why, and anything that needs me." } ],
-  "report": { "ready": false, "works_now": [], "not_proven": [] },
+  "prompts": [
+    {
+      "id": "progress",
+      "title": "Progress update",
+      "when": "Paste any time",
+      "text": "Read the book at <book URL> with the Artifact tool and its status, run and log collections with ArtifactData. Change nothing. In under ten lines and plain words: what step we are on, what each open pull request waits on, what stopped and why, and anything that needs me."
+    }
+  ],
+  "report": {
+    "ready": false,
+    "works_now": [],
+    "not_proven": []
+  },
   "history": [
-    { "round": 1, "title": "Find out why month end hurts", "dates": "6 to 12 Oct", "ask": "Plan an export bookkeepers would use", "outcome": "Research on formats; CSV planned" },
-    { "round": 2, "title": "CSV first", "dates": "13 to 26 Oct", "ask": "Ship CSV, then PDFs and a monthly send", "outcome": "CSV for two tools planned; send added" }
+    {
+      "round": 1,
+      "title": "Find out why month end hurts",
+      "dates": "6 to 12 Oct",
+      "ask": "Plan an export bookkeepers would use",
+      "outcome": "Research on formats; CSV planned"
+    },
+    {
+      "round": 2,
+      "title": "CSV first",
+      "dates": "13 to 26 Oct",
+      "ask": "Ship CSV, then PDFs and a monthly send",
+      "outcome": "CSV for two tools planned; send added"
+    }
   ],
   "files": [
-    { "path": "agent/ASK.md", "title": "The ask, verbatim", "kind": "md" },
-    { "path": "agent/CHECKPOINT.md", "title": "Run ledger", "kind": "md" },
-    { "path": "agent/research/formats.md", "title": "Research: what each tool imports", "kind": "md" },
-    { "path": "agent/tickets/export-resume.md", "title": "Ticket notes: a stopped export goes on", "kind": "md" },
-    { "path": "agent/proof/export-job-runner-1.png", "title": "Proof: export record row", "kind": "img" }
+    {
+      "path": "agent/ASK.md",
+      "title": "The ask, verbatim",
+      "kind": "md"
+    },
+    {
+      "path": "agent/CHECKPOINT.md",
+      "title": "Run ledger",
+      "kind": "md"
+    },
+    {
+      "path": "agent/research/formats.md",
+      "title": "Research: what each tool imports",
+      "kind": "md"
+    },
+    {
+      "path": "agent/tickets/export-resume.md",
+      "title": "Ticket notes: a stopped export goes on",
+      "kind": "md"
+    },
+    {
+      "path": "agent/proof/export-job-runner-1.png",
+      "title": "Proof: export record row",
+      "kind": "img"
+    }
+  ],
+  "groups": [
+    {
+      "id": "understand",
+      "label": "Understand"
+    },
+    {
+      "id": "how",
+      "label": "How it works"
+    },
+    {
+      "id": "proof",
+      "label": "Proof and choices"
+    },
+    {
+      "id": "build",
+      "label": "The build"
+    },
+    {
+      "id": "after",
+      "label": "After"
+    }
   ]
 }

@@ -595,7 +595,7 @@ SECS.forEach((sec, i) => {
     if ((d.split?.parts || []).length > 3) warn(`${w}.data.split.parts: three at most`);
     (d.controls || []).forEach((x) => { if (!inputIds.has(x)) err(`${w}.data.controls: "${x}" is not in model.inputs`); });
     if (!CERTAINTY.includes(d.certainty)) warn(`${w}.data.certainty: say measured, estimated or designed`);
-    if (!T) warn(`${w}: no table; "Show the numbers" should open the prices with their sources and dates`);
+    if (!(ROLES.get("unit-prices") || []).length && !(sec.depth || []).some((b) => b?.kind === "table")) warn(`${w}: no depth table; give the unit prices with their sources and read dates`);
     H(`${w}.data.note`, d.note, 40);
     // the claim must say the true shape: check the series against a straight line
     if (inputIds.has(d.x?.input) && !/\{shape\}/.test(sec.claim || "")) {
@@ -824,7 +824,7 @@ const REQ = [];
 const isPlanBook = isObj(plan) && tickets.length > 0 && isNew;
 const secOf = (c) => SECS.filter((x) => x?.component === c);
 const role = (r) => ROLES.get(r) || [];
-const colsHave = (blk, names) => { const cols = (blk?.data?.columns || []).map((c) => String(c).toLowerCase()); return names.filter((n) => !cols.some((c) => c.startsWith(n.toLowerCase()))); };
+const colsHave = (blk, names) => { const cols = (blk?.data?.columns || []).map((c) => String(c).toLowerCase()); return names.filter((n) => !cols.some((c) => c.includes(n.toLowerCase()))); };
 const rowsOf = (blk) => (blk?.data?.rows || []).map((r) => (isArr(r) ? r : r?.cells || []));
 const req = (n, item, ok, count, missing) => REQ.push({ n, item, ok: !!ok, count: count ?? "", missing: ok ? "" : missing || "" });
 const fmtMoney = (v) => { const a = Math.abs(v), whole = Math.abs(a - Math.round(a)) < 0.005; return (v < 0 ? "-$" : "$") + (a < 10 && !whole ? a.toFixed(2) : Math.round(a).toLocaleString("en-US")); };
