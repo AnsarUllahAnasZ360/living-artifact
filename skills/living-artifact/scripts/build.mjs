@@ -429,7 +429,7 @@ SECS.forEach((sec, i) => {
       if (!nonEmptyStr(e?.id)) { err(`${ww}: needs id`); return; }
       eid.add(e.id);
       if (!nid.has(e.from) || !nid.has(e.to)) err(`${ww}: ${e.from} to ${e.to} names a part not on the map`);
-      if (!nonEmptyStr(e.verb)) warn(`${ww}: every arrow has a verb ("sends jobs")`); else H(`${ww}.verb`, e.verb, 3, false);
+      if (!nonEmptyStr(e.verb)) warn(`${ww}: every arrow has a verb ("sends jobs")`); else H(`${ww}.verb`, e.verb, 3);
     });
     const stories = d.stories || [];
     if (stories.length > 3) warn(`${w}.data.stories: ${stories.length}; three at most`);
@@ -522,7 +522,7 @@ SECS.forEach((sec, i) => {
       for (const key of ["likelihood", "impact"]) if (![1, 2, 3].includes(x?.[key])) err(`${ww}.${key}: 1, 2 or 3`);
       if (!["yes", "partly", "no"].includes(x?.covered)) err(`${ww}.covered: yes, partly or no`);
       tk(x?.ticket, `${ww}.ticket`);
-      H(`${ww}.name`, x?.name, 6); H(`${ww}.then`, x?.then, 20);
+      H(`${ww}.name`, x?.name, 6); H(`${ww}.then`, x?.then, 20, k === 0);
     });
   }
   if (comp === "build" && !(isObj(plan) && waveByN.size)) warn(`${w}: the build shows plan.waves, and there are none yet`);
@@ -550,7 +550,8 @@ tickets.forEach((t, i) => {
   (t.done_when || []).forEach((x, j) => H(`plan.tickets[${i}].done_when[${j}]`, x, 15, false));
   (t.after_merge || []).forEach((x, j) => H(`plan.tickets[${i}].after_merge[${j}]`, x, 15, false));
 });
-(book.decided || []).forEach((d, i) => { const shown = (book.decided || []).filter((x) => x.section === d.section).indexOf(d) < 3 && d.section; H(`decided[${i}].what`, d?.what, 10, !!shown); H(`decided[${i}].why`, d?.why, 25, !!shown); });
+const hasDecidedSec = SECS.some((x) => x?.component === "decided");
+(book.decided || []).forEach((d, i) => { const shown = hasDecidedSec && (book.decided || []).indexOf(d) < 3; H(`decided[${i}].what`, d?.what, 10, shown); H(`decided[${i}].why`, d?.why, 25, shown); });
 if (isObj(book.blocking) && !book.blocking.resolved) { H("blocking.question", book.blocking.question, 15); H("blocking.why", book.blocking.why, 30); (book.blocking.options || []).forEach((o, i) => { H(`blocking.options[${i}].label`, o?.label, 6); H(`blocking.options[${i}].effect`, o?.effect, 15); }); }
 if (isObj(rep)) for (const k of ["works_now", "not_proven"]) (rep[k] || []).forEach((x, j) => H(`report.${k}[${j}]`, x, 15, stageIdx >= 4));
 
@@ -594,33 +595,71 @@ guard(tpl, "assets/book.html");
 valueNames.forEach(([name, src, msg]) => { if (!chapterJsAll.some((js) => js.includes(`BOOKFN.${src}`) || js.includes(`BOOKFN["${src}"]`))) err(`model.values.${name}: ${msg}`); });
 
 // ---------- human text: budgets, internal references, the whole-book budget ----------
+// book.terms: names a reader must recognise (product, vendor or standard names such as "Z360", "S3", "Node.js").
+// The id and code check never flags them; each still needs its short explanation where it is first used.
+if (book.terms !== undefined && !(isArr(book.terms) && book.terms.every(nonEmptyStr))) err("book.terms: must be a list of names");
+const TERMS = new Set((book.terms || []).map(String));
 const known = [...ticketIds, ...prIds, ...decidedIds, ...[...waveByN.values()].map((w) => w.id).filter(Boolean),
   ...(plan?.verification?.checks || []).map((c) => c?.id), ...(plan?.verification?.runs || []).map((r) => r?.id), ...(plan?.milestones || []).map((m) => m?.id),
-  ...(book.findings || []).map((f) => f?.id), ...(book.research || []).map((r) => r?.id)].filter((x) => isStr(x) && /[-\d]/.test(x));
+  ...(book.findings || []).map((f) => f?.id), ...(book.research || []).map((r) => r?.id)].filter((x) => isStr(x) && /[-\d]/.test(x) && !TERMS.has(x));
 const knownRe = known.length ? new RegExp(`(?<![\\w-])(${[...new Set(known)].sort((a, b) => b.length - a.length).map((x) => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})(?![\\w-])`) : null;
 const CODES = [
-  [/\b[A-Z]{1,3}-?\d+[a-z]?\b/, "a short code"],
-  [/\b(?:decision|round|wave|milestone|ticket|pr|pull request|check|step id)\s*#?\d+\b/i, "a numbered reference"],
-  [/(?:^|\s)#\d+\b/, "a number reference"],
+  [/\b(?:W|M|D|T|R|CP|PR|WP|MS)-?\d+[a-z]?\b/, "a short code"],
+  [/\b[A-Z]{2,5}-\d+\b/, "a short code"],
+  [/\b(?:decision|round|wave|milestone|ticket|pr|pull request|check)\s*#?\d+\b/i, "a numbered reference"],
+  [/(?:^|\s)#\d{2,}\b/, "a number reference"],
   [/\b[\w.-]+\/[\w./-]*\.[a-z]{1,5}\b/i, "a file path"],
   [/\b(?:agent|docs|src|apps|packages|scripts|chapters)\/[\w./-]*/, "a file path"],
-  [/\b[\w-]+\.(?:md|json|html?|mjs|cjs|js|ts|tsx|jsx|py|ya?ml|css|png|jpe?g|sh|toml|sql)\b/i, "a file name"],
-  [/\b(?:as discussed|see above|see below|your (?:first|second|third) brief|the earlier plan|this document|this page|this book)\b/i, "a reference to context the reader may not have"]
+  [/\b(?:feat|fix|lab|release|hotfix|chore)\/[\w./-]+/, "a branch name"],
+  [/\b[a-z][\w-]*\.(?:md|json|html?|mjs|cjs|js|ts|tsx|jsx|py|ya?ml|css|png|jpe?g|gif|svg|sh|toml|sql|csv|tsv|xlsx?|pdf|docx?|zip|txt|log)\b/, "a file name"],
+  [/\b[A-Z][a-z0-9]+(?:[A-Z][a-z0-9]+)+\b/, "a code name"],
+  [/\b(?:as (?:discussed|agreed|we agreed)|see (?:above|below)|as above|(?:your|the) (?:first|second|third|last|earlier) (?:brief|plan|round|draft)|this (?:document|page|book))\b/i, "a reference to context the reader may not have"]
 ];
+const BARE = /(?:\b(?:costs?|was|is|were|are)\s+\d[\d,.]*(?!\s*(?:%|[a-z])))|(?:(?<![$\w])\d[\d,.]*\s+a\s+(?:month|day|year|week)\b)/i;
+const STRICT = /\.(claim|lead)$|^plan\.tickets\[\d+\]\.title$|^plan\.waves\[\d+\]\.name$/;
+const BARE_FIELDS = /\.(lead|points\[\d+\]|then|line|text)$/;
 let onLoad = 0, total = 0;
 human.forEach(([where, text, max, load]) => {
   const n = words(text);
   total += n; if (load) onLoad += n;
-  if (max && n > max) warn(`${where}: ${n} words; budget is ${max}: "${text.length > 90 ? text.slice(0, 87) + "..." : text}"`);
+  if (max && n > max) (STRICT.test(where) ? err : warn)(`${where}: ${n} words; budget is ${max}: "${text.length > 90 ? text.slice(0, 87) + "..." : text}"`);
   const bare = text.replace(/\{[^{}]*\}/g, " ").replace(/https?:\/\/\S+/g, " ");
   const hits = [];
-  for (const [re, what] of CODES) for (const m of bare.matchAll(new RegExp(re.source, re.flags + "g"))) hits.push(`${what} "${m[0].trim()}"`);
+  for (const [re, what] of CODES) for (const m of bare.matchAll(new RegExp(re.source, re.flags + "g"))) { const x = m[0].trim(); if (!TERMS.has(x) && ![...TERMS].some((tm) => tm.includes(x) && bare.includes(tm))) hits.push(`${what} "${x}"`); }
   if (knownRe) for (const m of bare.matchAll(new RegExp(knownRe.source, "g"))) hits.push(`the id "${m[1]}"`);
-  if (hits.length) warn(`${where}: ${[...new Set(hits)].join(", ")} in human text; name things in plain words, ids and files show in agent mode: "${text.length > 90 ? text.slice(0, 87) + "..." : text}"`);
+  if (hits.length) warn(`${where}: ${[...new Set(hits)].join(", ")} in human text; name things in plain words, ids and files show in agent mode, or list a real name in book.terms: "${text.length > 90 ? text.slice(0, 87) + "..." : text}"`);
+  if (BARE_FIELDS.test(where) && BARE.test(bare.replace(/\$\s?\d[\d,.]*/g, " "))) warn(`${where}: a number without a unit ("costs 5", "40 a month"); say "$5 a month", "40 invoices a month": "${text.length > 90 ? text.slice(0, 87) + "..." : text}"`);
+  if (/\.lead$/.test(where) && /^(?:pick|drag|switch|click|tap|open|step through|change|follow|scroll|hover)\b/i.test(text.trim())) warn(`${where}: tells the reader how to use the figure; state the one fact the claim needs, or leave the lead out: "${text}"`);
 });
-const BOOK_BUDGET = { large: 1500, feature: 600, audit: 900 }[profile] || 1500;
-if (onLoad > BOOK_BUDGET) warn(`human text visible on load: about ${onLoad} words; the ${profile} budget is ${BOOK_BUDGET}. Move detail one click deeper or into agent files`);
-else if (onLoad > BOOK_BUDGET * 0.8) warn(`human text visible on load: about ${onLoad} words, over 80% of the ${profile} budget of ${BOOK_BUDGET}`);
+// what the page itself adds on load: state words, certainty marks, buttons, axis ticks, filters, status line
+let added = 4 + 2; // top bar switches; skip link is hidden
+const inputWords = (id) => { const x = (MODEL.inputs || []).find((y) => y?.id === id); return x ? words(x.label) + (x.options ? x.options.reduce((a, o) => a + words(o.label), 0) : (x.ticks || x.stops || []).slice(0, 5).length + 1) : 0; };
+SECS.forEach((sec) => {
+  if (!isObj(sec)) return;
+  const d = isObj(sec.data) ? sec.data : {}, c = sec.component;
+  if (sec.nav && isStr(sec.nav)) added += words(sec.nav);
+  if (sec.source) added += 1;
+  if (sec.table || d.table) added += 3;
+  if (c !== "decided" && (book.decided || []).some((x) => x.section === sec.id)) added += 4;
+  if (c === "story") added += 20 + (d.numbers || []).length * 3;
+  if (c === "compare") added += 4 + ((d.before?.numbers || []).length + (d.after?.numbers || []).length) * 3;
+  if (c === "map") added += 8 + ((d.stories || []).length > 1 ? (d.stories || []).reduce((a, s) => a + words(s.name), 0) : 0) + (d.nodes || []).filter((n) => n?.dot).length + Math.min(7, (d.stories?.[0]?.steps || []).length) * 1;
+  if (c === "steps") added += 10 + (d.steps || []).length;
+  if (c === "capabilities") added += (d.only ? 0 : 6) + (d.items || []).length * 2;
+  if (c === "scale") added += 2 + inputWords(d.input) + (d.inputs || []).reduce((a, x) => a + inputWords(x), 0) + (d.rows || []).length * 2;
+  if (c === "cost") added += 14 + (d.controls || [d.x?.input]).reduce((a, x) => a + inputWords(x), 0) + (d.series || []).length * 2 + (d.split?.parts || []).length * 2;
+  if (c === "risks") added += 6 + (d.risks || []).length * 2;
+  if (c === "build") { added += 16 + waveByN.size * 4; const first = [...waveByN.values()].sort((a, b) => a.n - b.n)[0]; added += tickets.filter((t) => (owner.has(t.id) ? prById.get(owner.get(t.id))?.wave : t.wave) === first?.n).length * 5; }
+  if (c === "roadmap") added += (d.items || []).length;
+  if (c === "chapter") added += 60; // a chapter's script draws text the checker cannot read
+  if (c === "decided") added += Math.min(3, (book.decided || []).length) * 5 + ((book.decided || []).length > 3 ? 3 : 0);
+});
+const shown = onLoad + added;
+const BOOK_BUDGET = { large: 1200, feature: 450, audit: 750 }[profile] || 1200;
+const SEC_MAX = { large: 9, feature: 5, audit: 6 }[profile] || 9;
+if (SECS.length > SEC_MAX) warn(`sections: ${SECS.length}; a ${profile} book needs about ${SEC_MAX} at most. Use only the sections this work needs; two ideas that share a picture share a section`);
+if (shown > BOOK_BUDGET) err(`words a person sees on load: about ${shown} (${onLoad} written, ${added} added by the page); the ${profile} budget is ${BOOK_BUDGET}. Cut a section, or move detail one click deeper or into agent files`);
+else if (shown > BOOK_BUDGET * 0.8) warn(`words a person sees on load: about ${shown} (${onLoad} written, ${added} added by the page), over 80% of the ${profile} budget of ${BOOK_BUDGET}`);
 
 // ---------- dashes anywhere in the book ----------
 const SKIP_KEYS = new Set(["url", "ref", "path", "file", "files", "sha", "code", "evidence", "wide", "tall", "source"]);
@@ -689,7 +728,7 @@ if (demoPath) {
   catch (e) { console.error(`error: cannot read demo file ${demoPath}: ${e.message}`); process.exit(1); }
 }
 const built = new Date().toISOString();
-const build = { source: path.basename(dir) + "/index.html", built, preview: false, words_on_load: onLoad, words_total: total, published: Object.keys(filesMap).sort() };
+const build = { source: path.basename(dir) + "/index.html", built, preview: false, words_on_load: shown, words_written_on_load: onLoad, words_total: total, published: Object.keys(filesMap).sort() };
 
 // The machine entry point: an agent that fetches the HTML parses this block without rendering the page.
 const waveOfT = (t) => (owner.has(t.id) ? prById.get(owner.get(t.id))?.wave : t.wave);
@@ -733,5 +772,5 @@ if (preview) {
 if (demo && !preview) warn("--demo has no effect without --preview; sample state goes only into preview.html");
 
 for (const w of warnings) console.error(`warning: ${w}`);
-console.error(`wrote ${tilde(out)} (${kb.toFixed(0)} KB, fonts ${fontKb.toFixed(0)} KB), about ${onLoad} words on load of ${BOOK_BUDGET}, ${Object.keys(filesMap).length} published file(s), ${warnings.length} warning(s)${preview ? ", preview.html" : ""}${demo && preview ? ", sample live data in preview.html only" : ""}`);
+console.error(`wrote ${tilde(out)} (${kb.toFixed(0)} KB, fonts ${fontKb.toFixed(0)} KB), about ${shown} words on load (${onLoad} written, ${added} added by the page) of ${BOOK_BUDGET}, ${Object.keys(filesMap).length} published file(s), ${warnings.length} warning(s)${preview ? ", preview.html" : ""}${demo && preview ? ", sample live data in preview.html only" : ""}`);
 process.stdout.write(JSON.stringify(filesMap, null, 2) + "\n");

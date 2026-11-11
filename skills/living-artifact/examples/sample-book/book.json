@@ -1,6 +1,7 @@
 {
   "id": "invoice-export",
   "title": "Invoice export",
+  "terms": ["Xero", "QuickBooks", "Sage"],
   "subtitle": "The plan",
   "kind": "Plan and architecture",
   "owner": { "name": "Maya", "role": "Founder of Fieldnote" },
@@ -29,9 +30,9 @@
       "claim": "Month end takes three hours because invoices leave the app one at a time.",
       "lead": "Nobody types an invoice twice, and the accounting tool takes the file as it is.",
       "data": {
-        "before": { "label": "Today", "points": ["A bookkeeper opens each invoice and copies it", "Mistakes show up only when the books do not balance", "Nothing goes out unless someone remembers"],
+        "before": { "label": "Today", "points": ["A bookkeeper opens each invoice and copies it", "Mistakes show up only when the books do not balance"],
           "numbers": [ { "value": "3 hours", "label": "a month per bookkeeper", "certainty": "estimated" } ] },
-        "after": { "label": "With export", "points": ["One button builds the whole month as one file", "The file matches what the accounting tool imports", "It can arrive by email on the day the books close"],
+        "after": { "label": "With export", "points": ["One button builds the whole month as one file", "The file matches what the accounting tool imports"],
           "numbers": [ { "value": "2 minutes", "label": "a month per bookkeeper", "certainty": "designed" } ] },
         "parts": [
           { "name": "Bookkeeper", "before": "Copies by hand", "after": "Presses one button" },
@@ -86,39 +87,19 @@
       }
     },
     {
-      "id": "setup", "component": "steps", "label": "How it works",
-      "claim": "Setting up the monthly email takes four choices and one minute.",
-      "lead": "The owner sets it up once. After that the file arrives by itself.",
-      "data": {
-        "steps": [
-          { "title": "Pick the tool", "text": "Xero, QuickBooks or a plain spreadsheet. The columns follow that tool's own import page." },
-          { "title": "Pick the day", "text": "The day the books close, not the first of the month." },
-          { "title": "Add the bookkeeper", "text": "An email address. The bookkeeper never needs to log in." },
-          { "title": "Send a test", "text": "A small file with last week's invoices arrives at once." }
-        ]
-      }
-    },
-    {
       "id": "can", "component": "capabilities", "label": "What it can do", "nav": "What it can do",
       "claim": "Three formats and a monthly email, with more formats later.",
       "lead": "Background exports and Xero files already work; the rest is being built.",
       "data": {
         "items": [
-          { "name": "Export runs in the background", "line": "Big months never time out, and every export leaves a record.", "state": "today", "ticket": "export-job-runner" },
+          { "name": "Export runs in the background", "line": "Big months never time out.", "state": "today", "ticket": "export-job-runner" },
           { "name": "A stopped export goes on", "line": "Another worker continues from the last finished page.", "state": "today", "ticket": "export-resume" },
-          { "name": "Files for Xero", "line": "Columns match the Xero sales import, so the file imports as is.", "state": "today", "ticket": "csv-xero" },
-          { "name": "Files for QuickBooks", "line": "Columns match the QuickBooks invoice import.", "state": "building", "ticket": "csv-quickbooks" },
+          { "name": "Files for Xero", "line": "Imports into Xero as it is.", "state": "today", "ticket": "csv-xero" },
+          { "name": "Files for QuickBooks", "line": "Imports into QuickBooks as it is.", "state": "building", "ticket": "csv-quickbooks" },
           { "name": "One PDF bundle per month", "line": "Every invoice as a PDF, in one download.", "state": "building", "ticket": "pdf-bundle" },
-          { "name": "The monthly email", "line": "The file arrives on the day the books close.", "state": "building", "ticket": "monthly-send" },
-          { "name": "Pick your own columns", "line": "For tools we do not support yet.", "state": "later" },
-          { "name": "A whole year at once", "line": "For the tax return.", "state": "later" }
+          { "name": "The monthly email", "line": "The file arrives on the day the books close.", "state": "building", "ticket": "monthly-send" }
         ]
       }
-    },
-    {
-      "id": "file-sample", "component": "chapter", "label": "What it can do",
-      "claim": "Each accounting tool gets exactly the columns it expects.",
-      "lead": "The first rows of the file each tool receives."
     },
     {
       "id": "scale", "component": "scale", "label": "Safety, recovery and cost", "nav": "Safety and cost",
@@ -152,7 +133,7 @@
         "readouts": [ { "label": "Saved each month", "value": "vendor - ours", "big": true } ],
         "split": { "label": "Where our cost goes", "parts": [ { "name": "Always on", "value": "base" }, { "name": "Workers", "value": "compute" }, { "name": "Files and email", "value": "storage" } ] },
         "certainty": "estimated",
-        "note": "Sample figures made up for this example. A real book states each price, its source and the date it was read.",
+        "note": "Sample prices, made up for this example.",
         "table": {
           "label": "Show the numbers",
           "columns": ["Item", "Price", "Where the price comes from"],
@@ -172,7 +153,7 @@
       "claim": "Five things can go wrong, and four are fully covered.",
       "data": {
         "risks": [
-          { "name": "A worker stops halfway", "likelihood": 3, "impact": 1, "then": "Another worker goes on from the last finished page. The bookkeeper waits a little longer.", "covered": "yes", "ticket": "export-resume" },
+          { "name": "A worker stops halfway", "likelihood": 3, "impact": 1, "then": "Another worker goes on from the last finished page.", "covered": "yes", "ticket": "export-resume" },
           { "name": "The tool rejects the file", "likelihood": 2, "impact": 2, "then": "Each format is tested against the tool's own sample import before it ships.", "covered": "yes", "ticket": "csv-xero" },
           { "name": "Another customer's invoice gets in", "likelihood": 1, "impact": 3, "then": "Every read is limited to one customer, and a test tries to cross the line on every build.", "covered": "yes", "ticket": "tenant-check" },
           { "name": "The email lands in spam", "likelihood": 2, "impact": 2, "then": "The file stays on the screen too, and the owner is told when an email bounces.", "covered": "partly", "ticket": "monthly-send" },
@@ -187,21 +168,15 @@
     },
     {
       "id": "beyond", "component": "roadmap", "label": "Beyond", "nav": "Beyond",
-      "claim": "Four things come next, each started by a clear signal.",
+      "claim": "Three things come next, each started by a clear signal.",
       "lead": "None has a date. Each starts when its signal shows up.",
       "data": {
         "items": [
           { "name": "Pick your own columns", "trigger": "after 50 customers ask for another tool", "line": "One screen to map our fields to any tool's columns." },
           { "name": "A whole year at once", "trigger": "before the first tax season", "line": "Twelve months in one file, split by month." },
-          { "name": "Direct sync", "trigger": "after 1,000 exports a month", "line": "Send invoices straight into the tool, no file." },
-          { "name": "Sage files", "trigger": "when the first Sage customer signs", "line": "The same export with Sage's columns." }
+          { "name": "Direct sync", "trigger": "after 1,000 exports a month", "line": "Send invoices straight into the tool, no file." }
         ]
       }
-    },
-    {
-      "id": "decisions", "component": "decided", "label": "Decided", "nav": false,
-      "claim": "Choices already made, so nobody has to ask again.",
-      "lead": "Each says who decided and why. Any of them can be reopened in the chat."
     }
   ],
 
@@ -228,7 +203,7 @@
     { "id": "no-live-sync", "what": "No live sync with accounting tools this round", "who": "Maya", "when": "2026-10-13", "why": "A file covers every tool now. Sync waits until enough exports show which tools matter.", "section": "why" },
     { "id": "keep-30-days", "what": "Files are kept for 30 days", "who": "model", "when": "2026-10-27", "why": "Long enough to download again after the books close, short enough to keep storage small.", "section": "risks" },
     { "id": "tool-columns", "what": "Columns follow each tool's own import page", "who": "model", "when": "2026-10-09", "why": "A file the tool imports as is beats a neat file someone must fix.", "section": "can" },
-    { "id": "send-day", "what": "The owner picks the day the email goes out", "who": "Maya", "when": "2026-10-28", "why": "Books close on different days, and a file that arrives early is incomplete.", "section": "setup" }
+    { "id": "send-day", "what": "The owner picks the day the email goes out", "who": "Maya", "when": "2026-10-28", "why": "Books close on different days, and a file that arrives early is incomplete.", "section": "can" }
   ],
 
   "findings": [

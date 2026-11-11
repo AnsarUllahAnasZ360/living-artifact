@@ -952,7 +952,7 @@ function decRow(d) {
 function decidedBlock(list, all) {
   if (!list.length) return null;
   var shown = all ? list : list.slice(0, 3), rest = all ? [] : list.slice(3);
-  var box = h("div", { class: "decided" }, h("h3", { text: all ? "Every decision so far" : "Decided" }), shown.map(decRow));
+  var box = h("div", { class: "decided" }, shown.map(decRow));
   if (rest.length) {
     var more = h("div", { hidden: true }, rest.map(decRow));
     var btn = h("button", { type: "button", class: "linkbtn", "aria-expanded": "false", style: "margin-top:8px" }, "All decisions (" + list.length + ")");
@@ -981,7 +981,7 @@ function decidedLink(list) {
 }
 COMP.decided = function (stage) {
   if (!DECIDED.length) { add(stage, h("p", { class: "empty", text: "Nothing has been decided yet." })); return; }
-  add(stage, decidedBlock(DECIDED, true));
+  add(stage, decidedBlock(DECIDED, false));
 };
 
 /* ---------- story: the whole book on one screen, with the status line ---------- */
