@@ -367,6 +367,11 @@ const SECS = book.sections || [];
 const secSeen = new Set();
 let storyCount = 0;
 const human = []; // [where, text, budget, onLoad]
+function labels(x, keys, where) {
+  if (x === undefined) return;
+  if (!isObj(x)) { err(`${where}: an object of ${keys.join(", ")}`); return; }
+  for (const k of Object.keys(x)) { if (!keys.includes(k)) err(`${where}.${k}: one of ${keys.join(", ")}`); else if (!nonEmptyStr(x[k])) err(`${where}.${k}: a word or two`); else H(`${where}.${k}`, x[k], 3, false); }
+}
 const H = (where, text, max, onLoad = true) => { if (isStr(text) && text.trim()) human.push([where, text, max, onLoad]); };
 const nodeName = new Map();
 SECS.forEach((sec, i) => {
@@ -490,7 +495,8 @@ SECS.forEach((sec, i) => {
     if (series.length < 1 || series.length > 3) err(`${w}.data.series: one to three lines`);
     series.forEach((x, k) => { if (!nonEmptyStr(x?.name)) err(`${w}.data.series[${k}]: needs name`); checkExpr(x?.value, `${w}.data.series[${k}].value`); H(`${w}.data.series[${k}].name`, x?.name, 3); });
     if (series.filter((x) => x?.ours).length > 1) err(`${w}.data.series: one line is ours at most`);
-    (d.readouts || []).forEach((x, k) => { checkExpr(x?.value, `${w}.data.readouts[${k}].value`); H(`${w}.data.readouts[${k}].label`, x?.label, 5); });
+    (d.readouts || []).forEach((x, k) => { checkExpr(x?.value, `${w}.data.readouts[${k}].value`); H(`${w}.data.readouts[${k}].label`, x?.label, 5); if (isStr(x?.negative)) H(`${w}.data.readouts[${k}].negative`, x.negative, 6, false); else if (x?.negative !== undefined && x.negative !== false) err(`${w}.data.readouts[${k}].negative: a label for a value below zero, or false`); });
+    if (d.rival !== undefined && !series.some((x) => x?.name === d.rival)) err(`${w}.data.rival: "${d.rival}" is not the name of a line`);
     (d.split?.parts || []).forEach((x, k) => { checkExpr(x?.value, `${w}.data.split.parts[${k}].value`); H(`${w}.data.split.parts[${k}].name`, x?.name, 4); });
     if ((d.split?.parts || []).length > 3) warn(`${w}.data.split.parts: three at most`);
     (d.controls || []).forEach((x) => { if (!inputIds.has(x)) err(`${w}.data.controls: "${x}" is not in model.inputs`); });
@@ -508,6 +514,7 @@ SECS.forEach((sec, i) => {
   if (comp === "capabilities") {
     if (!nonEmptyArr(d.items)) err(`${w}.data.items: needs items`);
     if (d.only !== undefined && !["today", "building", "later"].includes(d.only)) err(`${w}.data.only: today, building or later`);
+    labels(d.labels, ["all", "today", "building", "planned", "later"], `${w}.data.labels`);
     (d.items || []).forEach((x, k) => {
       const ww = `${w}.data.items[${k}]`;
       if (!nonEmptyStr(x?.name)) err(`${ww}: needs name`);
@@ -519,13 +526,14 @@ SECS.forEach((sec, i) => {
   }
   if (comp === "risks") {
     if (!nonEmptyArr(d.risks)) err(`${w}.data.risks: needs risks`);
+    labels(d.labels, ["covered", "planned", "partly", "no"], `${w}.data.labels`);
     (d.risks || []).forEach((x, k) => {
       const ww = `${w}.data.risks[${k}]`;
       if (!nonEmptyStr(x?.name)) err(`${ww}: needs name`);
       for (const key of ["likelihood", "impact"]) if (![1, 2, 3].includes(x?.[key])) err(`${ww}.${key}: 1, 2 or 3`);
       if (!["yes", "partly", "no"].includes(x?.covered)) err(`${ww}.covered: yes, partly or no`);
       tk(x?.ticket, `${ww}.ticket`);
-      H(`${ww}.name`, x?.name, 6); H(`${ww}.then`, x?.then, 20, k === 0);
+      H(`${ww}.name`, x?.name, 6); H(`${ww}.then`, x?.then, 20, false);
     });
   }
   if (comp === "build" && !(isObj(plan) && waveByN.size)) warn(`${w}: the build shows plan.waves, and there are none yet`);
@@ -543,6 +551,10 @@ if (navCount > 6) warn(`sections: ${navCount} anchors in the top bar; six at mos
 H("book.title", book.title, 8);
 H("book.subtitle", book.subtitle, 4);
 H("book.now", book.now, 20, false);
+const hasBuildSec = SECS.some((x) => x?.component === "build");
+if (isObj(plan) && plan.start !== undefined) { if (!nonEmptyStr(plan.start)) err("plan.start: the few lines a person reads first in the build, or leave it out"); else H("plan.start", plan.start, 50, hasBuildSec); }
+const headLinks = (() => { const ok = (book.links || []).filter((l) => isObj(l) && nonEmptyStr(l.label) && /^https?:/.test(l.url || "")); const pick = ok.filter((l) => l.header); return (pick.length ? pick : ok).slice(0, 3); })();
+(book.links || []).forEach((l, i) => { if (!isObj(l) || !nonEmptyStr(l.label)) err(`book.links[${i}]: needs label`); else H(`book.links[${i}].label`, l.label, 3, headLinks.includes(l)); });
 const waveNames = [...waveByN.values()];
 waveNames.forEach((wv, i) => { H(`plan.waves[${i}].name`, wv.name || wv.title, 2); H(`plan.waves[${i}].what`, wv.what || wv.why, 8); });
 const firstWave = waveNames.slice().sort((a, b) => a.n - b.n)[0];
@@ -653,8 +665,8 @@ SECS.forEach((sec) => {
   if (c === "capabilities") added += (d.only ? 0 : 4) + (d.items || []).length * 2;
   if (c === "scale") added += 2 + inputWords(d.input) + (d.inputs || []).reduce((a, x) => a + inputWords(x), 0) + (d.rows || []).length * 2;
   if (c === "cost") added += 14 + (d.controls || [d.x?.input]).reduce((a, x) => a + inputWords(x), 0) + (d.series || []).length * 2 + (d.split?.parts || []).length * 2;
-  if (c === "risks") added += 10 + (d.risks || []).length * 4;
-  if (c === "build") { added += 16 + waveByN.size * 4; const first = [...waveByN.values()].sort((a, b) => a.n - b.n)[0]; added += words(first?.what); added += tickets.filter((t) => (owner.has(t.id) ? prById.get(owner.get(t.id))?.wave : t.wave) === first?.n).length * 5; }
+  if (c === "risks") added += 6 + (d.risks || []).length * 4;
+  if (c === "build") added += 9 + waveByN.size * 4; // until the run writes status: ring numbers, step words, final checks line
   if (c === "roadmap") added += (d.items || []).length;
   if (c === "chapter") added += 60; // a chapter's script draws text the checker cannot read
   if (c === "decided") added += Math.min(3, (book.decided || []).length) * 5 + ((book.decided || []).length > 3 ? 3 : 0);
@@ -696,6 +708,8 @@ function walk(rel, test) {
 walk("agent/proof", (n) => IMG.test(n));
 if (fs.existsSync(path.join(dir, "proto"))) for (const n of fs.readdirSync(path.join(dir, "proto"))) if (/\.html$/i.test(n)) { filesMap[`proto/${n}`] = path.join(dir, "proto", n); guard(fs.readFileSync(path.join(dir, "proto", n), "utf8"), `proto/${n}`); }
 const published = new Set(Object.keys(filesMap));
+if (book.agent_start !== undefined && !published.has(book.agent_start)) err(`book.agent_start: "${book.agent_start}" is not a published file; name one from book.files`);
+const startHere = book.agent_start || [...published].find((f) => /(^|\/)kickoff[^/]*\.md$/i.test(f)) || (published.has("agent/CHECKPOINT.md") ? "agent/CHECKPOINT.md" : "agent/book.json");
 const refd = [];
 (book.research || []).forEach((r) => r?.file && refd.push([r.file, `research "${r.id}"`]));
 (book.history || []).forEach((x) => x?.file && refd.push([x.file, `history round ${x.round}`]));
@@ -739,7 +753,8 @@ const build = { source: path.basename(dir) + "/index.html", built, preview: fals
 const waveOfT = (t) => (owner.has(t.id) ? prById.get(owner.get(t.id))?.wave : t.wave);
 const index = {
   book: book.id, title: book.title, round: book.round, updated: book.updated, built,
-  how_to_read: "Content is the book-data script block (agent/book.json). Live state is the page database: status/<ticket-id>, status/pr-<id>, status/check-<id>, status/ready-<id>, run/current, run/blocking, log/<id>. Read it with ArtifactData.",
+  start_here: startHere,
+  how_to_read: `Start with ${startHere}. Content is the book-data script block (agent/book.json); notes for one piece of work are agent/tickets/<ticket-id>.md. Live state is the page database: status/<ticket-id>, status/pr-<id>, status/check-<id>, status/ready-<id>, run/current, run/blocking, log/<id>. Inside the page it is ArtifactData; from outside, read it with db_list and db_get (collections status, run, log) and write it with db_write.`,
   sections: SECS.map((x) => ({ id: x.id, component: x.component, claim: x.claim })),
   steps: [...waveByN.values()].sort((a, b) => a.n - b.n).map((w, i) => ({ n: w.n, id: w.id || `wave-${w.n}`, name: w.name || w.title, order: i + 1, tickets: tickets.filter((t) => waveOfT(t) === w.n).map((t) => t.id) })),
   tickets: tickets.map((t) => { const p = prById.get(owner.get(t.id)); return { id: t.id, title: t.title, goal: t.goal || null, step: waveOfT(t), pr: p?.id || null, branch: p?.branch || null, file: t.file || null, files: t.files || [], depends_on: t.depends_on || [], done_when: t.done_when || [], after_merge: t.after_merge || [], risk: t.risk || null, size: t.size || null, status_doc: `status/${t.id}` }; }),

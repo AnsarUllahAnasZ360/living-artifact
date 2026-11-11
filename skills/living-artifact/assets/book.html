@@ -66,6 +66,15 @@ img { max-width: 100%; display: block; }
 .mark span { color: var(--text-3); font-weight: 400; margin-left: 8px; }
 .nav { display: flex; gap: 2px; margin-left: 4px; min-width: 0; overflow-x: auto; scrollbar-width: none; }
 .nav::-webkit-scrollbar { display: none; }
+.toplinks { display: flex; gap: 2px; flex: none; }
+.toplinks a, .nav a.navext { padding: 6px 10px; border-radius: var(--r-sm); font-size: 13px; color: var(--accent-text); white-space: nowrap; }
+.toplinks a:hover { background: var(--bg-hover); }
+.nav a.navext { display: none; }
+.startstrip { display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; align-items: baseline; margin-bottom: 28px; padding: 14px 16px; border-radius: var(--r); background: var(--bg-muted); }
+.startstrip b { font-weight: 600; white-space: nowrap; }
+.startstrip p { color: var(--text-2); font-size: 14px; line-height: 21px; max-width: 72ch; }
+.startline { margin-top: 12px; font-size: 14px; }
+.startline code { font-family: var(--font-mono); font-size: 13px; }
 .nav.more-r { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); }
 .nav.more-l { -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to left, #000 calc(100% - 28px), transparent); }
 .nav.more-l.more-r { -webkit-mask-image: linear-gradient(to right, transparent, #000 28px, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to right, transparent, #000 28px, #000 calc(100% - 28px), transparent); }
@@ -385,9 +394,6 @@ input[type=range]:focus-visible::-webkit-slider-thumb { outline: 2px solid var(-
 .wave[aria-pressed="true"]::after { content: ""; position: absolute; left: 0; right: 16px; bottom: 0; height: 2px; background: var(--text); border-radius: 1px; }
 .wave:hover > b { color: var(--accent-text); }
 .wdetail { margin-top: 32px; }
-.wdetail__head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; padding-bottom: 12px; }
-.wdetail__head h3 { font-size: 16px; font-weight: 600; letter-spacing: -.01em; }
-.wdetail__head p { color: var(--text-2); font-size: 14px; }
 .tk { border-top: 1px solid var(--line); }
 .tk:last-child { border-bottom: 1px solid var(--line); }
 .tk__dw { font-size: 12px; color: var(--text-3); white-space: nowrap; font-variant-numeric: tabular-nums; }
@@ -475,6 +481,9 @@ input[type=range]:focus-visible::-webkit-slider-thumb { outline: 2px solid var(-
   .top__in > .spacer { display: none; }
   .nav { order: 9; flex: 1 0 100%; margin: 0 -16px; padding: 0 12px 8px; }
   .nav a { padding: 6px 8px; }
+  .toplinks { display: none; }
+  :root:not([data-mode="agent"]) .nav a.navext { display: inline; }
+  .startstrip { grid-template-columns: minmax(0, 1fr); }
   html { scroll-padding-top: 104px; }
   .mark span { display: none; }
   .wrap { padding: 0 16px; }
@@ -539,6 +548,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb { outline: 2px solid var(-
   <div class="top__in">
     <div class="mark" id="mark"></div>
     <nav class="nav" id="nav" aria-label="Sections"></nav>
+    <div class="toplinks human-only" id="toplinks"></div>
     <div class="spacer"></div>
     <button class="btn agent-only" type="button" id="digest">Copy digest</button>
     <div class="seg" role="group" aria-label="Who is reading">
@@ -706,8 +716,8 @@ var store = { get: function (k) { try { return localStorage.getItem(k); } catch 
 var nf = function (n, d) { return Number(n).toLocaleString("en-US", { maximumFractionDigits: d || 0, minimumFractionDigits: 0 }); };
 var WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"];
 var FMT = {
-  money: function (v) { var a = Math.abs(v); return (v < 0 ? "-$" : "$") + (a < 10 && a % 1 > 0.004 ? a.toFixed(2) : nf(Math.round(a))); },
-  cents: function (v) { return (v < 0 ? "-$" : "$") + Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); },
+  money: function (v) { var a = Math.abs(v), w = Math.abs(a - Math.round(a)) < 0.005; return (v < 0 ? "-$" : "$") + (a < 10 && !w ? a.toFixed(2) : nf(Math.round(a))); },
+  cents: function (v) { var a = Math.abs(v); return (v < 0 ? "-$" : "$") + (Math.abs(a - Math.round(a)) < 0.005 ? nf(Math.round(a)) : a.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })); },
   int: function (v) { return nf(Math.round(v)); },
   dec: function (v) { return nf(v, 1); },
   pct: function (v) { return nf(v) + "%"; },
@@ -1506,9 +1516,12 @@ COMP.cost = function (stage, d, sec, ctx) {
     series.forEach(function (x, k) { var v = 0; try { v = Expr.eval(x.value, sc); } catch (e) {} svg += '<circle class="c-p ' + cls(x, k) + '" cx="' + mx + '" cy="' + Y(v) + '" r="4.5"/>'; });
     host.innerHTML = svg + "</svg>";
     reads.textContent = "";
+    var rival = d.rival || ((series.filter(function (x) { return !x.ours; })[0] || {}).name);
     (d.readouts || []).forEach(function (r) {
       var v = 0; try { v = Expr.eval(r.value, sc); } catch (e) {}
-      add(reads, h("div", { class: "read__row" + (r.big ? " big" : "") }, h("span", { text: r.label }), h("b", { text: fmtv(v, r.format || "money") })));
+      var flip = v < 0 && (r.negative || (r.big && rival && r.negative !== false));
+      var lbl = flip ? (typeof r.negative === "string" ? r.negative : rival + " is cheaper by") : r.label;
+      add(reads, h("div", { class: "read__row" + (r.big ? " big" : "") }, h("span", { text: lbl }), h("b", { text: fmtv(flip ? -v : v, r.format || "money") })));
     });
     series.forEach(function (x, k) {
       var v = 0; try { v = Expr.eval(x.value, sc); } catch (e) {}
@@ -1536,14 +1549,15 @@ COMP.cost = function (stage, d, sec, ctx) {
 function esc(x) { return String(x).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
 
 /* ---------- capability list: what it can do, and the state of each ---------- */
-var CAPST = { today: ["ok", "Works today"], building: ["acc", "Being built"], planned: ["", "Planned"], later: ["", "Later"] };
+var CAPST = { today: ["ok", "Exists today"], building: ["acc", "Being built"], planned: ["", "Planned"], later: ["", "Later"] };
 function capState(it) {
   if (it.ticket && T[it.ticket]) { var p = pstate(it.ticket); if (p === "proven") return "today"; if (p === "building" || p === "review") return "building"; if (it.state === "today") return "building"; if (it.state !== "later") return "planned"; }
   return CAPST[it.state] ? it.state : "later";
 }
 COMP.capabilities = function (stage, d) {
   var items = (d.items || []).filter(function (x) { return x && x.name; }), filter = d.only || (FINISHED ? "today" : "all");
-  var bar = h("div", { class: "caps__bar" }), list = h("div", { class: "caps" });
+  var bar = h("div", { class: "caps__bar" }), list = h("div", { class: "caps" }), LB = d.labels || {};
+  function word(k) { return LB[k] || CAPST[k][1]; }
   add(stage, [d.only ? null : bar, list]);
   function render() {
     var have = {}; items.forEach(function (it) { have[capState(it)] = true; });
@@ -1551,7 +1565,7 @@ COMP.capabilities = function (stage, d) {
     if (!d.only) {
       bar.textContent = "";
       var seg = h("div", { class: "seg", role: "group", "aria-label": "Show" });
-      [["all", "All"], ["today", "Works today"], ["building", "Being built"], ["planned", "Planned"], ["later", "Later"]].forEach(function (f) {
+      [["all", LB.all || "All"], ["today", word("today")], ["building", word("building")], ["planned", word("planned")], ["later", word("later")]].forEach(function (f) {
         if (f[0] !== "all" && !have[f[0]]) return;
         add(seg, h("button", { type: "button", "aria-pressed": String(filter === f[0]), onclick: function () { filter = f[0]; render(); } }, f[1]));
       });
@@ -1561,7 +1575,7 @@ COMP.capabilities = function (stage, d) {
     var shown = items.filter(function (it) { return filter === "all" || capState(it) === filter; });
     if (!shown.length) add(list, h("p", { class: "empty", text: d.empty || "Nothing here yet." }));
     shown.forEach(function (it) {
-      var cs = CAPST[capState(it)], t = it.ticket && T[it.ticket], proofLines = it.proof || (t && L.status[t.id] && L.status[t.id].lines);
+      var cs = [CAPST[capState(it)][0], word(capState(it))], t = it.ticket && T[it.ticket], proofLines = it.proof || (t && L.status[t.id] && L.status[t.id].lines);
       var detail = t || proofLines || it.source;
       var head = h(detail ? "button" : "div", { class: "cap-head", type: detail ? "button" : null, "aria-expanded": detail ? "false" : null, "data-id": it.ticket || null },
         h("b", {}, detail ? svgIcon(ICON.chev) : null, it.name, idTag(it.ticket)), h("span", { text: it.line || "" }), stateEl(cs[0], cs[1]));
@@ -1581,7 +1595,8 @@ COMP.capabilities = function (stage, d) {
 };
 
 /* ---------- risk matrix: what can go wrong and what happens then ---------- */
-var COVER = { yes: ["ok", "Covered"], partly: ["warn", "Partly covered"], no: ["err", "Not covered"] };
+var COVER = { covered: ["ok", "Covered"], planned: ["", "Planned cover"], partly: ["warn", "Partly"], no: ["err", "Not covered"] };
+function coverOf(r) { return r.covered === "no" ? "no" : r.covered === "yes" ? (r.ticket && T[r.ticket] && pstate(r.ticket) === "proven" ? "covered" : "planned") : "partly"; }
 COMP.risks = function (stage, d) {
   var risks = (d.risks || []).filter(function (r) { return r && r.name; });
   var LK = d.likelihood || ["Rare", "Possible", "Likely"], IM = d.impact || ["Small", "Serious", "Severe"];
@@ -1592,24 +1607,26 @@ COMP.risks = function (stage, d) {
     for (var x = 1; x <= 3; x++) { var c = h("div", { class: "rm__cell" }); cells[x + "," + y] = c; add(grid, c); }
   }
   add(grid, [h("div"), h("div", { class: "rm__axis" }, LK.map(function (l) { return h("span", { text: l }); }))]);
-  var dots = [], rows = [];
+  var dots = [], rows = [], LB = d.labels || {};
+  function cvOf(r) { var k = coverOf(r); return [COVER[k][0], LB[k] || COVER[k][1]]; }
   function hl(i) { dots.forEach(function (dd, k) { dd.classList.toggle("hl", k === i); }); rows.forEach(function (r, k) { r.classList.toggle("hl", k === i); }); }
   risks.forEach(function (r, i) {
-    var lx = Math.max(1, Math.min(3, r.likelihood || 2)), iy = Math.max(1, Math.min(3, r.impact || 2)), cv = COVER[r.covered] || COVER.partly;
+    var lx = Math.max(1, Math.min(3, r.likelihood || 2)), iy = Math.max(1, Math.min(3, r.impact || 2)), cv = cvOf(r);
     var dot = h("button", { type: "button", class: "rm__dot", text: i + 1, "aria-label": (i + 1) + ". " + r.name + ". " + LK[lx - 1] + ", " + IM[iy - 1].toLowerCase() + ". " + cv[1] + "." });
     dot.addEventListener("mouseenter", function () { hl(i); }); dot.addEventListener("focus", function () { hl(i); });
-    dot.addEventListener("click", function () { hl(i); openRow(i); rows[i].scrollIntoView({ block: "nearest", behavior: calm() ? "auto" : "smooth" }); });
+    dot.addEventListener("click", function () { hl(i); openRow(i, true); rows[i].scrollIntoView({ block: "nearest", behavior: calm() ? "auto" : "smooth" }); });
     add(cells[lx + "," + iy], dot); dots.push(dot);
     var more = h("div", { class: "rl__more", id: "rk-" + (r.id || i) + "-" + Math.random().toString(36).slice(2, 6) }, h("p", { text: r.then || "" }),
-      r.ticket && T[r.ticket] ? h("p", {}, h("button", { type: "button", class: "linkbtn", text: "Covered by: " + title(T[r.ticket]), onclick: function () { openTicket(r.ticket); } })) : null);
+      r.ticket && T[r.ticket] ? h("p", {}, h("button", { type: "button", class: "linkbtn", text: "The work that covers it: " + title(T[r.ticket]), onclick: function () { openTicket(r.ticket); } })) : null);
     var head = h("button", { type: "button", class: "rl__head", "aria-expanded": "false", "aria-controls": more.id, onclick: function () { openRow(i); } },
-      h("span", { class: "rn", text: i + 1 }), h("b", {}, r.name, idTag(r.id)), stateEl(cv[0], cv[1]));
+      h("span", { class: "rn", text: i + 1 }), h("b", {}, r.name, idTag(r.id)), h("span", { class: "rl__st" }, stateEl(cv[0], cv[1])));
     var li = h("li", { "data-id": r.id || r.ticket || null }, head, more);
     li.addEventListener("mouseenter", function () { hl(i); }); head.addEventListener("focus", function () { hl(i); });
     add(list, li); rows.push(li);
   });
-  function openRow(i) { rows.forEach(function (r, k) { var on = k === i; $(".rl__more", r).hidden = !on; $(".rl__head", r).setAttribute("aria-expanded", String(on)); r.classList.toggle("open", on); }); }
-  if (rows.length) openRow(0);
+  function openRow(i, keep) { if (!keep && rows[i] && rows[i].classList.contains("open")) i = -1; rows.forEach(function (r, k) { var on = k === i; $(".rl__more", r).hidden = !on; $(".rl__head", r).setAttribute("aria-expanded", String(on)); r.classList.toggle("open", on); }); }
+  openRow(-1);
+  onLive(function () { risks.forEach(function (r, i) { var cv = cvOf(r), box = $(".rl__st", rows[i]); box.textContent = ""; add(box, stateEl(cv[0], cv[1])); }); });
   add(stage, h("div", { class: "risk" }, h("div", {}, grid), list));
 };
 
@@ -1662,6 +1679,7 @@ function checkList(list) {
       h("span", {}, h("b", { text: c.title, class: "chk__t" }), idTag(c.id), " ", h("span", { class: "chk__st", text: st[1] }), c.pass ? h("small", { class: "chk__pass", text: "Passes when: " + c.pass }) : null));
   }));
 }
+function started() { return Object.keys(L.status || {}).length > 0; }
 function ticketCard(t, w) {
   var p = pstate(t.id), ps = PERSON[p], open = BUILDUI.open === t.id, stt = L.status[t.id] || {};
   var checks = Array.isArray(stt.checks) ? stt.checks : null, n = (t.done_when || []).length;
@@ -1685,7 +1703,7 @@ function ticketCard(t, w) {
       (function () { var mine = CHECKS.filter(function (c) { return (c.tickets || []).indexOf(t.id) >= 0; }); return mine.length ? [h("h4", { text: "Checked again at the end" }), checkList(mine)] : null; })()))));
   var row = h("button", { type: "button", class: "tk__row", "aria-expanded": String(open), "aria-controls": "b-" + t.id },
     svgIcon(ICON.chev), h("span", { class: "tk__title" }, title(t), idTag(t.id)),
-    n ? h("span", { class: "tk__dw", text: (checks ? checks.filter(Boolean).length : p === "proven" ? n : 0) + " of " + n + " done" }) : null, stateEl(ps[0], ps[1]));
+    n && started() ? h("span", { class: "tk__dw", text: (checks ? checks.filter(Boolean).length : p === "proven" ? n : 0) + " of " + n + " done" }) : null, stateEl(ps[0], ps[1]));
   var el = h("div", { class: "tk" + (open ? " open" : "") + (p === "stopped" ? " stopped" : ""), "data-id": t.id }, row, body);
   row.addEventListener("click", function () {
     var was = BUILDUI.open === t.id;
@@ -1711,7 +1729,8 @@ COMP.build = function (stage, d, sec) {
     proofBtn = h("button", { type: "button", class: "linkbtn", "aria-expanded": "false", "aria-controls": proofBox.id });
     proofBtn.addEventListener("click", function () { var open = proofBox.hidden; proofBox.hidden = !open; proofBtn.setAttribute("aria-expanded", String(open)); });
   }
-  add(stage, [track, proofBtn ? h("div", { class: "proofrow" }, proofBtn, proofBox) : null, detail, live]);
+  var startEl = P.start ? h("div", { class: "startstrip human-only" }, h("b", { text: "Start here" }), h("p", { text: P.start })) : null;
+  add(stage, [startEl, track, proofBtn ? h("div", { class: "proofrow" }, proofBtn, proofBox) : null, detail, live]);
   if (L.demo || BUILD.preview) {
     var sim = h("button", { class: "btn", type: "button", text: "Simulate a piece finishing" });
     sim.addEventListener("click", function () {
@@ -1736,21 +1755,20 @@ COMP.build = function (stage, d, sec) {
       el.classList.toggle("stopped", x.stopped > 0);
       el.setAttribute("aria-pressed", String(i === BUILDUI.sel));
       $(".arc", el).setAttribute("stroke-dashoffset", (C * (1 - frac)).toFixed(2));
-      $("em", el).innerHTML = x.st === "done" && !x.stopped ? ICON.tick : x.done + "/" + x.n;
+      $("em", el).innerHTML = x.st === "done" && !x.stopped ? ICON.tick : started() ? x.done + "/" + x.n : String(i + 1);
       var word = x.st === "done" ? (x.stopped ? ["warn", "Done, " + x.stopped + " stopped"] : ["ok", "Proven"]) : i === pr.cur ? ["acc", pr.done || x.st === "cur" ? "Building now" : "First"] : i === pr.cur + 1 ? ["", "Next"] : ["", "Later"];
       var stEl = $(".st", el); stEl.textContent = ""; add(stEl, [h("span", { class: "dot " + word[0] }), word[1]]);
-      el.setAttribute("aria-label", "Step " + (i + 1) + ", " + WAVES[i].name + ". " + x.done + " of " + x.n + " proven. " + word[1] + ".");
+      el.setAttribute("aria-label", "Step " + (i + 1) + ", " + WAVES[i].name + ". " + (started() ? x.done + " of " + x.n + " proven. " : "") + word[1] + ".");
       if (prevDone[i] != null && prevDone[i] !== x.done) live.textContent = "Step " + (i + 1) + ": " + x.done + " of " + x.n + " proven.";
       prevDone[i] = x.done;
     });
     if (proofBtn) {
       var passed = CHECKS.filter(function (c) { return (L.status["check-" + c.id] || {}).state === "pass"; }).length;
-      proofBtn.textContent = "How it is proven at the end: " + CHECKS.length + (CHECKS.length === 1 ? " final check, " : " final checks, ") + passed + " passed";
+      proofBtn.textContent = "How it is proven at the end: " + CHECKS.length + (CHECKS.length === 1 ? " final check" : " final checks") + (started() ? ", " + passed + " passed" : "");
       proofBox.textContent = ""; add(proofBox, checkList(CHECKS));
     }
-    var w = WAVES[BUILDUI.sel], x = pr.stats[BUILDUI.sel];
+    var w = WAVES[BUILDUI.sel];
     detail.textContent = "";
-    add(detail, h("div", { class: "wdetail__head" }, h("h3", { text: (BUILDUI.sel + 1) + ". " + w.name }), h("p", { text: x.done + " of " + x.n + " proven. " + w.what })));
     w.tickets.forEach(function (t) { add(detail, ticketCard(t, w)); });
   }
   BUILDUI.renders.push(render);
@@ -1814,7 +1832,8 @@ function digest() {
 function referenceSection() {
   var sec = h("section", { class: "sec ref agent-only", id: "reference", "aria-labelledby": "h-ref" },
     h("p", { class: "eyebrow", text: "Reference" }), h("h2", { id: "h-ref", text: "Every piece of work, file, check, decision and status, by id." }),
-    h("p", { class: "lead", text: "This layer is for agents and engineers. The same facts appear above by name. The machine index is the script block with id book-index." }));
+    h("p", { class: "lead", text: "This layer is for agents and engineers. The same facts appear above by name. The machine index is the script block with id book-index." }),
+    h("p", { class: "startline" }, h("b", { text: "Start here: " }), h("code", { text: AGENT_START }), " ", h("button", { type: "button", class: "linkbtn", text: "Copy", onclick: function () { copy(AGENT_START); } })));
   var tabs = [["index", "Index"], ["files", "Files"], ["raw", "Raw"], ["process", "Process"], ["history", "History"]], cur = "index";
   var seg = h("div", { class: "seg tabs", role: "group", "aria-label": "Reference views" }), body = h("div", { class: "stage", style: "margin-top:0" });
   tabs.forEach(function (t) { add(seg, h("button", { type: "button", "aria-pressed": String(t[0] === cur), onclick: function () { cur = t[0]; $$("button", seg).forEach(function (b, i) { b.setAttribute("aria-pressed", String(tabs[i][0] === cur)); }); render(); } }, t[1])); });
@@ -1870,6 +1889,7 @@ function referenceSection() {
 
 /* ================= page assembly ================= */
 var main = $("#main"), refSec = null;
+var AGENT_START = (INDEX && INDEX.start_here) || B.agent_start || "agent/book.json";
 function renderSection(sec) {
   var comp = sec.component || "chapter", d = sec.data || {}, isStory = comp === "story";
   var el = h("section", { class: "sec" + (isStory ? " hero" : "") + (isStory && d.figure ? " hero--fig" : ""), id: sec.id, "aria-labelledby": "h-" + sec.id, "data-component": comp });
@@ -1915,6 +1935,11 @@ function shell() {
     add(nav, h("a", { href: "#" + x.id, text: x.nav || x.label || x.id }));
   });
   add(nav, h("a", { href: "#reference", class: "agent-only", text: "Reference" }));
+  var links = (B.links || []).filter(function (l) { return l && l.url && /^https?:/.test(l.url) && l.label; }), pick = links.filter(function (l) { return l.header; });
+  (pick.length ? pick : links).slice(0, 3).forEach(function (l) {
+    var a = function (cls) { return h("a", { href: l.url, target: "_blank", rel: "noopener", class: cls, text: l.label }); };
+    add($("#toplinks"), a("")); add(nav, a("navext human-only"));
+  });
   function navFade() { var end = nav.scrollWidth - nav.clientWidth; nav.classList.toggle("more-r", nav.scrollLeft < end - 2); nav.classList.toggle("more-l", nav.scrollLeft > 2); }
   nav.addEventListener("scroll", navFade, { passive: true });
   if ("ResizeObserver" in window) new ResizeObserver(navFade).observe(nav);

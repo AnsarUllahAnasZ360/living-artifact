@@ -8,7 +8,7 @@
   "profile": "large",
   "updated": "2026-11-11T09:00:00Z",
   "round": { "n": 3, "title": "PDF bundles and the monthly send", "started": "2026-10-27", "stage": "build" },
-  "links": [ { "label": "Branch", "value": "invoice-export-r3" } ],
+  "links": [ { "label": "Branch", "value": "invoice-export-r3" }, { "label": "Code", "value": "fieldnote/app", "url": "https://github.com/example/fieldnote", "header": true } ],
 
   "sections": [
     {
@@ -149,7 +149,7 @@
     },
     {
       "id": "risks", "component": "risks", "label": "Safety, recovery and cost",
-      "claim": "Five things can go wrong, and four are fully covered.",
+      "claim": "Five things can go wrong, and four have work planned to cover them.",
       "data": {
         "risks": [
           { "name": "A worker stops halfway", "likelihood": 3, "impact": 1, "then": "Another worker goes on from the last finished page.", "covered": "yes", "ticket": "export-resume" },
@@ -215,6 +215,7 @@
 
   "plan": {
     "summary": "Nine pieces of work in four steps, shipped as four pull requests. Each is proven on the local stack and reviewed before the next step starts.",
+    "start": "Each step ends with proof a person can check: a test, a screenshot or a run log under its card. A step starts only when the one before it is proven.",
     "heartbeat_minutes": 180,
     "branches": { "development": "develop", "production": "main", "naming": "export/<category>" },
     "waves": [

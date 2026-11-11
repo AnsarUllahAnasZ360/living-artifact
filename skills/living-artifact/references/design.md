@@ -11,7 +11,7 @@ There is no fixed list of sections. A book has the story, then only the sections
 | 1 | The story | The headline claim, one sentence on today's pain and what we build, three numbers with a certainty mark, the status line | `story` |
 | 2 | Why | The problem in one concrete case (a bill, a failure, a wait), what changes for whom, what we will not build | `compare` |
 | 3 | How it works | The system as 5 to 12 named parts and one job moving through them, plus one failure story | `map`, `steps` |
-| 4 | What it can do, and what works today | Each capability as one line and a state: works today, being built, planned, later. When the stage is `report` or `done` the list opens on Works today | `capabilities` |
+| 4 | What it can do, and what exists today | Each capability as one line and a state: exists today, being built, planned, later. When the stage is `report` or `done` the list opens on Exists today | `capabilities` |
 | 5 | Safety, recovery and cost | What can go wrong and what happens then; what it costs as use grows, with assumptions the reader can change | `risks`, `scale`, `cost` |
 | 6 | The build | The steps in order with live status; each piece of work with its goal, done-when, proof and final check; the final checks with their results | `build` |
 | 7 | Beyond | Three to five things that come next, each with the signal that starts it | `roadmap` |

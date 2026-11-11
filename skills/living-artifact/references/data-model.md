@@ -67,7 +67,7 @@ Human text is plain words for a stranger: no em or en dashes, no ids, codes, fil
 | Field | Mode | Notes |
 |---|---|---|
 | `id`, `title` (8 words), `subtitle` (4), `kind` | both | `kind` is the small line above the story's claim |
-| `owner`, `links`, `updated` | agent | |
+| `owner`, `updated` | agent | |
 | `profile` | both | `feature`, `audit` or `large`; sets the word budget shown on load (450, 750, 1,200) and the section count the checker warns above (5, 6, 9) |
 | `terms` | none | Allowed names: products, vendors and standards a reader must recognise ("Z360", "S3", "Node.js"). The id and code check never flags them. Each still gets a short explanation where it is first used |
 | `round` | agent | `stage` is `explore`, `plan`, `build`, `verify`, `report` or `done`. `report` and `done` switch the story to its `after` state |
@@ -76,6 +76,9 @@ Human text is plain words for a stranger: no em or en dashes, no ids, codes, fil
 | `model` | human | The shared assumptions every `scale` and `cost` figure reads. `components.md` |
 | `decided` | both | What was decided, who (`model` or a person's name, required), when, why. `what` 10 words, `why` 25. `section` links it from that section |
 | `blocking` | human | `null`, or the one choice a person must make (below) |
+| `plan.start` | human | Optional, about 50 words: what a person should know before reading the build. Shown as a "Start here" strip above the steps in human mode |
+| `links` | both | `{ label, value, url, header }`. Human mode shows up to three links with an `https` url in the header (only those with `header: true` when any has it); on a phone they join the section row |
+| `agent_start` | agent | The published file an agent reads first. Default: the kickoff file (a published `kickoff*.md`), else `agent/CHECKPOINT.md`, else `agent/book.json`. Agent mode shows "Start here: <path>" above the Reference tabs, and the index carries it as `start_here` |
 | `plan.waves` | human | `{ n, id, name (2 words), what (8 words), prs }`. The steps a person sees |
 | `plan.tickets` | human | `{ id, title (10 words), goal (30), done_when[] (15 each), depends_on[], after_merge[], file, files[], risk, size }` |
 | `plan.prs`, `.branches`, `.flow`, `.review_policy`, `.merge_checklist`, `.github`, `.stop_rules`, `.verification`, `.milestones` | agent | The shipping process (`planning.md`). The Process tab shows them |
@@ -149,7 +152,7 @@ The status line warns "No update for 3 hours" when the run is active and the las
 
 ## For agents reading the page
 
-- `<script type="application/json" id="book-index">` in `index.html` holds one index: sections, steps with their tickets, every ticket (title, goal, step, pull request, branch, file, files, depends_on, done_when, after_merge, risk, size, status document), every PR, ready item, run, check (with expect and pass), decided record, finding, research note and published file. An agent that fetches the HTML parses it without rendering. The content itself is the `book-data` block (the same as `agent/book.json`); `book-build` holds build facts; `book-demo` is empty except in `preview.html`.
+- `<script type="application/json" id="book-index">` in `index.html` holds one index: sections, steps with their tickets, every ticket (title, goal, step, pull request, branch, file, files, depends_on, done_when, after_merge, risk, size, status document), every PR, ready item, run, check (with expect and pass), decided record, finding, research note and published file. An agent that fetches the HTML parses it without rendering. `start_here` names the file to read first, and `how_to_read` names it too, with the ticket notes path (`agent/tickets/<ticket-id>.md`) and how to read the live state: ArtifactData inside the page, `db_list` and `db_get` from outside. The content itself is the `book-data` block (the same as `agent/book.json`); `book-build` holds build facts; `book-demo` is empty except in `preview.html`.
 - Every element that stands for a ticket, step, risk or decision carries `data-id`. `#<ticket-id>` opens its card.
 - Agent mode (`?mode=agent` or the switch) shows ids beside every name and the Reference section: Index (every ticket, check, ready item, decision, finding, research note and section), Files (every published file, raw), Raw (`book.json` and every db collection), Process (kickoff and prompts, the pull request plan, how it ships, verification, reviews), History (rounds, the log, report data), and Copy digest.
 - Nothing exists only in human mode: every sentence a person sees comes from a field an agent can read.

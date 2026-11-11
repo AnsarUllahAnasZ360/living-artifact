@@ -100,7 +100,7 @@ Seven steps at most, `title` 5 words, `text` 20 words.
                     { "name": "A whole year at once", "line": "For the tax return.", "state": "later" } ] }
 ```
 
-`state` is `today`, `building` or `later`. With `ticket`, the live status wins: proven reads "Works today", building or in review reads "Being built", not started reads "Planned". A row with a ticket, `proof` lines or a `source` opens to its proof and a link to its work card. The filter offers only the states present; once the stage is `report` or `done` it opens on Works today. `name` 6 words, `line` 15. (An older `only: "today"` still works, but do not repeat a list in a second section.)
+`state` is `today`, `building` or `later`. With `ticket`, the live status wins: proven reads "Exists today", building or in review reads "Being built", not started reads "Planned". A row with a ticket, `proof` lines or a `source` opens to its proof and a link to its work card. The filter offers only the states present; once the stage is `report` or `done` it opens on Exists today. `name` 6 words, `line` 15. `labels` renames the filter and state words: `{ "all", "today", "building", "planned", "later" }`, a word or two each. (An older `only: "today"` still works, but do not repeat a list in a second section.)
 
 ### risks
 
@@ -109,7 +109,7 @@ Seven steps at most, `title` 5 words, `text` 20 words.
                        "then": "Another worker goes on from the last finished page." } ] }
 ```
 
-`likelihood` and `impact` are 1 to 3; `covered` is `yes`, `partly` or `no`. Axis words default to Rare, Possible, Likely and Small, Serious, Severe (override with `likelihood` and `impact` lists). The list shows names; one risk is open at a time, the first on load, and a dot opens its row.
+`likelihood` and `impact` are 1 to 3; `covered` is `yes`, `partly` or `no`. Axis words default to Rare, Possible, Likely and Small, Serious, Severe (override with `likelihood` and `impact` lists). The list shows names, all closed on load; a row or a dot opens one at a time. The state never claims proof before a test passes: `yes` reads "Planned cover" until its `ticket` is proven, then "Covered"; `partly` reads "Partly"; `no` reads "Not covered". `labels` renames them: `{ "planned", "covered", "partly", "no" }`.
 
 ### scale and cost: the shared model
 
@@ -143,16 +143,19 @@ An input has `stops` (a slider over those values), `options` (a segmented choice
 "data": { "x": { "input": "invoices" }, "controls": ["invoices", "exports"],
   "series": [ { "name": "A sync service", "value": "vendor" }, { "name": "Our export", "value": "ours", "ours": true } ],
   "readouts": [ { "label": "Saved each month", "value": "vendor - ours", "big": true } ],
+  "rival": "A sync service",
   "split": { "label": "Where our cost goes", "parts": [ { "name": "Always on", "value": "12" }, { "name": "Workers", "value": "ours - 12" } ] },
   "certainty": "estimated", "note": "Prices read 10 Nov from each vendor's price page.",
   "table": { "label": "Show the numbers", "columns": ["Item", "Price", "Source"], "keys": ["item", "price", "from"], "rows": [] } }
 ```
 
+When the `big` readout falls below zero it reads "<rival> is cheaper by $304" instead of a minus sign. `rival` defaults to the first line that is not `ours`; a readout may set its own `negative` label, or `false` to keep the minus sign. Money drops ".00" from whole dollars.
+
 One to three series, one marked `ours`. Readouts default to the `money` format (`format` to change). A claim with `{shape}` states the true shape computed from the data ("a straight line", "faster than a straight line", "slower than a straight line"), and `{ratio|times}` how many times faster the other line grows; the checker warns when a claim says straight or exponential and the data disagrees. Always give the table with each price, its source and the date it was read.
 
 ### build
 
-No data. Reads `plan.waves` (`name` 2 words, `what` 8 words), `plan.tickets` and the db. One ring per step: the arc is the share proven, a tick when done, a dot and a word under it (Proven, Building now, Next, Later). Picking a step lists its work cards. A card opens to Goal, Waits for (by name), Done when (each with a dot from `status/<id>.checks`), the proof strip (`status/<id>.lines`, `.summary`, `.proof` images, the commit) and, in agent mode, id, step, pull request, branch, file, raw status. One card is open at a time; `#<ticket-id>` in the URL opens it. Each card row shows how many of its done-when hold ("1 of 2 done"); an open card also lists the final checks that cover it, with "Passes when". Under the rings, one collapsed line, "How it is proven at the end: 5 final checks, 0 passed", opens every check of `plan.verification.checks` with its live result from `status/check-<id>`: Not run yet, Passed, Failed or Skipped.
+No data. Reads `plan.waves` (`name` 2 words, `what` 8 words), `plan.tickets` and the db. One ring per step: the arc is the share proven, a tick when done, a dot and a word under it (Proven, Building now, Next, Later). Picking a step lists its work cards directly under the steps, with no second heading. An optional `plan.start` (about 50 words) shows above the steps as a "Start here" strip in human mode. A card opens to Goal, Waits for (by name), Done when (each with a dot from `status/<id>.checks`), the proof strip (`status/<id>.lines`, `.summary`, `.proof` images, the commit) and, in agent mode, id, step, pull request, branch, file, raw status. One card is open at a time; `#<ticket-id>` in the URL opens it. Until the run writes its first status record, counts stay hidden: the rings show the step number, rows show no "0 of 2 done" and the final checks line has no "0 passed". After that each card row shows how many of its done-when hold ("1 of 2 done"); an open card also lists the final checks that cover it, with "Passes when". Under the rings, one collapsed line, "How it is proven at the end: 5 final checks, 0 passed", opens every check of `plan.verification.checks` with its live result from `status/check-<id>`: Not run yet, Passed, Failed or Skipped.
 
 ### roadmap
 
