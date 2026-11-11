@@ -64,7 +64,10 @@ img { max-width: 100%; display: block; }
 .top__in { max-width: 1168px; margin: 0 auto; padding: 0 24px; height: 52px; display: flex; align-items: center; gap: 20px; }
 .mark { font-weight: 600; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .mark span { color: var(--text-3); font-weight: 400; margin-left: 8px; }
-.nav { display: flex; gap: 2px; margin-left: 4px; }
+.nav { display: flex; gap: 2px; margin-left: 4px; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.nav::-webkit-scrollbar { display: none; }
+.skip { position: absolute; left: 12px; top: -60px; z-index: 20; padding: 8px 12px; border-radius: var(--r-sm); background: var(--text); color: var(--bg); font-size: 13px; }
+.skip:focus { top: 8px; }
 .nav a { padding: 6px 10px; border-radius: var(--r-sm); font-size: 13px; color: var(--text-2); white-space: nowrap; transition: color var(--ease), background-color var(--ease); }
 .nav a:hover { color: var(--text); background: var(--bg-hover); }
 .spacer { flex: 1; }
@@ -333,15 +336,18 @@ input[type=range]:focus-visible::-webkit-slider-thumb { outline: 2px solid var(-
 .rm__ax.y { writing-mode: vertical-rl; transform: rotate(180deg); }
 .rm__dot { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 600; background: var(--bg); box-shadow: inset 0 0 0 1px var(--line-strong); font-variant-numeric: tabular-nums; transition: background-color var(--ease), color var(--ease); }
 .rm__dot.hl, .rm__dot:hover { background: var(--text); color: var(--bg); box-shadow: none; }
-.rm__axis { grid-column: 2 / -1; display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-3); }
+.rm__axis { grid-column: 2 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); text-align: center; align-items: center; font-size: 11.5px; color: var(--text-3); }
 .rm__cap { margin-top: 8px; font-size: 12px; color: var(--text-3); }
-.rl li { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 4px 12px; padding: 12px 6px; border-top: 1px solid var(--line); border-radius: var(--r-sm); transition: background-color var(--ease); }
+.rl li { border-top: 1px solid var(--line); border-radius: var(--r-sm); transition: background-color var(--ease); }
+.rl__head { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 4px 12px; align-items: center; width: 100%; min-height: 44px; padding: 10px 6px; text-align: left; border-radius: var(--r-sm); }
+.rl__more { padding: 0 6px 12px 46px; }
+.rl__more p + p { margin-top: 4px; }
 .rl li:last-child { border-bottom: 1px solid var(--line); }
 .rl li.hl { background: var(--bg-hover); }
 .rl .rn { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: 600; box-shadow: inset 0 0 0 1px var(--line-strong); color: var(--text-2); }
 .rl li.hl .rn { background: var(--text); color: var(--bg); box-shadow: none; }
 .rl b { font-weight: 500; }
-.rl p { grid-column: 2 / -1; color: var(--text-2); font-size: 13.5px; }
+.rl p { color: var(--text-2); font-size: 13.5px; }
 
 /* ---------- build: wave timeline and work cards ---------- */
 .waves { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); position: relative; }
@@ -366,7 +372,13 @@ input[type=range]:focus-visible::-webkit-slider-thumb { outline: 2px solid var(-
 .wdetail__head p { color: var(--text-2); font-size: 14px; }
 .tk { border-top: 1px solid var(--line); }
 .tk:last-child { border-bottom: 1px solid var(--line); }
-.tk__row { width: 100%; display: grid; grid-template-columns: 16px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 4px; min-height: 46px; transition: background-color var(--ease); }
+.tk__dw { font-size: 12px; color: var(--text-3); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.proofrow { margin: 4px 0 8px; font-size: 13px; }
+.proofall { margin-top: 10px; max-width: 760px; }
+.chk__t { font-weight: 500; color: var(--text); }
+.chk__st { color: var(--text-3); font-size: 12px; }
+.chk__pass { display: block; color: var(--text-3); font-size: 12px; margin-top: 2px; }
+.tk__row { width: 100%; display: grid; grid-template-columns: 16px minmax(0, 1fr) auto auto; gap: 12px; align-items: center; padding: 12px 4px; min-height: 46px; transition: background-color var(--ease); }
 .tk__row:hover { background: var(--bg-hover); }
 .chev { width: 16px; height: 16px; fill: none; stroke: var(--text-3); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; transition: transform 200ms cubic-bezier(.2,0,0,1); }
 .tk__row[aria-expanded="true"] .chev { transform: rotate(90deg); }
@@ -395,7 +407,10 @@ input[type=range]:focus-visible::-webkit-slider-thumb { outline: 2px solid var(-
 /* ---------- decided ---------- */
 .decided { margin-top: 32px; max-width: 760px; }
 .decided h3 { font-size: 12px; font-weight: 500; color: var(--text-3); margin-bottom: 4px; }
-.dec { padding: 12px 0; border-top: 1px solid var(--line); }
+.dec { padding: 12px 0; border-top: 1px solid var(--line); transition: background-color 600ms ease-out; }
+.dec.flash { background: var(--accent-soft, var(--bg-hover)); }
+.declink { margin-top: 24px; font-size: 13px; }
+.declink .decided { margin-top: 8px; }
 .dec:last-of-type { border-bottom: 1px solid var(--line); }
 .dec b { font-weight: 500; display: block; }
 .dec p { color: var(--text-2); margin-top: 2px; }
@@ -435,8 +450,11 @@ input[type=range]:focus-visible::-webkit-slider-thumb { outline: 2px solid var(-
   .cap-head .st { grid-row: 1; grid-column: 2; }
 }
 @media (max-width: 720px) {
-  .top__in { padding: 0 16px; gap: 8px; }
-  .nav { display: none; }
+  .top__in { padding: 0 16px; gap: 0 8px; height: auto; min-height: 52px; flex-wrap: wrap; }
+  .top__in > .mark { height: 52px; display: flex; align-items: center; }
+  .nav { order: 9; flex: 1 0 100%; margin: 0 -16px; padding: 0 12px 8px; }
+  .nav a { padding: 6px 8px; }
+  html { scroll-padding-top: 104px; }
   .mark span { display: none; }
   .wrap { padding: 0 16px; }
   .sec { padding-top: 64px; }
@@ -476,6 +494,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb { outline: 2px solid var(-
   .tk__in { grid-template-columns: minmax(0, 1fr); gap: 18px; padding-left: 28px; }
   .tk__row { grid-template-columns: 16px minmax(0, 1fr); }
   .tk__row .st { grid-column: 2; }
+  .tk__row .tk__dw { grid-column: 2; grid-row: 3; }
   .rail { grid-auto-flow: row; gap: 22px; }
   .rail::before { left: 6px; right: auto; top: 6px; bottom: 6px; width: 1px; height: auto; }
   .rail li { display: grid; grid-template-columns: 13px minmax(0, 1fr); gap: 0 14px; padding: 0; }
@@ -494,6 +513,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb { outline: 2px solid var(-
 </style>
 </head>
 <body>
+<a class="skip" id="skip" href="#main">Skip to the build</a>
 <header class="top">
   <div class="top__in">
     <div class="mark" id="mark"></div>
@@ -860,7 +880,7 @@ function control(id, opts) {
   var stops = x.stops || null, min = stops ? 0 : x.min || 0, max = stops ? stops.length - 1 : x.max == null ? 100 : x.max, step = stops ? 1 : x.step || 1;
   var big = opts.big;
   var val = h("b", { class: "tnum" });
-  if (big) add(wrap, h("div", { class: "dial__label" }, h("span", { id: lid, text: x.label })), h("div", { class: "dial__val tnum" }, val, x.unit ? h("small", { text: x.unit }) : null));
+  if (big) add(wrap, [h("div", { class: "dial__label" }, h("span", { id: lid, text: x.label })), h("div", { class: "dial__val tnum" }, val, x.unit ? h("small", { text: x.unit }) : null)]);
   else add(wrap, h("div", { class: "dial__label" }, h("span", { id: lid, text: x.label }), val));
   var r = h("input", { type: "range", min: min, max: max, step: step, "aria-labelledby": lid });
   r.addEventListener("input", function () { MODEL.set(id, stops ? stops[+r.value] : +r.value); });
@@ -929,6 +949,24 @@ function decidedBlock(list, all) {
   }
   return box;
 }
+/* under a section: one line. It jumps to the decided section when the book has one, or opens the records in place,
+   so a record is never shown twice on load. */
+function decidedLink(list) {
+  if (!list.length) return null;
+  var label = list.length === 1 ? "1 decision shaped this" : list.length + " decisions shaped this";
+  var decSec = SECS.filter(function (x) { return x.component === "decided"; })[0];
+  if (decSec) {
+    return h("p", { class: "declink" }, h("a", { class: "linkbtn", href: "#" + decSec.id, onclick: function () {
+      setTimeout(function () {
+        list.forEach(function (d) { var el = d.id && document.querySelector('#' + decSec.id + ' .dec[data-id="' + d.id + '"]'); if (el) { el.classList.add("flash"); setTimeout(function () { el.classList.remove("flash"); }, 1600); } });
+      }, calm() ? 0 : 350);
+    } }, label));
+  }
+  var box = h("div", { class: "decided", hidden: true }, list.map(decRow));
+  var btn = h("button", { type: "button", class: "linkbtn", "aria-expanded": "false" }, label);
+  btn.addEventListener("click", function () { var open = box.hidden; box.hidden = !open; btn.setAttribute("aria-expanded", String(open)); });
+  return h("div", { class: "declink" }, btn, box);
+}
 COMP.decided = function (stage) {
   if (!DECIDED.length) { add(stage, h("p", { class: "empty", text: "Nothing has been decided yet." })); return; }
   add(stage, decidedBlock(DECIDED, true));
@@ -945,26 +983,33 @@ function statusLine() {
     var pr = progress(), blk = blocking(), run = L.run || {}, stopped = [];
     TICKETS.forEach(function (t) { if (pstate(t.id) === "stopped") stopped.push(t); });
     var text, tone = "acc live";
-    if (blk) { text = "The build waits on one choice of yours."; tone = "warn"; }
+    if (blk) { text = "One choice is waiting for you."; tone = "warn"; }
     else if (run.note) text = run.note;
     else if (!hasBuild) text = B.now || "The plan is being written.";
     else if (pr.all) { text = "Every step is proven."; tone = "ok"; }
     else if (pr.done === 0 && !TICKETS.some(function (t) { return pstate(t.id) !== "waiting"; })) { text = "The build has not started."; tone = ""; }
-    else { var w = WAVES[pr.cur]; text = "Step " + (pr.cur + 1) + " of " + WAVES.length + ", " + w.name.toLowerCase() + ", is being built."; }
+    else { var w = WAVES[pr.cur]; text = w.name + ", step " + (pr.cur + 1) + " of " + WAVES.length + ", is being built."; }
     if (run.phase === "done" || FINISHED) tone = "ok";
     if (run.phase === "paused") tone = "warn";
     txt.textContent = text;
-    small.textContent = blk ? "" : stopped.length ? (stopped.length === 1 ? "One piece of work stopped: " + title(stopped[0]) + "." : stopped.length + " pieces of work stopped.") : "Nothing waits on you.";
+    var next = "";
+    if (hasBuild && !pr.all && !FINISHED) {
+      var started = TICKETS.some(function (t) { return pstate(t.id) !== "waiting"; });
+      if (!started) next = "First: " + WAVES[0].name + ".";
+      else if (pr.cur + 1 < WAVES.length) next = "Next: " + WAVES[pr.cur + 1].name + ".";
+      else if ((P.verification && (P.verification.checks || []).length)) next = "Next: the final checks.";
+    }
+    small.textContent = blk ? "" : stopped.length ? (stopped.length === 1 ? "One piece of work stopped: " + title(stopped[0]) + "." : stopped.length + " pieces of work stopped.") : next;
     if (blk) add(small, h("a", { class: "linkbtn", href: "#choice", text: "See the choice" }));
     dot.className = "dot " + (calm() ? tone.replace("live", "") : tone);
     $$("a", bar).forEach(function (a, i) { var x = pr.stats[i]; a.classList.toggle("cur", i === pr.cur && !pr.all); $("i", a).style.width = (x.n ? (x.done / x.n) * 100 : 0) + "%"; });
     var t = lastWrite(), active = ["building", "review", "fixing", "final", "ready"].indexOf(run.phase) >= 0;
     var beat = (+P.heartbeat_minutes || 180) * 60000;
     fresh.textContent = "";
-    if (L.demo) add(fresh, h("span", { class: "dot warn" }), "Sample data. ");
+    if (L.demo) add(fresh, [h("span", { class: "dot warn" }), "Sample data. "]);
     if (t) {
       var age = Date.now() - t;
-      if (active && age > beat) add(fresh, h("span", { class: "dot warn" }), "No update for " + ago(age).replace(" ago", ""));
+      if (active && age > beat) add(fresh, [h("span", { class: "dot warn" }), "No update for " + ago(age).replace(" ago", "")]);
       else add(fresh, "Updated " + ago(age));
     }
   }
@@ -1434,21 +1479,22 @@ COMP.cost = function (stage, d, sec, ctx) {
 function esc(x) { return String(x).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
 
 /* ---------- capability list: what it can do, and the state of each ---------- */
-var CAPST = { today: ["ok", "Works today"], building: ["acc", "Being built"], later: ["", "Later"] };
+var CAPST = { today: ["ok", "Works today"], building: ["acc", "Being built"], planned: ["", "Planned"], later: ["", "Later"] };
 function capState(it) {
-  if (it.ticket && T[it.ticket]) { var p = pstate(it.ticket); if (p === "proven") return "today"; if (p === "building" || p === "review") return "building"; if (it.state === "today") return "building"; }
+  if (it.ticket && T[it.ticket]) { var p = pstate(it.ticket); if (p === "proven") return "today"; if (p === "building" || p === "review") return "building"; if (it.state === "today") return "building"; if (it.state !== "later") return "planned"; }
   return CAPST[it.state] ? it.state : "later";
 }
 COMP.capabilities = function (stage, d) {
-  var items = (d.items || []).filter(function (x) { return x && x.name; }), filter = d.only || "all";
+  var items = (d.items || []).filter(function (x) { return x && x.name; }), filter = d.only || (FINISHED ? "today" : "all");
   var bar = h("div", { class: "caps__bar" }), list = h("div", { class: "caps" });
   add(stage, [d.only ? null : bar, list]);
   function render() {
     var have = {}; items.forEach(function (it) { have[capState(it)] = true; });
+    if (!d.only && filter !== "all" && !have[filter]) filter = "all";
     if (!d.only) {
       bar.textContent = "";
       var seg = h("div", { class: "seg", role: "group", "aria-label": "Show" });
-      [["all", "All"], ["today", "Works today"], ["building", "Being built"], ["later", "Later"]].forEach(function (f) {
+      [["all", "All"], ["today", "Works today"], ["building", "Being built"], ["planned", "Planned"], ["later", "Later"]].forEach(function (f) {
         if (f[0] !== "all" && !have[f[0]]) return;
         add(seg, h("button", { type: "button", "aria-pressed": String(filter === f[0]), onclick: function () { filter = f[0]; render(); } }, f[1]));
       });
@@ -1488,21 +1534,26 @@ COMP.risks = function (stage, d) {
     add(grid, h("div", { class: "rm__ax y", text: IM[y - 1] }));
     for (var x = 1; x <= 3; x++) { var c = h("div", { class: "rm__cell" }); cells[x + "," + y] = c; add(grid, c); }
   }
-  add(grid, h("div"), h("div", { class: "rm__axis" }, LK.map(function (l) { return h("span", { text: l }); })));
+  add(grid, [h("div"), h("div", { class: "rm__axis" }, LK.map(function (l) { return h("span", { text: l }); }))]);
   var dots = [], rows = [];
   function hl(i) { dots.forEach(function (dd, k) { dd.classList.toggle("hl", k === i); }); rows.forEach(function (r, k) { r.classList.toggle("hl", k === i); }); }
   risks.forEach(function (r, i) {
     var lx = Math.max(1, Math.min(3, r.likelihood || 2)), iy = Math.max(1, Math.min(3, r.impact || 2)), cv = COVER[r.covered] || COVER.partly;
     var dot = h("button", { type: "button", class: "rm__dot", text: i + 1, "aria-label": (i + 1) + ". " + r.name + ". " + LK[lx - 1] + ", " + IM[iy - 1].toLowerCase() + ". " + cv[1] + "." });
     dot.addEventListener("mouseenter", function () { hl(i); }); dot.addEventListener("focus", function () { hl(i); });
-    dot.addEventListener("click", function () { hl(i); rows[i].scrollIntoView({ block: "nearest", behavior: calm() ? "auto" : "smooth" }); });
+    dot.addEventListener("click", function () { hl(i); openRow(i); rows[i].scrollIntoView({ block: "nearest", behavior: calm() ? "auto" : "smooth" }); });
     add(cells[lx + "," + iy], dot); dots.push(dot);
-    var li = h("li", { tabindex: "0", "data-id": r.id || r.ticket || null }, h("span", { class: "rn", text: i + 1 }), h("b", {}, r.name, idTag(r.id)), stateEl(cv[0], cv[1]), h("p", { text: r.then || "" }));
-    if (r.ticket && T[r.ticket]) add(li, h("p", {}, h("button", { type: "button", class: "linkbtn", text: "Covered by: " + title(T[r.ticket]), onclick: function () { openTicket(r.ticket); } })));
-    li.addEventListener("mouseenter", function () { hl(i); }); li.addEventListener("focus", function () { hl(i); });
+    var more = h("div", { class: "rl__more", id: "rk-" + (r.id || i) + "-" + Math.random().toString(36).slice(2, 6) }, h("p", { text: r.then || "" }),
+      r.ticket && T[r.ticket] ? h("p", {}, h("button", { type: "button", class: "linkbtn", text: "Covered by: " + title(T[r.ticket]), onclick: function () { openTicket(r.ticket); } })) : null);
+    var head = h("button", { type: "button", class: "rl__head", "aria-expanded": "false", "aria-controls": more.id, onclick: function () { openRow(i); } },
+      h("span", { class: "rn", text: i + 1 }), h("b", {}, r.name, idTag(r.id)), stateEl(cv[0], cv[1]));
+    var li = h("li", { "data-id": r.id || r.ticket || null }, head, more);
+    li.addEventListener("mouseenter", function () { hl(i); }); head.addEventListener("focus", function () { hl(i); });
     add(list, li); rows.push(li);
   });
-  add(stage, h("div", { class: "risk" }, h("div", {}, grid, h("p", { class: "rm__cap", text: "Across: how likely. Up: how bad." })), list));
+  function openRow(i) { rows.forEach(function (r, k) { var on = k === i; $(".rl__more", r).hidden = !on; $(".rl__head", r).setAttribute("aria-expanded", String(on)); r.classList.toggle("open", on); }); }
+  if (rows.length) openRow(0);
+  add(stage, h("div", { class: "risk" }, h("div", {}, grid), list));
 };
 
 /* ---------- roadmap rail: what comes after, and what starts it ---------- */
@@ -1543,6 +1594,17 @@ function proofStrip(t, stt) {
   if (stt.at || stt.sha) add(box, h("p", { class: "proof-when" }, stt.at ? "Proven " + ago(Date.now() - Date.parse(stt.at)) : "", h("span", { class: "agent-only mono", text: stt.sha ? "  commit " + String(stt.sha).slice(0, 10) : "" })));
   return box;
 }
+/* final checks: what is checked once at the end, with its live result */
+var CHECKS = ((P.verification && P.verification.checks) || []).filter(function (c) { return c && c.id && c.title; });
+var CHKST = { pass: ["ok", "Passed"], fail: ["err", "Failed"], skipped: ["warn", "Skipped"] };
+function checkState(c) { var s = (L.status["check-" + c.id] || {}).state; return CHKST[s] || ["", "Not run yet"]; }
+function checkList(list) {
+  return h("ul", { class: "chk" }, list.map(function (c) {
+    var st = checkState(c);
+    return h("li", { class: st[0] === "ok" ? "ok" : "", "data-id": "check-" + c.id }, h("span", { class: "dot " + st[0] }),
+      h("span", {}, h("b", { text: c.title, class: "chk__t" }), idTag(c.id), " ", h("span", { class: "chk__st", text: st[1] }), c.pass ? h("small", { class: "chk__pass", text: "Passes when: " + c.pass }) : null));
+  }));
+}
 function ticketCard(t, w) {
   var p = pstate(t.id), ps = PERSON[p], open = BUILDUI.open === t.id, stt = L.status[t.id] || {};
   var checks = Array.isArray(stt.checks) ? stt.checks : null, n = (t.done_when || []).length;
@@ -1562,9 +1624,11 @@ function ticketCard(t, w) {
       h("div", {}, n ? [h("h4", { text: "Done when" }), h("ul", { class: "chk" }, t.done_when.map(function (c, i) {
         var ok = checks ? !!checks[i] : p === "proven";
         return h("li", { class: ok ? "ok" : "" }, h("span", { class: "dot " + (ok ? "ok" : "") }), h("span", {}, c, h("span", { class: "sr", text: ok ? ", passed" : ", not yet" })));
-      }))] : null, proofStrip(t, stt)))));
+      }))] : null, proofStrip(t, stt),
+      (function () { var mine = CHECKS.filter(function (c) { return (c.tickets || []).indexOf(t.id) >= 0; }); return mine.length ? [h("h4", { text: "Checked again at the end" }), checkList(mine)] : null; })()))));
   var row = h("button", { type: "button", class: "tk__row", "aria-expanded": String(open), "aria-controls": "b-" + t.id },
-    svgIcon(ICON.chev), h("span", { class: "tk__title" }, title(t), idTag(t.id)), stateEl(ps[0], ps[1]));
+    svgIcon(ICON.chev), h("span", { class: "tk__title" }, title(t), idTag(t.id)),
+    n ? h("span", { class: "tk__dw", text: (checks ? checks.filter(Boolean).length : p === "proven" ? n : 0) + " of " + n + " done" }) : null, stateEl(ps[0], ps[1]));
   var el = h("div", { class: "tk" + (open ? " open" : "") + (p === "stopped" ? " stopped" : ""), "data-id": t.id }, row, body);
   row.addEventListener("click", function () {
     var was = BUILDUI.open === t.id;
@@ -1584,7 +1648,13 @@ COMP.build = function (stage, d, sec) {
       h("b", {}, (w.i + 1) + ". " + w.name, idTag(w.id)), h("span", { class: "what", text: w.what }), h("span", { class: "st" }));
     add(track, b);
   });
-  add(stage, [track, detail, live]);
+  var proofBox = null, proofBtn = null;
+  if (CHECKS.length) {
+    proofBox = h("div", { class: "proofall", hidden: true, id: "proof-" + sec.id });
+    proofBtn = h("button", { type: "button", class: "linkbtn", "aria-expanded": "false", "aria-controls": proofBox.id });
+    proofBtn.addEventListener("click", function () { var open = proofBox.hidden; proofBox.hidden = !open; proofBtn.setAttribute("aria-expanded", String(open)); });
+  }
+  add(stage, [track, proofBtn ? h("div", { class: "proofrow" }, proofBtn, proofBox) : null, detail, live]);
   if (L.demo || BUILD.preview) {
     var sim = h("button", { class: "btn", type: "button", text: "Simulate a piece finishing" });
     sim.addEventListener("click", function () {
@@ -1616,6 +1686,11 @@ COMP.build = function (stage, d, sec) {
       if (prevDone[i] != null && prevDone[i] !== x.done) live.textContent = "Step " + (i + 1) + ": " + x.done + " of " + x.n + " proven.";
       prevDone[i] = x.done;
     });
+    if (proofBtn) {
+      var passed = CHECKS.filter(function (c) { return (L.status["check-" + c.id] || {}).state === "pass"; }).length;
+      proofBtn.textContent = "How it is proven at the end: " + CHECKS.length + (CHECKS.length === 1 ? " final check, " : " final checks, ") + passed + " passed";
+      proofBox.textContent = ""; add(proofBox, checkList(CHECKS));
+    }
     var w = WAVES[BUILDUI.sel], x = pr.stats[BUILDUI.sel];
     detail.textContent = "";
     add(detail, h("div", { class: "wdetail__head" }, h("h3", { text: (BUILDUI.sel + 1) + ". " + w.name }), h("p", { text: x.done + " of " + x.n + " proven. " + w.what })));
@@ -1763,14 +1838,15 @@ function renderSection(sec) {
   } catch (e) { console.error("section " + sec.id, e); add(stage, h("p", { class: "empty", text: "This figure could not be drawn." })); }
   var foot = h("div", { class: "secfoot" }, numbersTable(d.table || sec.table), evidence(sec.source));
   if (foot.childNodes.length) add(el, foot);
-  if (comp !== "decided") add(el, decidedBlock(DECIDED.filter(function (x) { return x.section === sec.id; })));
+  if (comp !== "decided") add(el, decidedLink(DECIDED.filter(function (x) { return x.section === sec.id; })));
   return el;
 }
 function shell() {
   var mark = $("#mark");
   add(mark, [B.title || "Book", B.subtitle ? h("span", { text: B.subtitle }) : null]);
   document.title = B.title || "Book";
-  var nav = $("#nav"), groups = {}, n = 0;
+  var nav = $("#nav"), groups = {}, n = 0, bsec = SECS.filter(function (x) { return x.component === "build"; })[0];
+  if (bsec) $("#skip").setAttribute("href", "#" + bsec.id); else $("#skip").textContent = "Skip to the content";
   SECS.forEach(function (x) {
     if (x.component === "story" || x.nav === false || n >= 6) return;
     var key = x.label || x.id;
