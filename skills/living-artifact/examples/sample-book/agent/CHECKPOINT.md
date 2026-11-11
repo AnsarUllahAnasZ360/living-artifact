@@ -1,18 +1,17 @@
-# Run ledger: Invoice Export
+# Run ledger: Invoice export
 
 ## Now
 
-- Round 3, wave 2 building. Branch invoice-export-r3, draft PR #214.
-- Head 4e1c9a2. Wave 1 merged at 9b03f11 after gate, two reviews and spot check.
+- Round 3, step 2 (Files) building. PR export-jobs is open on develop; csv-export is being built on top of it.
+- Head 4e1c9a2.
 
 ## Rulings
 
-- 28 Oct: csv-default kept (one row per invoice). Line items become a preset.
-- 28 Oct: send-day changed to "a day the owner picks". schedule-settings gains one field, same wave.
-- dialog-placement not opened. export-dialog-ui is blocked until it is answered. Asked in chat 29 Oct 14:10.
+- 27 Oct, model: files kept for 30 days (recorded in decided).
+- 28 Oct, Maya in chat: the owner picks the send day (recorded in decided).
 
 ## Next step
 
-1. Finish csv-mapping-presets and pdf-render-worker, run the wave 2 gate.
-2. Unblock export-dialog-ui as soon as dialog-placement is answered.
-3. Start wave 3 only after the gate and both reviews pass.
+1. Finish csv-quickbooks review and export-button.
+2. Open csv-export on top of export-jobs.
+3. Start step 3 only after both pass.

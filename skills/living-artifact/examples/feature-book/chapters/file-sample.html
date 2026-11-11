@@ -1,0 +1,41 @@
+<style>
+.pv__bar { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+.pv__note { font-size: 13px; color: var(--text-2); }
+.pv__steps { margin-top: 40px; }
+</style>
+<div class="pv">
+  <div class="pv__bar"><div class="seg" role="group" aria-label="Accounting tool" data-pv-tools></div><span class="pv__note" data-pv-note aria-live="polite"></span></div>
+  <div class="tblwrap"><table class="tbl" data-pv-table></table></div>
+  <div class="pv__steps" data-pv-steps></div>
+</div>
+<script>
+// A chapter is a custom explorable section. It draws its own small figure with api.h,
+// and mounts catalog components with api.mount instead of drawing them again.
+var TOOLS = {
+  xero: { name: "Xero", note: "18 columns. Dates as day, month, year.", cols: ["ContactName", "InvoiceNumber", "InvoiceDate", "DueDate", "Total"],
+    rows: [["Harbor Plumbing", "INV-1042", "03/10/2026", "17/10/2026", "412.50"], ["Ridge Electric", "INV-1043", "04/10/2026", "18/10/2026", "1,280.00"]] },
+  quickbooks: { name: "QuickBooks", note: "14 columns. One row per line item.", cols: ["Customer", "InvoiceNo", "InvoiceDate", "Item", "Amount"],
+    rows: [["Harbor Plumbing", "1042", "10/03/2026", "Call-out", "120.00"], ["Harbor Plumbing", "1042", "10/03/2026", "Parts", "292.50"]] },
+  sheet: { name: "Spreadsheet", note: "Plain columns for any other tool.", cols: ["Customer", "Invoice", "Date", "Total"],
+    rows: [["Harbor Plumbing", "1042", "2026-10-03", "412.50"], ["Ridge Electric", "1043", "2026-10-04", "1280.00"]] }
+};
+var pick = "xero";
+var seg = root.querySelector("[data-pv-tools]"), table = root.querySelector("[data-pv-table]"), note = root.querySelector("[data-pv-note]");
+Object.keys(TOOLS).forEach(function (k) {
+  seg.appendChild(api.h("button", { type: "button", "aria-pressed": String(k === pick), onclick: function () { pick = k; draw(); } }, TOOLS[k].name));
+});
+function draw() {
+  var t = TOOLS[pick];
+  Array.prototype.forEach.call(seg.children, function (b, i) { b.setAttribute("aria-pressed", String(Object.keys(TOOLS)[i] === pick)); });
+  table.textContent = "";
+  table.appendChild(api.h("thead", {}, api.h("tr", {}, t.cols.map(function (c) { return api.h("th", { class: "mono", text: c }); }))));
+  table.appendChild(api.h("tbody", {}, t.rows.map(function (r) { return api.h("tr", {}, r.map(function (v) { return api.h("td", { class: "mono", text: v }); })); })));
+  note.textContent = t.note;
+}
+draw();
+api.mount(root.querySelector("[data-pv-steps]"), "steps", { steps: [
+  { title: "Read the invoice", text: "One page of 500 invoices at a time, for one customer only." },
+  { title: "Map the columns", text: "Our fields go into the tool's own column names and date order." },
+  { title: "Write the row", text: "Rows are added to the file and the page is marked done." }
+] });
+</script>

@@ -1,5 +1,7 @@
 # Plugin research for living-artifact
 
+> Note, November 2026: the advice below to keep a "Needs you" list and decision cards on the page was superseded. Questions now go to the chat and the book records what was decided (`references/method.md`).
+
 Sources read on 29 Oct 2026:
 
 - **html-plan** 1.0.0 (claude-community marketplace), installed at `~/.claude/plugins/cache/claude-community/html-plan/1.0.0/`. Read: README, plugin.json, `skills/html-plan/SKILL.md`, `references/blocks.md`, `examples/scheduled-send.html`, and the structure of `runtime/pack.mjs` and `runtime/htmlplan.js`.

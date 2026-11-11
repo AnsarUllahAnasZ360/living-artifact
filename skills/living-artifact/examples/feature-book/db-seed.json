@@ -1,0 +1,9 @@
+{
+  "_note": "Sample live state for previews only (build.mjs --demo ... --preview). Times may be written as now, now-5m, now-3h or now-2d.",
+  "status": {
+    "send-settings": { "state": "built", "checks": [true, true], "lines": ["next send   31 Oct, shown on the card", "test email   arrived after 12 s"], "sha": "5c1e0d7a21", "at": "now-1d" },
+    "send-job": { "state": "doing", "at": "now-12m" }
+  },
+  "run": { "current": { "wave": 2, "phase": "building", "note": "", "at": "now-12m" } },
+  "log": {}
+}
