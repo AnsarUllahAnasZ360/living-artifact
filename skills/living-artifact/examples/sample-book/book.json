@@ -48,21 +48,21 @@
       "lead": "Follow one export through the parts. Then switch the story and watch a worker stop halfway.",
       "data": {
         "nodes": [
-          { "id": "person", "name": "Bookkeeper", "does": "Asks for a month", "wide": [8, 44, 124, 56], "tall": [104, 8, 150, 54] },
-          { "id": "button", "name": "Export button", "does": "Checks and accepts", "wide": [160, 44, 124, 56], "tall": [104, 96, 150, 54] },
-          { "id": "queue", "name": "Job list", "does": "Exports not started", "wide": [312, 44, 124, 56], "tall": [104, 184, 150, 54] },
-          { "id": "workers", "name": "Export workers", "zone": true, "wide": [464, 8, 156, 122], "tall": [92, 272, 174, 122] },
-          { "id": "wa", "name": "Worker A", "dot": true, "wide": [476, 36, 132, 38], "tall": [104, 300, 150, 38] },
-          { "id": "wb", "name": "Worker B", "dot": true, "wide": [476, 82, 132, 38], "tall": [104, 346, 150, 38] },
-          { "id": "files", "name": "File store", "does": "Keeps 30 days", "wide": [652, 44, 120, 56], "tall": [192, 442, 156, 54] },
-          { "id": "invoices", "name": "Invoices", "does": "Read, never changed", "wide": [476, 178, 132, 56], "tall": [10, 442, 156, 54] }
+          { "id": "person", "name": "Bookkeeper", "does": "Asks for a month", "wide": [8, 44, 136, 56], "tall": [104, 8, 150, 54] },
+          { "id": "button", "name": "Export button", "does": "Checks and accepts", "wide": [172, 44, 136, 56], "tall": [104, 96, 150, 54] },
+          { "id": "queue", "name": "Job list", "does": "Exports not started", "wide": [336, 44, 136, 56], "tall": [104, 184, 150, 54] },
+          { "id": "workers", "name": "Export workers", "zone": true, "wide": [500, 8, 156, 122], "tall": [92, 272, 174, 122] },
+          { "id": "wa", "name": "Worker A", "dot": true, "wide": [512, 36, 132, 38], "tall": [104, 300, 150, 38] },
+          { "id": "wb", "name": "Worker B", "dot": true, "wide": [512, 82, 132, 38], "tall": [104, 346, 150, 38] },
+          { "id": "files", "name": "File store", "does": "Keeps 30 days", "wide": [688, 44, 128, 56], "tall": [192, 442, 156, 54] },
+          { "id": "invoices", "name": "Invoices", "does": "Read, never changed", "wide": [504, 178, 148, 56], "tall": [10, 442, 156, 54] }
         ],
         "edges": [
-          { "id": "ask", "from": "person", "to": "button", "verb": "asks", "wide": "M132 72H160", "tall": "M179 62V96" },
-          { "id": "save", "from": "button", "to": "queue", "verb": "saves the job", "wide": "M284 72H312", "tall": "M179 150V184" },
-          { "id": "take", "from": "queue", "to": "workers", "verb": "hands out", "wide": "M436 72H464", "tall": "M179 238V272" },
-          { "id": "write", "from": "workers", "to": "files", "verb": "writes the file", "wide": "M620 72H652", "tall": "M214 394V418H270V442" },
-          { "id": "read", "from": "workers", "to": "invoices", "verb": "reads pages", "wide": "M542 130V178", "tall": "M144 394V418H88V442" }
+          { "id": "ask", "from": "person", "to": "button", "verb": "asks", "wide": "M144 72H172", "tall": "M179 62V96" },
+          { "id": "save", "from": "button", "to": "queue", "verb": "saves the job", "wide": "M308 72H336", "tall": "M179 150V184" },
+          { "id": "take", "from": "queue", "to": "workers", "verb": "hands out", "wide": "M472 72H500", "tall": "M179 238V272" },
+          { "id": "write", "from": "workers", "to": "files", "verb": "writes the file", "wide": "M656 72H688", "tall": "M214 394V418H270V442" },
+          { "id": "read", "from": "workers", "to": "invoices", "verb": "reads pages", "wide": "M578 130V178", "tall": "M144 394V418H88V442" }
         ],
         "stories": [
           { "id": "normal", "name": "A normal export", "steps": [

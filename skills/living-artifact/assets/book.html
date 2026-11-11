@@ -346,7 +346,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb { outline: 2px solid var(-
 /* ---------- build: wave timeline and work cards ---------- */
 .waves { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); position: relative; }
 .waves::before { content: ""; position: absolute; left: 20px; right: 20px; top: 20px; height: 1px; background: var(--line-strong); }
-.wave { position: relative; padding: 0 16px 16px 0; border-radius: var(--r); display: block; width: 100%; }
+.wave { position: relative; padding: 0 16px 16px 0; border-radius: var(--r); display: flex; flex-direction: column; justify-content: flex-start; width: 100%; }
 .wave .ring { display: block; background: var(--bg); position: relative; width: 40px; height: 40px; border-radius: 50%; }
 .ring svg { width: 40px; height: 40px; transform: rotate(-90deg); }
 .ring .trk { fill: none; stroke: var(--line-strong); stroke-width: 2.5; }
@@ -466,7 +466,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb { outline: 2px solid var(-
   .unit > div:nth-child(2) { grid-column: 1 / -1; grid-row: 2; }
   .waves { grid-auto-flow: row; }
   .waves::before { left: 20px; right: auto; top: 20px; bottom: 40px; width: 1px; height: auto; }
-  .wave { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 0 14px; padding: 0 0 22px; }
+  .wave { display: grid; grid-template-columns: 40px minmax(0, 1fr); align-content: start; gap: 0 14px; padding: 0 0 22px; }
   .wave .ring { grid-row: span 3; }
   .wave > b { margin-top: 0; }
   .wave .what { max-width: none; }
@@ -1103,7 +1103,7 @@ COMP.map = function (stage, d, sec) {
     add(gT, [s("circle", { r: 9, class: "tok-h", opacity: 0 }), s("circle", { r: 4.5, class: "tok", opacity: 0 })]);
     /* a label never spills out of its box: shrink it to fit, never below 11.5 px */
     nodes.forEach(function (n) {
-      var b = boxOf(n, layout), g = $('[data-n="' + n.id + '"]', host), room = b[2] - (n.dot ? 60 : 22);
+      var b = boxOf(n, layout), g = $('[data-n="' + n.id + '"]', host), room = b[2] - (n.dot ? 60 : 28);
       $$("text.n-t, text.n-s", g).forEach(function (tx) {
         var w = tx.getComputedTextLength ? tx.getComputedTextLength() : 0, fs = parseFloat(getComputedStyle(tx).fontSize) || 13;
         if (w > room && w > 0) tx.style.fontSize = Math.max(11.5, fs * room / w) + "px";
