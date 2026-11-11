@@ -46,6 +46,8 @@ const headerCheck = () => {
     if (r.right > innerWidth + 1 || r.left < -1) out.push(`header item "${(el.textContent || el.getAttribute("aria-label") || el.tagName).trim().slice(0, 30)}" is outside the window`);
     if (el.children.length === 0 && el.scrollWidth > el.clientWidth + 1 && cs.overflow !== "visible") out.push(`header text "${el.textContent.trim().slice(0, 30)}" is cut off`);
   });
+  const t = document.querySelector(".mark b"), mk = document.querySelector(".mark");
+  if (t) { const r = t.getBoundingClientRect(), m = mk.getBoundingClientRect(); if (r.right > m.right + 1 || r.bottom > m.bottom + 1 || r.top < m.top - 1) out.push(`the title "${t.textContent.slice(0, 30)}" is cut off`); }
   const mode = document.querySelector('button[data-mode="agent"]'), mr = mode.getBoundingClientRect();
   if (!mr.width || mr.right > innerWidth) out.push("the Human and Agent switch is not visible");
   if (document.documentElement.scrollWidth > innerWidth + 1) out.push(`the page scrolls sideways (${document.documentElement.scrollWidth} > ${innerWidth})`);

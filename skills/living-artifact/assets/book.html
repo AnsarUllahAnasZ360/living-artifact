@@ -714,7 +714,8 @@ table.atbl { border-collapse: collapse; font-size: 11.5px; min-width: 100%; }
 }
 @media (max-width: 720px) {
   .top__in { padding: 0 10px 0 14px; gap: 6px; }
-  .topstate, .mark span, .links__lbl { display: none; }
+  .topstate, .mark span, .links__lbl, #digest { display: none !important; }
+  .mark b { flex: 0 1 auto; min-width: 0; white-space: normal; font-size: 13.5px; line-height: 16px; overflow-wrap: anywhere; }
   .startstrip { grid-template-columns: minmax(0, 1fr); }
   .wrap { padding: 0 16px; }
   .sec { padding-top: 64px; }
@@ -2063,6 +2064,8 @@ function srcLink(src) {
 }
 
 /* ================= depth: the second layer, for people ================= */
+/* page-only links (elements, loaders) are hidden from JSON, so book.json, the digest and copies stay clean */
+function hide(o, k, v) { Object.defineProperty(o, k, { value: v, writable: true, configurable: true, enumerable: false }); }
 function cellEl(v, num) {
   if (v && typeof v === "object") {
     if (v.url) return h("td", {}, h("a", { href: v.url, target: "_blank", rel: "noopener", text: v.label || v.url }));
@@ -2172,7 +2175,7 @@ function blockBody(b) {
     var o = h("pre", { class: "pre", tabindex: "0", text: "Opens when this row opens." });
     out.push(h("div", { class: "codebox" }, o, h("button", { type: "button", class: "btn", text: "Copy", onclick: function () { copy(o.textContent); } })));
     if (d.note) out.push(h("p", { class: "fine", text: d.note }));
-    b._load = function () { if (!b._loaded) { b._loaded = true; loadFile(d.path, o); } };
+    hide(b, "_load", function () { if (!b._loaded) { hide(b, "_loaded", true); loadFile(d.path, o); } });
   }
   if (b.source) out.push(h("p", {}, srcLink(b.source)));
   return out;
@@ -2202,7 +2205,7 @@ function depthEl(sec, blocks) {
     if (b.kind !== "file") fill2();
     det.addEventListener("toggle", function () { fill2(); if (det.open && b._load) b._load(); });
     add(det, body);
-    b.el = det; b.sec = sec;
+    hide(b, "el", det); hide(b, "sec", sec);
     DEPTH_ALL.push(b);
     add(box, det);
   });
@@ -2632,7 +2635,7 @@ var AGENT_START = (INDEX && INDEX.start_here) || B.agent_start || "agent/book.js
 function renderSection(sec) {
   var comp = sec.component || "chapter", d = sec.data || {}, isStory = comp === "story";
   var el = h("section", { class: "sec" + (isStory ? " hero" : "") + (isStory && d.figure ? " hero--fig" : ""), id: sec.id, "aria-labelledby": "h-" + sec.id, "data-component": comp });
-  sec.el = el;
+  hide(sec, "el", el);
   var head = isStory ? h("h1", { id: "h-" + sec.id }) : h("h2", { id: "h-" + sec.id });
   var lead = sec.lead ? h("p", { class: "lead" }) : null;
   add(el, h("p", { class: "eyebrow", text: isStory ? sec.label || B.kind || "" : sec.label || sec.nav || "" }));
