@@ -6,10 +6,10 @@ The run is a fresh chat opened in the repo, started by the kickoff. Work lands a
 
 1. `Artifact read` the book URL. Restore the working copy if this machine lacks it: `Artifact read` with `paths` for every `book.files` entry into `<repo>/docs/<book-id>/book/`.
 2. Read `agent/CHECKPOINT.md` (where the last session stopped), `agent/ASK.md`, and the research files the tickets cite.
-3. ArtifactData `list` on `decisions`, `feedback`, `gates`, `status`, `run`. A decision with no document is not opened. Use its recommendation only when it blocks nothing in the next wave and its recommended option changes nothing outside the branches (repository settings, a release, money spent, data outside the local stack); otherwise ask once in chat and wait.
+3. ArtifactData `list` on `status`, `run` and `log`. Read `decided` and the chat. Decide what is still open and record it (`method.md`); ask in chat only for a choice that is the person's and blocks the work. An action outside the branches (repository settings, a release, money spent, data outside the local stack) needs a yes in chat or in the book.
 4. Read the repo's CLAUDE.md. Find the one local stack the book names and who owns its processes; start it if it is down, and never start a second copy on other ports.
-5. Before wave 1, and after any long pause, probe every `plan.verification.ready` item and write `status/ready-<id>` (`{ state: ok | missing, note, at }`). Supply what the agent can. An item only a person can supply or confirm (an approval inside an app, a setting only they can change) is asked once in chat before the run starts, never found missing overnight; a missing one goes to Needs you and stops the run.
-6. Write `run/current` (the real phase) and a `log` row of kind `start`.
+5. Before wave 1, and after any long pause, probe every `plan.verification.ready` item and write `status/ready-<id>` (`{ state: ok | missing, note, at }`). Supply what the agent can. An item only a person can supply or confirm (an approval inside an app, a setting only they can change) is asked once in chat before the run starts, never found missing overnight. A missing one stops the run: write `run/blocking` so the status line says what waits, and say it in chat.
+6. Write `run/current` (the real phase, and `note` as one plain sentence with no ids: it is the status line) and a `log` row of kind `start`.
 
 ## Branches and pull requests
 
@@ -183,10 +183,10 @@ return { tip, prs: lanes.filter(Boolean).map((l) => ({ pr: l.pr.id, opened: l.op
 ## After each wave (the lead)
 
 1. Read each PR's checks, body and screenshots yourself. Green counts only if you see it. A screenshot that does not show its claim means not done.
-2. Write with one ArtifactData `batch`: `status/<ticket>` for every ticket (`built` once proven and reviewed, `blocked` with the reason when dropped; `done` waits for its final check), `status/pr-<id>` for every PR (state, number, url, base, sha, checks), `run/current`, and `log` rows for review, fix, proof, open and drop.
-3. Put each opened PR in Needs you as `info` with its link and its place in the stack, and open any `hotfix` PR the wave's PRs name. Answer any feedback the wave addressed (`resolved`, `answer`).
+2. Write with one ArtifactData `batch`: `status/<ticket>` for every ticket (`built` once proven and reviewed, `blocked` with the reason when dropped; `done` waits for its final check), with `checks` (one boolean per done-when), up to four `lines` of real output, `proof` images and `sha`; `status/pr-<id>` for every PR (state, number, url, base, sha, checks); `run/current` with a plain `note`; and `log` rows for review, fix, proof, open and drop. Write `doing` when a ticket starts and `review` when it is being reviewed, so the page shows the work moving.
+3. Open any `hotfix` PR the wave's PRs name. Tell the person in chat which PRs opened, in stack order, with links.
 4. Append to `agent/CHECKPOINT.md`: what opened, what was dropped and why, rulings, next step. Copy proof images into the book, rebuild, republish.
-5. Read `feedback` and `decisions` again before the next wave. Pass the returned `tip` and every dropped ticket in `dropped`. If the person merged PRs meanwhile, the stack's bottom moved to the development branch; if the tip itself merged and its branch is gone, pass the development branch as `tip`.
+5. Read the chat and `decided` again before the next wave; record new answers in `decided` and clear `run/blocking` once answered. Pass the returned `tip` and every dropped ticket in `dropped`. If the person merged PRs meanwhile, the stack's bottom moved to the development branch; if the tip itself merged and its branch is gone, pass the development branch as `tip`.
 
 ## After the last wave: the final pass
 
@@ -246,7 +246,7 @@ return { commit: fresh.note, results }
 
 ## Stop rules (ask the user only when)
 
-- A decision that blocks the next wave is unopened.
+- A choice only the person can make blocks the next wave and they have not answered in chat. Write `run/blocking` and go on with any work it does not block.
 - The local stack cannot be made healthy after two tries, or a `ready` item a person must supply is missing or unconfirmed.
 - Real data shows the plan is wrong.
 - An action needs a yes the book does not already give (deleting real data, a cloud migration, a production release, anything outward-facing).
