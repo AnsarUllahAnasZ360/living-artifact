@@ -131,6 +131,18 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 .hero h1 { font: 600 52px/1.05 var(--font-display); letter-spacing: -.035em; max-width: 15em; text-wrap: balance; }
 .hero .lead { font-size: 18px; line-height: 28px; max-width: 34em; margin-top: 20px; }
 .hero .stage { margin-top: 0; }
+.hero--fig { position: relative; }
+.story__fig { display: none; }
+@media (min-width: 1240px) {
+  .hero--fig { display: grid; grid-template-columns: minmax(0, 1fr) 300px; column-gap: 56px; align-content: start; }
+  .hero--fig > * { grid-column: 1; }
+  .hero--fig > .now, .hero--fig > .result, .hero--fig > .secfoot, .hero--fig > .declink { grid-column: 1 / -1; }
+  .story__fig { display: block; grid-column: 2 !important; grid-row: 1 / span 4; align-self: start; }
+  .story__fig .flow { display: block; }
+  .story__fig .flow__bar, .story__fig .steps, .story__fig .cap, .story__fig .seg, .story__fig .sr, .story__fig .decided { display: none; }
+  .story__fig .flow__map { padding: 12px; margin: 0; }
+  .story__fig .linkbtn { display: inline-block; margin-top: 10px; font-size: 13px; }
+}
 .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; margin-top: 48px; max-width: 880px; }
 .stat b { display: block; font: 500 32px/1.15 var(--font-display); letter-spacing: -.025em; font-variant-numeric: tabular-nums; }
 .stat > span { display: block; margin-top: 6px; color: var(--text-2); font-size: 14px; }
@@ -1034,10 +1046,19 @@ COMP.story = function (stage, d, sec) {
     });
     add(stage, stats);
   }
-  add(stage, statusLine());
+  var fromSec = d.figure && d.figure.from, outer = fromSec ? sec.el : stage;
+  add(outer, statusLine());
+  /* optional picture: a still, small copy of another section's figure, beside the claim on wide screens */
+  var from = d.figure && d.figure.from && SECS.filter(function (x) { return x.id === d.figure.from; })[0];
+  if (from && COMP[from.component] && from.component !== "story" && from.component !== "chapter") {
+    var box = h("div", { class: "story__fig__in", inert: "", "aria-hidden": "true" });
+    var fig = h("div", { class: "story__fig", "data-from": from.component }, box, h("a", { class: "linkbtn", href: "#" + from.id, text: "See " + (from.label || "how it works").toLowerCase() }));
+    sec.el.insertBefore(fig, sec.el.firstChild);
+    try { COMP[from.component](box, from.data || {}, { id: from.id + "-mini", data: from.data || {} }, {}); } catch (e) { fig.remove(); }
+  }
   if (FINISHED) {
     var R = B.report || {}, works = R.works_now || [], open = R.not_proven || [];
-    if (works.length || open.length) add(stage, h("div", { class: "result" },
+    if (works.length || open.length) add(outer, h("div", { class: "result" },
       h("div", {}, h("h3", { text: "Works now" }), h("ul", { class: "ticks-list" }, works.map(function (x) { return h("li", { class: "ok" }, h("span", { class: "dot ok" }), x); }))),
       h("div", {}, h("h3", { text: "Not proven yet" }), open.length ? h("ul", { class: "ticks-list" }, open.map(function (x) { return h("li", {}, h("span", { class: "dot" }), x); })) : h("p", { class: "empty", text: "Nothing. Every promise has its proof." }))));
   }
@@ -1813,7 +1834,8 @@ function referenceSection() {
 var main = $("#main"), refSec = null;
 function renderSection(sec) {
   var comp = sec.component || "chapter", d = sec.data || {}, isStory = comp === "story";
-  var el = h("section", { class: "sec" + (isStory ? " hero" : ""), id: sec.id, "aria-labelledby": "h-" + sec.id, "data-component": comp });
+  var el = h("section", { class: "sec" + (isStory ? " hero" : "") + (isStory && d.figure ? " hero--fig" : ""), id: sec.id, "aria-labelledby": "h-" + sec.id, "data-component": comp });
+  sec.el = el;
   var head = isStory ? h("h1", { id: "h-" + sec.id }) : h("h2", { id: "h-" + sec.id });
   var lead = sec.lead ? h("p", { class: "lead" }) : null;
   var eyebrowText = isStory ? sec.label || B.kind || "" : sec.label || "";

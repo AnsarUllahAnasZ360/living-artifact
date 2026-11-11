@@ -15,6 +15,7 @@
       "claim": "Bookkeepers get every invoice out in one click, in their tool's format.",
       "lead": "Today a bookkeeper copies each invoice by hand at month end, which takes about three hours. We are adding one export button that builds the file in the background and can send it every month.",
       "data": {
+        "figure": { "from": "how" },
         "numbers": [
           { "value": "3 hours", "label": "saved per bookkeeper each month", "certainty": "estimated", "source": "agent/research/formats.md" },
           { "value": "Under 1 minute", "label": "for a month of 5,000 invoices", "certainty": "designed" },
