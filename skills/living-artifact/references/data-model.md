@@ -63,7 +63,7 @@ Surface text is plain words for a stranger: no em or en dashes, no bare ids, cod
 
   "plan": { "summary": "...", "heartbeat_minutes": 180, "waves": [], "tickets": [], "prs": [], "branches": {}, "verification": {} },
   "findings": [], "research": [], "kickoff": "...", "prompts": [], "report": { "ready": false, "works_now": [], "not_proven": [] },
-  "ops": { "groups": [ { "id": "before-production", "title": "Before production", "items": [ { "what": "...", "when": "...", "default": "..." } ] } ], "source": "agent/OPS-CHECKLIST.md" },
+  "ops": { "groups": [ { "id": "before-production", "title": "Before production", "when": "one line on the card", "columns": ["What to do", "When", "If skipped"], "items": [ { "what": "...", "when": "...", "skipped": "..." } ] } ], "source": "agent/OPS-CHECKLIST.md" },
   "design_file": "agent/DESIGN.md", "unmapped": [ { "heading": "## 16. What changed", "reason": "history, shown in agent mode" } ],
   "removed": [ { "what": "glossary", "reason": "...", "who": "Maya" } ], "words": [ { "term": "Lease", "means": "..." } ],
   "history": [], "files": [ { "path": "agent/ASK.md", "title": "The ask, verbatim", "kind": "md" } ]

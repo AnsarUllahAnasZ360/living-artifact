@@ -2334,7 +2334,7 @@ AUTO.research = function () {
 };
 AUTO.ops = function () {
   var O = B.ops || {};
-  return (O.groups || []).map(function (g) { return { id: "ops-" + g.id, title: g.title, kind: "table", source: O.source || "agent/book.json", data: { columns: ["What to do", "When", "If skipped"], rows: (g.items || []).map(function (x) { return [x.what, x.when || "", x.default || ""]; }) } }; });
+  return (O.groups || []).map(function (g) { return { id: "ops-" + g.id, title: g.title, kind: "table", source: O.source || "agent/book.json", data: { columns: (g.columns || []).length === 3 ? g.columns : ["What to do", "When", "If skipped"], rows: (g.items || []).map(function (x) { return [x.what, x.when || "", (x.skipped != null ? x.skipped : x.default) || ""]; }) } }; });
 };
 AUTO.progress = function () {
   var out = [];
