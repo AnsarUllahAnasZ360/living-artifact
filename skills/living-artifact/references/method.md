@@ -1,80 +1,86 @@
 # The method, stage by stage
 
-Each stage ends with a republished book and a `log` row. The stage moves forward only when its exit is met; feedback can move it back.
+Each stage ends with a republished book and a `log` row. A stage moves on when its exit is met; feedback can move it back.
+
+## Decisions and questions
+
+This rule holds in every stage.
+
+1. **Decide first.** For every open choice, take the best option, act on it, and record it in `decided`: what, who (`model` or the person), when, why. Facts are found by reading, measuring or trying, never asked.
+2. **Ask only when all three hold:** the choice turns on the person's own taste, money, risk appetite or outside commitments; no experiment, source or default can settle it; and a wrong guess is costly to undo. You must be able to say in one sentence why you cannot decide. "It might matter" is not a reason.
+3. **Ask in the chat, never in the book.** One message, at most three questions, each with the default you will take and when ("I will go with no standby database unless you say otherwise before the build starts"). Work goes on with the default unless the choice truly blocks.
+4. **Record the answer** in `decided` with the person's name. A choice the model made reads "decided by the model" and stays open to challenge in chat.
+5. **The one exception.** When a choice from rule 2 blocks the work and the person has not answered, set `blocking` (or `run/blocking`): the status line says so in one sentence and links to one card with the question, the options and why you cannot choose. Remove it once answered.
+
+Zero questions is the normal case. Never ask a person to do set-up that access already covers (test data, uploads, accounts you can create).
 
 ## 1. Frame (minutes)
 
-Produce: `problem`, `outcomes`, `profile`, `agent/ASK.md`.
+Produce: `agent/ASK.md`, `profile`, the story section.
 
-- Save the user's words verbatim. List every ask as one line.
-- If the goal is unclear, interview the user until you can write three to five outcome claims. A claim is one true or false sentence about what a person can do when we are done ("Anyone can search from any page and get results with sources in under two seconds"). Read the claims aloud: together they are the whole change.
-- Each outcome gets done-when statements a person can check.
-- Publish the book at stage `explore` the moment the frame exists, so the user watches it fill.
+- Save the person's words verbatim, newest first. List every ask as one line; the plan is checked against that list.
+- Write the story: one claim a stranger understands, one sentence on today's pain and what we build, up to three numbers with certainty marks.
+- Pick the profile: **feature** (one step, hours), **audit** (findings and fixes, no build unless fixes follow) or **large** (several steps of parallel work, days). Do not scale a feature up to look thorough.
+- Publish at stage `explore` as soon as the story exists, so the person watches it fill.
 
-Exit: the user agrees with the claims (a `gates/frame` approval, or a yes in chat recorded in `log`).
+Exit: the story says what the person asked for. If the goal is unclear, ask in chat once.
 
 ## 2. Explore (the longest stage on a big problem)
 
-Produce: `findings`, `research`, `architecture`, `prototypes`, files under `agent/research/`.
+Produce: `findings`, `research`, files under `agent/research/`, and the sections that explain the solution.
 
-- **Read what exists first.** Code, data, screens. Cite file and line. Screenshot today's product.
-- **Research in parallel.** One background agent per open question: how the industry does it, the official primitives and libraries, what competitors do, what our own code already has. Each writes one `agent/research/<topic>.md` that opens with Recommendations and cites sources.
-- **Experiment.** When a run can settle a question (a layout, a latency, a model's accuracy), build a throwaway prototype or script and let the result decide. Ask the user only questions of taste and product.
-- **Prototype screens.** A clickable prototype beats a description. Publish it as `proto/<name>.html` in the book (or link its own artifact). Keep variant switchers.
-- **Critique through lenses.** For each persona (the user, the subject matter expert, the customer's customer) and each situation (doing it by hand, reviewing the AI's work, coming back later), ask: is it clear, is it simple, is it how the industry works? Fix and critique again until a round finds nothing important.
-- **Explain the solution, area by area** (`architecture.areas`). The reader asked for a fix, not a diagram. For each part of the solution say, in this order: what we found (one concrete example, with evidence), what we recommend, a today picture and a proposed picture, how it works as numbered steps that light up the parts they name, why this is the right fix (the industry pattern, what it reuses, what it avoids), what people will notice, the trade-offs, what we will not build, and the tickets that carry it. Use `frames` only for one picture of the whole system.
-- **Write the executive summary last, show it first** (`summary`): one headline a stranger understands, the numbers that matter, when things land, and a point for each part of the story that opens its detail.
-- Each finding pairs with its solution and the tickets that will carry it.
+- **Read what exists first.** Code, data, screens. Cite file and line in `findings`.
+- **Research in parallel.** One background agent per open question: how the industry does it, the official primitives and libraries, what our own code already has. Each writes `agent/research/<topic>.md`, opening with Recommendations and citing sources.
+- **Experiment.** When a run can settle a question (a layout, a latency, an accuracy), build a throwaway prototype or script and let the result decide.
+- **Prototype screens** as `proto/<name>.html` when a clickable picture beats a description.
+- **Show, then tell.** Turn what you learned into sections (`design.md`): why as before and after, how it works as a map with one job and one failure moving through it, what it can do, risks, scale and cost with assumptions in `book.model`. The found, recommend and why text stays in agent files, linked as `source`.
+- **Critique through lenses.** For each kind of reader and each situation, ask: is it clear to a stranger, is it simple, is it how the industry does it? Fix and look again until a round finds nothing important.
 
-This stage loops with the user many times. Each loop: republish, log what changed, read feedback.
-
-Exit: the user approves the approach (`gates/explore`, or a yes in chat recorded in `log`).
+Exit: the person agrees with the approach in chat, recorded in `log` and `decided`.
 
 ## 3. Plan
 
-Produce: `plan`, `decisions`, `kickoff`. Read `planning.md`.
+Produce: `plan`, the build section, the roadmap, `kickoff`. Read `planning.md`.
 
-1. Start from the goals and outcomes, not from code.
-2. List all the work. Every finding, every done-when, every ask line.
-3. Group the work into goal-sized tickets, the tickets into one PR per problem category (each ticket one commit), and name three to seven milestones as outcomes a person can see.
-4. Schedule the PRs into waves for the most parallelism the files and dependencies allow. Foundations first, screens later, proof last.
-5. Write the verification plan (`planning.md`) and agree it with the plan: what must be ready before the run (probe it now), what agents check while building, and the small final checklist (every ticket covered, each check saying how it should work and what counts as passing, live checks sharing one to three real runs). Do not call the plan safe to start while a ready item a person must supply is missing or unconfirmed. What only a merge or a deploy can show goes in a ticket's `after_merge`, not its done-when.
-6. Every choice that is the user's goes in `decisions` with a recommendation and its effect, attached to what it changes.
-7. Write the kickoff from `kickoff.md`.
-8. Check every ask line maps to a ticket, a decision, or a stated reason in `plan.later`.
-9. **Critique cold.** One agent that has not seen the work reads only the published book and answers: what is this for, what happens first, what would you ask before approving, what is overbuilt, what is missing? Fix what it found.
+1. Start from what a person will be able to do, not from code.
+2. List all the work: every finding, every ask line, every capability marked building.
+3. Group it into goal-sized tickets and the tickets into steps (`plan.waves`) a person can follow. When the work ships through pull requests, add one PR per problem category, each ticket one commit (agent mode).
+4. Write the verification plan with the plan: what must be ready, what agents check while building, the small final checklist.
+5. Decide every open choice and record it (rule above). Ask in chat only under rule 2.
+6. Write the kickoff (`kickoff.md`).
+7. Check every ask line maps to a ticket, a decided record or a line in Beyond.
+8. **Critique cold.** An agent that has not seen the work reads only the published page and answers: what is this for, what happens first, what would you ask before saying go, what is overbuilt, what is missing? Fix what it found.
 
-Exit: `gates/plan` approved by the user, or the user says to run.
+Exit: the person says to run, in chat.
 
 ## 4. Run
 
-A fresh chat opened in the repo, started by the kickoff. Read `run.md`.
+A fresh chat in the repo, started by the kickoff. Read `run.md`.
 
-- Orient only from the book: read it, its agent files, the db. No other docs.
-- Each problem category ships as one PR, one commit per ticket, stacked in one line on the development branch and left open; the run never waits for a merge. Review and proof happen before a PR exists: per ticket before its commit is final, per PR before it opens.
-- Each wave: read feedback and decisions, one builder per PR works its tickets in order, proof takes turns on the one local stack, each PR opens as soon as it is proven, write status and log, republish if content changed.
-- Do not stop for a mid-run review unless the kickoff says so. Stop only on the stop rules in the kickoff.
+- Orient only from the book: the page, its agent files, the db.
+- Each step: builders work in parallel, proof takes turns on the one local stack, each PR opens as soon as it is proven, status and log are written as you go.
+- Keep going; stop only on the stop rules.
 
 ## 5. Verify
 
-- Run the agreed checklist once on a fresh copy of the product built from the top of the stack, which holds every PR: the checks that need no run, then each real run with its own checks, measures before typed requests. Every check gets a result; one never run counts as not proven.
-- Run real data where the book names it. Real customer data never goes into the book, code, tests, commits or the PR.
-- Each done-when gets a verdict: verified, not verified or inconclusive, with evidence and the commit it saw. Inconclusive is not a pass.
-- A cold reviewer reads the log and the evidence and writes `report.attention`: weak proof, skipped checks.
-- A failing check gets one fix round inside the stack and is checked again; if it still fails, the report says so. Never weaken a check to pass it.
+- Run the agreed checklist once on a fresh copy built from the top of the stack. Every check gets a result; one never run counts as not proven.
+- Real customer data never goes into the book, code, tests, commits or a PR.
+- Each done-when gets a verdict with evidence and the commit it saw. Inconclusive is not a pass. Never weaken a check to pass it.
+- A cold reviewer reads the log and the evidence and writes `report.attention`.
 
 ## 6. Report
 
-Read `report.md`. Fill `report`, set `report.ready`, stage `report`, republish, finish the PR description, notify the user with the book link.
+Read `report.md`. The report is a state of the same sections: set `round.stage` to `report`, fill `report.works_now` and `report.not_proven` and the story's `after`, republish, and send the person the link.
 
 ## 7. Next round
 
-Feedback from the user or the team starts round n+1 in the same book:
-1. Freeze `book.json` to `agent/rounds/round-<n>.json`; add the `history` entry with numbers and outcome.
+Feedback starts round n+1 in the same book:
+
+1. Freeze `book.json` to `agent/rounds/round-<n>.json`; add a `history` entry.
 2. Prepend the new words to `agent/ASK.md`; list each new ask.
-3. Mark which earlier outcomes still hold; carry forward settled decisions.
+3. Keep decided records unless the person reopens one.
 4. Go back to explore or plan as the feedback needs. Republish.
 
 ## Retro, any time
 
-The book holds the whole story, so anyone can ask a model: "Read this book. What could have gone better, and how should the skill change?" Answer from the log, the reviews, the attention lists and the rounds. Put lasting lessons into this skill or the project's CLAUDE.md, not into the next prompt.
+The book holds the whole story, so anyone can ask: "Read this book. What could have gone better, and how should the skill change?" Answer from the log, reviews, attention lists and rounds, in at most five changes. Put lasting lessons into this skill or the project's CLAUDE.md, not into the next prompt.
