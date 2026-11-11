@@ -7,7 +7,7 @@ description: Run any piece of work, from a small feature to an audit to a multi-
 
 One book per piece of work. It is the proposal, the plan, the tracker and the report. Nothing about the work lives anywhere else: not in long markdown, not in a second artifact, not in chat scrollback. Any agent on any machine can pick up the work from the book's URL alone.
 
-Assume the reader has no context and reads about a fifth of what the page shows. So the first screen holds at most 80 words, and the whole page shows at most 1,200 words on load for a large book (750 audit, 450 feature), counted as the browser shows them, buttons and labels included. Human mode shows the answer first, lets them play with it, and lets them read only if they want more. Agent mode is the opposite: dense, with every id, file and raw record.
+Assume the reader has no context and reads about a fifth of what the page shows. So the first screen holds about 80 words, not counting the small figure, and the whole page shows at most 1,200 words on load for a large book (750 audit, 450 feature), counted as the browser shows them, buttons and labels included. Human mode shows the answer first, lets them play with it, and lets them read only if they want more. Agent mode is the opposite: dense, with every id, file and raw record.
 
 ## The loop
 
@@ -22,7 +22,7 @@ Profiles: **feature** (one step, hours), **audit** (findings and fixes), **large
 ## Always
 
 1. **Show, then tell.** Every section is one claim and one component from `references/components.md`: a system map with a job moving through it, a before and after, a scale slider, a cost explorer, a risk grid, the build timeline. If no picture fits, the content probably belongs in agent mode. The section list in `design.md` is a menu, not a form: use only the sections this work needs, and never say the same thing in two sections.
-2. **Few words, plain words.** A claim a stranger understands as the heading, at most 25 words under it, the rest one click deeper. Write for someone who opens the link cold: no "as discussed", no sentence about the document.
+2. **Few words, plain words.** A claim a stranger understands as the heading, at most 25 words under it (30 on the story), the rest one click deeper. Write for someone who opens the link cold: no "as discussed", no sentence about the document.
 3. **No ids or codes in human text.** No ticket, decision, wave or PR codes, branches, file paths or file names. Name things by what they do. Define a needed term in the sentence that first uses it. Ids show in agent mode. Real names a reader must recognise (a product such as "Z360", a vendor, a standard) go in `book.terms`, the allowed-names list the checker never flags.
 4. **Numbers with units and a certainty mark**: measured, estimated, or designed and not yet tested. State a shape honestly.
 5. **Decide, record, ask in chat.** Take the best option and record it in `decided` (what, who, when, why). Ask a person only when the choice is theirs (taste, money, risk, outside commitments), nothing can settle it, and a wrong guess is costly; ask in chat, at most three questions, each with the default you will take. The book shows at most one blocking card, only while such a choice blocks the work.

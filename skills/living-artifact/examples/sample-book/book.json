@@ -89,7 +89,6 @@
     {
       "id": "can", "component": "capabilities", "label": "What it can do", "nav": "What it can do",
       "claim": "Three formats and a monthly email, with more formats later.",
-      "lead": "Background exports and Xero files already work; the rest is being built.",
       "data": {
         "items": [
           { "name": "Export runs in the background", "line": "Big months never time out.", "state": "today", "ticket": "export-job-runner" },

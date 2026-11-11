@@ -23,7 +23,7 @@ Decisions appear once. Under a section only one line shows ("2 decisions shaped 
 
 ## Page rules
 
-- Section pattern: a small label, the claim as the heading, a lead of at most 25 words, then one component. No second paragraph on load.
+- Section pattern: a small label, the claim as the heading, a lead of at most 25 words (30 on the story), then one component. No second paragraph on load.
 - Top bar: book name, at most six anchors, the Human and Agent switch, the theme switch. Nothing else.
 - No side list, no greyed or empty sections, no box around text, no coloured side borders. One hairline is the only divider. The build refuses a coloured side border and any network font, stylesheet or script.
 - One shared set of assumptions per book (`book.model`). A control in one figure moves every figure that uses the same input.
@@ -32,7 +32,7 @@ Decisions appear once. Under a section only one line shows ("2 decisions shaped 
 
 ## Writing
 
-**Budgets.** The checker counts what you write plus what the page adds (state words, certainty marks, buttons, axis ticks, the status line), within about 10% of what a browser shows. Over budget, a claim, lead, piece of work title or step name is an error; the whole book over budget is an error, over 80% a warning.
+**Budgets.** The checker counts what you write plus what the page adds (state words, certainty marks, buttons, axis ticks, the status line, the small figure beside the story) as a wide screen shows it on load. Closed cards and screen reader text do not count, because nobody sees them. On both examples it matches the words in the page's visible text within 3%. Over budget, a claim, lead, piece of work title or step name is an error; the whole book over budget is an error, over 80% a warning.
 
 | Element | Words |
 |---|---|

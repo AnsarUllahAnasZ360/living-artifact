@@ -431,7 +431,7 @@ SECS.forEach((sec, i) => {
       if (!nonEmptyStr(e?.id)) { err(`${ww}: needs id`); return; }
       eid.add(e.id);
       if (!nid.has(e.from) || !nid.has(e.to)) err(`${ww}: ${e.from} to ${e.to} names a part not on the map`);
-      if (!nonEmptyStr(e.verb)) warn(`${ww}: every arrow has a verb ("sends jobs")`); else H(`${ww}.verb`, e.verb, 3, false);
+      if (!nonEmptyStr(e.verb)) warn(`${ww}: every arrow has a verb ("sends jobs")`); else H(`${ww}.verb`, e.verb, 3);
     });
     const stories = d.stories || [];
     if (stories.length > 3) warn(`${w}.data.stories: ${stories.length}; three at most`);
@@ -445,7 +445,7 @@ SECS.forEach((sec, i) => {
         if (!nonEmptyStr(x?.title)) err(`${s}: needs title`);
         if (x?.edge !== undefined && !eid.has(x.edge)) err(`${s}.edge: "${x.edge}" is not an edge of this map`);
         for (const key of ["on", "busy", "dead"]) (x?.[key] || []).forEach((n) => { if (!nid.has(n)) err(`${s}.${key}: "${n}" is not a part of this map`); });
-        H(`${s}.title`, x?.title, 5, true); H(`${s}.text`, x?.text, 20, j === 0 && k === 0);
+        H(`${s}.title`, x?.title, 5, j === 0); H(`${s}.text`, x?.text, 20, j === 0 && k === 0);
       });
     });
   }
@@ -637,7 +637,7 @@ human.forEach(([where, text, max, load]) => {
   if (/\.lead$/.test(where) && /^(?:pick|drag|switch|click|tap|open|step through|change|follow|scroll|hover)\b/i.test(text.trim())) warn(`${where}: tells the reader how to use the figure; state the one fact the claim needs, or leave the lead out: "${text}"`);
 });
 // what the page itself adds on load: state words, certainty marks, buttons, axis ticks, filters, status line
-let added = 4 + 2; // top bar switches; skip link is hidden
+let added = 2 + 4; // Human and Agent; the skip link, off screen until focused
 const inputWords = (id) => { const x = (MODEL.inputs || []).find((y) => y?.id === id); return x ? words(x.label) + (x.options ? x.options.reduce((a, o) => a + words(o.label), 0) : (x.ticks || x.stops || []).slice(0, 5).length + 1) : 0; };
 SECS.forEach((sec) => {
   if (!isObj(sec)) return;
@@ -646,15 +646,15 @@ SECS.forEach((sec) => {
   if (sec.source) added += 1;
   if (sec.table || d.table) added += 3;
   if (c !== "decided" && (book.decided || []).some((x) => x.section === sec.id)) added += 4;
-  if (c === "story") added += 20 + (d.numbers || []).length * 3;
+  if (c === "story") { added += 12 + (d.numbers || []).length * 2; const f = SECS.find((x) => x?.id === d.figure?.from); if (f?.component === "map") added += 3 + (f.data?.nodes || []).reduce((a, n) => a + words(n?.name) + (n?.zone ? 0 : n?.dot ? 1 : words(n?.does)), 0); }
   if (c === "compare") added += 4 + ((d.before?.numbers || []).length + (d.after?.numbers || []).length) * 3;
   if (c === "map") added += 8 + ((d.stories || []).length > 1 ? (d.stories || []).reduce((a, s) => a + words(s.name), 0) : 0) + (d.nodes || []).filter((n) => n?.dot).length + Math.min(7, (d.stories?.[0]?.steps || []).length) * 1;
   if (c === "steps") added += 10 + (d.steps || []).length;
-  if (c === "capabilities") added += (d.only ? 0 : 6) + (d.items || []).length * 2;
+  if (c === "capabilities") added += (d.only ? 0 : 4) + (d.items || []).length * 2;
   if (c === "scale") added += 2 + inputWords(d.input) + (d.inputs || []).reduce((a, x) => a + inputWords(x), 0) + (d.rows || []).length * 2;
   if (c === "cost") added += 14 + (d.controls || [d.x?.input]).reduce((a, x) => a + inputWords(x), 0) + (d.series || []).length * 2 + (d.split?.parts || []).length * 2;
-  if (c === "risks") added += 6 + (d.risks || []).length * 2;
-  if (c === "build") { added += 16 + waveByN.size * 4; const first = [...waveByN.values()].sort((a, b) => a.n - b.n)[0]; added += tickets.filter((t) => (owner.has(t.id) ? prById.get(owner.get(t.id))?.wave : t.wave) === first?.n).length * 5; }
+  if (c === "risks") added += 10 + (d.risks || []).length * 4;
+  if (c === "build") { added += 16 + waveByN.size * 4; const first = [...waveByN.values()].sort((a, b) => a.n - b.n)[0]; added += words(first?.what); added += tickets.filter((t) => (owner.has(t.id) ? prById.get(owner.get(t.id))?.wave : t.wave) === first?.n).length * 5; }
   if (c === "roadmap") added += (d.items || []).length;
   if (c === "chapter") added += 60; // a chapter's script draws text the checker cannot read
   if (c === "decided") added += Math.min(3, (book.decided || []).length) * 5 + ((book.decided || []).length > 3 ? 3 : 0);
