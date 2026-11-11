@@ -553,7 +553,7 @@ if (isObj(rep)) for (const k of ["works_now", "not_proven"]) (rep[k] || []).forE
 // A section with component "chapter" reads chapters/<id>.html (or its file): an HTML fragment with optional
 // <style> and <script> blocks. Styles join the page CSS; the markup becomes a <template>; each script body becomes
 // BOOKCH[id](root, api), run once. chapters/_kit.css and _kit.js load first. Mount catalog components with
-// api.mount(el, "flow" | "scale" | "cost" | ..., data) rather than drawing them again.
+// api.mount(el, "steps" | "map" | "scale" | ..., data) rather than drawing them again.
 const filesMap = {};
 let chapterCss = "", chapterTpl = "", chapterJs = "";
 const SIDE_BORDER = /border-(?:left|top|inline-start|block-start)(?:-color)?\s*:\s*([^;}"'`<]+)/gi;
