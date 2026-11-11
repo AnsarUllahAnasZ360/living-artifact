@@ -1,6 +1,6 @@
 # living-artifact
 
-A Claude Code skill for long-running work. Every piece of work, from a small feature to an audit to a multi-week build, runs through **one living HTML page** called the book. The book is the proposal, the plan, the live tracker and the final report, written so a first-time reader understands it in three minutes. Any agent in any session can pick the work up from the book's link alone.
+A Claude Code skill for long-running work. Every piece of work, from a small feature to an audit to a multi-week build, runs through **one living HTML page** called the book. The book is the proposal, the plan, the live tracker and the final report, short on the surface and with full depth one click away. Any agent in any session can pick the work up from the book's link alone.
 
 ## Install
 
@@ -42,19 +42,17 @@ Ask in your own words. The skill starts when you bring a problem to explore, ask
 
 ## What a reader sees
 
-A book is written for someone who opens the link with no context and has three minutes. Each section makes one claim in plain words and shows one picture that moves. A book uses only the sections its work needs; a large plan usually has these:
+A book is written for someone who opens the link with no context. A side menu lists every section in groups. Each section opens as one screen: one claim in plain words, a short lead and one picture. Under it, labelled rows open the depth in place: "Every part on the map (21 rows)", "The scaling rule", "Cost, step by step", each with a link to its source file. "Expand all depth" opens everything, and printing does too. A large plan usually has:
 
-1. **The story**: the headline, one sentence on the problem and the fix, three numbers marked measured, estimated or designed, and one live status line.
-2. **Why**: today against the plan, in the same frame.
-3. **How it works**: the system as a few named parts, with one job travelling through it step by step, and one failure story.
-4. **What it can do**: each capability with its state: works today, being built, planned, later.
-5. **Safety, recovery and cost**: a risk grid, a slider that shows the design holding from zero to the top of the range, and a cost chart against the alternative with assumptions you can change.
-6. **The build**: steps with progress rings that fill live, a card for each piece of work with its goal, what done means, the proof and its final check, and the final checks with their results.
-7. **Beyond**: what comes next and the signal that starts each.
+1. **Understand**: the story (claim, three numbers marked measured, estimated or designed, a live status line, what is in the book), why, what it does, what exists today.
+2. **How it works**: the architecture as a map with every part in a table (choice, job, reason, cost, source) and open source with licences; how a run works with a failure story; scaling up and down; the cost explorer with unit prices, the formula and a worked example; security.
+3. **Proof and choices**: failures and backups, research with every note, every decision with who, when and why.
+4. **The build**: the plan board (waves with hours, pull request cards, ticket rows, the critical path, review gates; a ticket opens a drawer with every field), verification (coverage, final checks, reviews), the kickoff prompt with a Copy button, the ops checklist, live progress.
+5. **After**: what comes next and the signal that starts each.
 
-No questions panel, no glossary, no codes or file names in the text. The agent decides what it can, records each decision with who, when and why, and asks you in the chat only when a choice is truly yours. While such a choice blocks the work, the page shows one card for it.
+No questions panel and no bare codes on the surface. The agent decides what it can, records each decision, and asks you in the chat only when a choice is truly yours.
 
-**Agent mode** is the same page with every id switched on, plus a reference section: every ticket with its file, branch and status, the raw files, the raw data, the pull request plan, reviews and rounds. A machine-readable index sits in the page so an agent can read it without rendering it.
+**Agent mode** is a separate black and white workspace: a file tree with `START` (the kickoff and read order), tables with every field (tickets, pull requests, waves, critical path, reviews, coverage, checks, decisions, findings, research, sections), plain text views, `book.json`, every published file and the live database. A machine-readable index sits in the page so an agent can read it without rendering it.
 
 ## How the work runs
 
@@ -86,11 +84,12 @@ skills/living-artifact/
     run.md             running the build, with the wave workflows
     report.md          the report, the PR body, the retro
     kickoff.md         the kickoff and progress prompts
-  scripts/build.mjs    checks book.json and builds the page
+  scripts/build.mjs    checks book.json, builds the page and runs the rendered checks
+  scripts/check-render.mjs  the rendered checks in headless Chromium
   assets/book.html     the page template
   assets/fonts/        Inter and JetBrains Mono, embedded in every page (SIL Open Font License, OFL.txt)
-  examples/feature-book a small feature book: five sections, no pull requests
-  examples/sample-book a catalog book for a large plan, with sample live data
+  examples/feature-book a small feature book, no pull requests
+  examples/sample-book a large plan with every required depth item and sample live data
   research/            the sources the skill is built on
 ```
 
@@ -103,10 +102,10 @@ skills/living-artifact/
 ## The build script
 
 ```bash
-node skills/living-artifact/scripts/build.mjs <book-dir> [--demo seed.json] [--preview]
+node skills/living-artifact/scripts/build.mjs <book-dir> [--demo seed.json] [--preview] [--no-render]
 ```
 
-It refuses a broken plan (a piece of work in no step, a dependency on a later step), a section without a component, a map with more than 12 parts, a dash, a missing file, a coloured side border, any request to the network, and a page over its word budget (counted as the browser shows it). It warns on ids, codes and file names in human text (real names go in `book.terms`), on numbers without a unit or certainty mark, on instruction leads and on too many sections. It writes `index.html` and prints the files map to publish. `--demo` sample state goes only into `preview.html`, labelled Sample; `index.html` never carries it.
+It refuses a broken plan, a ticket without goal, files, dependencies, done-when or how it is verified, any element over its own word limit, a dash, a source that is not published, a coloured side border and any request to the network. For a large plan it also refuses a book missing required depth (architecture parts, cost math, scaling, security, failures, research, decisions, the plan, verification, kickoff and more) and prints a table of each item, present or missing. When the book has a design file, every heading must map to a section; when an earlier round is frozen, nothing it had may disappear without a reason. Then it opens the page in headless Chromium at 1440, 1280, 1024, 768 and 390 px in both modes (Playwright needed; `--no-render` skips it) and fails on a clipped header, sideways scroll, a cut-off menu, missing content, a console error or a network request. It writes `index.html` and prints the files map to publish. `--demo` sample state goes only into `preview.html`, labelled Sample; `index.html` never carries it.
 
 Try it on the sample:
 

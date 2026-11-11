@@ -8,19 +8,24 @@ One outcome a person can see, sized so one strong agent owns it for a few hours 
 |---|---|---|---|
 | `title` | The outcome in plain words, verb first, 10 words. The one name used everywhere | Exports run as background jobs with a record | Add ExportJob worker |
 | `goal` | The end state and what must not change, 30 words | Any export runs outside the web request, and every run leaves one record | Step 1 edit X, step 2 add Y |
+| `problem` | What is wrong today, in the reader's words, 60 words | A big month times out because the file is built inside the web request | |
 | `done_when` | Two to five checks a person or a test can prove, 15 words each | A month of 2,000 invoices finishes while the app stays fast | Export works |
+| `acceptance` | The full acceptance lines, no limit; shown under the plain done-when | | |
+| `verify` | How it is verified: `{ run, expect }` or a sentence. Required | Run: export a seeded month. Expect: the file in under a minute | Tests pass |
+| `why` | Why this is the right fix, decisions by name | | |
+| `hours`, `model`, `reviewers` | Estimate, who builds, who reviews | 6, Opus 5.5 effort high, fresh Opus and Fable | |
 | `after_merge` | What only a merge, deploy or release can show. Listed for the person, never proven by the run | Production export finishes on the first real month end | |
-| `depends_on` | Earlier tickets it needs | | |
-| `files` | The area it touches, so parallel work never collides | apps/api/src/jobs/ | everything |
+| `depends_on` | Earlier tickets it needs; `[]` when none. Required | | |
+| `files` | The area it touches, so parallel work never collides. Required | apps/api/src/jobs/ | everything |
 | `risk` | Review depth: `low`, `medium`, `high` | high for data deletion, auth, billing, migrations, prompts | |
 | `size` | `M` (hours) or `L` (about a day). Fold `S` into a neighbour | | |
 | `file` | `agent/tickets/<id>.md` for longer notes: where found, how to reproduce, the fix and why | | |
 
-Only `title`, `goal` and `done_when` show to a person. Everything else is agent mode.
+A person sees every field: the plan board lists titles and hours, and a ticket opens a drawer with all of them, depends on and unblocks as links. Agent mode's `tables/tickets` shows every field as a column.
 
 ## Steps
 
-`plan.waves` are the steps a person sees on the build timeline: `{ n, id, name, what, prs }`, with `name` two plain words ("Jobs") and `what` eight words on what the step gives ("Exports run as jobs that survive restarts").
+`plan.waves` are the waves a person sees on the plan board: `{ n, id, name, what, when, why, lanes, gate, review, on_fail, prs }`, with `name` two plain words ("Jobs"), `what` eight words on what the wave gives, `when` its hours ("Hours 0 to 6"), `lanes` what runs in parallel, `gate` what must hold before the next wave, and `review` the id of its review in `plan.reviews`. Give the execution order as `plan.critical_path` (`[{ step, hours }]`) and the totals as `plan.totals`.
 
 1. A step holds work that can be built at the same time: no shared files, no dependency between its parallel lanes.
 2. Foundations first (the checks every later piece needs, security, data and contracts), then behaviour and screens, then documents and measurement.
@@ -28,7 +33,7 @@ Only `title`, `goal` and `done_when` show to a person. Everything else is agent 
 4. Everything that proves work on a running app shares one local stack and one browser; builders code in parallel, proof takes turns.
 5. Every step ends with its gate (`run.md`).
 
-## Pull requests (agent mode)
+## Pull requests
 
 When the work ships through pull requests, size them by problem category, never by a line budget: usually four to eight per round (security, reliability, screens, documents...), each ticket one commit. Every extra PR costs a CI run, a deploy, an approval and a rebase of every PR still open; review happens per commit before a PR exists, so size follows the problem.
 
@@ -69,4 +74,4 @@ Cover each high-risk ticket's failure path, not only its happy path. Say the tot
 
 ## The checker
 
-`node scripts/build.mjs <book-dir>` refuses: an unknown step, PR or dependency; a ticket in no PR or two; a PR depending on or stacked on a PR in the same or a later step; a stack that loops; a ticket depending on a later commit in its own PR or on a PR in the same or a later step; an id that collides with a status document; a final check with an unknown ticket or run, or an ask check without `say`; a ticket no check covers once checks exist; a dash; a missing file; and the section errors in `components.md`. It warns on S tickets, a stack that branches, two PRs in one step owning the same area, more than six PRs in a step, too many checks, and the writing rules it can count in `design.md` (budgets, ids, codes, file names, assumed context, certainty marks, instruction leads). It cannot judge plain language; read the page as a stranger. Fix every error and warning before publishing.
+`node scripts/build.mjs <book-dir>` refuses a ticket without goal, files, depends_on, done_when or verify (a large book also size and risk), a plan book missing required depth (`design.md`), and: an unknown step, PR or dependency; a ticket in no PR or two; a PR depending on or stacked on a PR in the same or a later step; a stack that loops; a ticket depending on a later commit in its own PR or on a PR in the same or a later step; an id that collides with a status document; a final check with an unknown ticket or run, or an ask check without `say`; a ticket no check covers once checks exist; a dash; a missing file; and the section errors in `components.md`. It warns on S tickets, a stack that branches, two PRs in one step owning the same area, more than six PRs in a step, too many checks, and the writing rules it can count in `design.md` (ids, codes, file names on the surface, assumed context, certainty marks, instruction leads); word limits per element are errors. It cannot judge plain language; read the page as a stranger. Fix every error and warning before publishing.

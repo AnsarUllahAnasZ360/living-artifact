@@ -1,93 +1,149 @@
 # How a book reads
 
-The reader opens the link cold. They have no context, they read about a fifth of the words, and they give it about three minutes. So: show the answer, let them play with it, and let them read only if they want more. Each section is one claim, one picture that moves, and at most 25 words. Everything else is one click deeper or in agent mode.
+The reader opens the link cold, with no context. Give them two layers on one page, plus a third for agents:
 
-## The shape of a plan and architecture book
+- **Surface.** Each section opens as one screen: a claim as the heading, a lead of at most 40 words, one visual. A stranger who scrolls only the surfaces gets the whole story in about five minutes.
+- **Depth.** Under each visual, labelled rows that open in place: "Every AWS part (21 rows)", "The scaling rule", "Cost, step by step". Tables first, short paragraphs, real names. A section has as many depth rows as its subject needs.
+- **Agent.** A separate, dense, monochrome workspace: the file tree, every table with every field, the raw files and the live database. Never the only home for something a person needs to understand or run the work.
 
-There is no fixed list of sections. A book has the story, then only the sections this work needs, each answering a question the reader has. The table is the usual order for a large plan, not a form. Typical sizes: feature 3 to 5 sections, audit 4 to 6, large 6 to 9 (the checker warns above 5, 6 and 9). Two ideas that share one picture share one section. No section repeats another. Cut a section before you shorten it. A title is always a claim a stranger understands ("A job is saved before any work starts"), never a label ("Architecture").
+Short on the surface, full depth one click away. No walls of text, and nothing important missing.
 
-| # | Section | Holds | Component |
-|---|---|---|---|
-| 1 | The story | The headline claim, one sentence on today's pain and what we build, three numbers with a certainty mark, the status line | `story` |
-| 2 | Why | The problem in one concrete case (a bill, a failure, a wait), what changes for whom, what we will not build | `compare` |
-| 3 | How it works | The system as 5 to 12 named parts and one job moving through them, plus one failure story | `map`, `steps` |
-| 4 | What it can do, and what exists today | Each capability as one line and a state: exists today, being built, planned, later. When the stage is `report` or `done` the list opens on Exists today | `capabilities` |
-| 5 | Safety, recovery and cost | What can go wrong and what happens then; what it costs as use grows, with assumptions the reader can change | `risks`, `scale`, `cost` |
-| 6 | The build | The steps in order with live status; each piece of work with its goal, done-when, proof and final check; the final checks with their results | `build` |
-| 7 | Beyond | Three to five things that come next, each with the signal that starts it | `roadmap` |
-| R | Reference | Every id, file, status, decision, finding, research note, kickoff, review and round | agent mode only |
+## The shape of a plan book
 
-This order answers an onboarding engineer's questions: what and why, how it is built, what it does and what works today, security, edge cases and cost, how we build the rest, what comes after. A feature book uses a subset (story, how it works, the build; see `examples/feature-book`). An audit book uses story, why (what we found, as before and after), risks, and the build if fixes follow.
+Sections sit in groups in a side menu. The table is the usual set for a large plan; use only what the work needs, and never say one thing in two sections. A heading is a claim a stranger understands ("A job is saved before any work starts"), never a label ("Architecture"); the menu carries the short label (`nav`).
 
-Decisions appear once. Under a section only one line shows ("2 decisions shaped this"). Add a `decided` section at the end only when a person made at least one of the choices; the line then jumps there. Without one, the line opens the records in place.
+| Group | Section | Surface | Depth (examples) | Component |
+|---|---|---|---|---|
+| Understand | Start | Claim, lead, three numbers, status line, "What is in this book" | none | `story` |
+| | Why | Before and after, the measured bill | The bill line by line, what a run needs, the thesis | `compare` |
+| | What it does | Capabilities with a state | Full coverage, definition of complete, out of scope | `capabilities` |
+| | What exists today | Built and proven, built, planned | Proof for each item, what was removed | `inventory` |
+| How it works | Architecture | System map with real names, a normal and a failure story | Every part (part, choice, does, why, cost, source), open source with licences, our own code, deployment shapes | `map` |
+| | How a run works | Flow or steps | Request and run path, ownership, deploys and rollback | `map`, `steps` |
+| | Scaling up and down | Scale slider, a 24 hour chart | The rule and formula, worked cases, scale to zero, limits, what breaks first | `scale`, `figure` |
+| | Cost | Cost explorer, the idle month as a stacked bar | Unit prices with source and date, the formula, one worked example, tiers, what is excluded | `cost` |
+| | Security | Risk grid or a layer picture | Who may act, the walls path by path, quotas, secrets, accepted risks | `risks`, `figure` |
+| Proof and choices | Edge cases and failures | Top failures as cards | Every failure with what is lost and time back, data lifecycle, backups | `cards` |
+| | Research | One card per question | Every note with answer, what it changed, sources and the file; findings | `research` |
+| | Decisions | Count and the five that shape the most | All, with who, when, why, filter by section | `decisions` |
+| The build | The plan | Totals, critical path, waves with pull request cards and ticket rows | Pull requests, critical path, each wave, principles, how it ships, risks, stop rules | `plan` |
+| | Verification | Counters per test kind, the gate picture | Coverage lines, final checks, ready checks, each review, hard gates, gate rules | `verification` |
+| | Kickoff | Four steps, Copy the kickoff prompt, Before you paste | The prompt in full, other prompts | `kickoff` |
+| | Ops checklist | One card per group | Every item: what, when, if skipped | `ops` |
+| | Progress | Wave rings, pull request bars, last log lines | Full log, final report | `progress` |
+| After | Beyond | Roadmap rail | Stages, go and stop tests | `roadmap` |
+
+A feature book uses a few: the story, how it works, scope, decisions, the plan, verification and kickoff (`examples/feature-book`). An audit book uses the story, why, risks, research, and the plan if fixes follow.
+
+Decisions appear once. Under a section one line shows ("2 decisions shaped this") and jumps to the decisions section.
 
 ## Page rules
 
-- Section pattern: a small label, the claim as the heading, a lead of at most 25 words (30 on the story), then one component. No second paragraph on load.
-- Top bar: book name, at most six anchors, the Human and Agent switch, the theme switch. Nothing else.
-- No side list, no greyed or empty sections, no box around text, no coloured side borders. One hairline is the only divider. The build refuses a coloured side border and any network font, stylesheet or script.
+- Header, one row that never wraps or clips: the menu button below 1024 px, the title and subtitle, one status phrase ("Plan ready, build not started"), the Human and Agent switch, a Links menu, the theme. Only the subtitle may shorten.
+- From 1024 px a sticky side menu lists every section by group, with a find box, "Expand all depth", a state dot on live sections and the current section's depth rows as children. Below 1024 px the same menu is a drawer. No horizontal menu strip anywhere.
+- Section pattern: a small label, the claim, the lead, one component, then the depth rows. The surface fits 900 px of height at 1280 px (the plan board and chapters excepted).
+- Every depth row says what is inside and its size, and shows its source as "Source: <what opens>"; a file opens in place.
+- Deep links: `#<section>`, `#<section>/<block>`, `#plan/<ticket-id>`, `#agent/<path>`, `?mode=agent`.
+- No coloured side borders, no box around text, one hairline as the divider. The build refuses a coloured side border and any network font, stylesheet or script.
 - One shared set of assumptions per book (`book.model`). A control in one figure moves every figure that uses the same input.
-- "Show the numbers" opens the table behind a figure. The table is never the first thing.
-- A section appears when it has content. Progress, proof and the report are states of the same sections, not new ones.
+- A section appears when it has content. Progress, proof and the report are states of the same sections.
 
 ## Writing
 
-**Budgets.** The checker counts what you write plus what the page adds (state words, certainty marks, buttons, axis ticks, the status line, the small figure beside the story) as a wide screen shows it on load. Closed cards and screen reader text do not count, because nobody sees them. On both examples it matches the words in the page's visible text within 3%. Over budget, a claim, lead, piece of work title or step name is an error; the whole book over budget is an error, over 80% a warning.
+**Each element by itself.** The checker counts every element on its own and fails the build when one is over. The page as a whole has no word limit; the number of depth rows follows the subject.
 
 | Element | Words |
 |---|---|
-| Book title | 8 |
+| Book title; menu label | 8; 3 |
 | Story claim; section claim | 12; 14, one sentence, no colon |
-| Lead | 25 (30 on the story), optional |
+| Story lead; section lead | 30; 40 |
+| Depth row title | 6, says what is inside (the page adds the size) |
+| Depth row lead | 25 |
+| Paragraph | 60, two in a row at most, then a table, list or figure |
+| Table cell; row detail | 25; 120 |
+| List item | 20 |
 | Number label | 6 |
 | Flow step title, text | 5, 20 |
 | Map part name, line | 2, 4 |
 | Capability name, line | 6, 15 |
 | Risk name, what happens then | 6, 20 |
-| Step name, what it gives | 2, 8 |
-| Piece of work title, goal, each done-when | 10, 30, 15 |
+| Ticket title, goal, each done-when, problem | 10, 30, 15, 60. The full acceptance has no limit and sits under the plain lines |
 | Decided what, why | 10, 25 |
-| First screen | 80 |
-| Shown on load, whole book, as the browser shows it | 450 feature, 750 audit, 1,200 large. Aim for less |
+| First screen | 80, plus the story numbers |
 
-**Leads.** A lead states the one fact the claim needs, or is left out. Never instructions ("Drag the slider", "Pick a dot"): the template labels its own controls.
+**Leads.** A lead states the one fact the claim needs, or is left out. Never instructions ("Drag the slider").
 
-**Names.** Name a thing by what it does, in the reader's words: "the waiting line", "the front door", "workers start from zero and return to zero". Human text never holds a ticket id, a decision number, a wave or milestone code, a pull request number, a branch, a file path or a file name. Ids live in `id` fields and show in agent mode. Number steps by order ("Step 3 of 5"); a code ("W2", "D7") is not information. A product or vendor name is fine when the reader must recognise it, explained once ("Langfuse, the open-source tool that stores traces"). List such names in `book.terms` so the checker does not flag them.
+**Names.** On the surface, name a thing by what it does, in the reader's words: "the waiting line", "the front door". No bare codes: no ticket id, decision number, wave code, branch or file name on the surface. In depth and in ticket detail, real names are wanted: service and package names, file paths, branch names, ids beside their plain name ("Aurora with no standby, `aurora-database`"). Forbidden everywhere in human mode: a code alone ("see decision 177", "W2"). List product and vendor names in `book.terms`.
 
-**Terms.** Use the plain word when one exists. When a term is needed, the sentence that first uses it explains it in under ten words. No glossary. No abbreviation unless people say it aloud that way.
+**Terms.** Explain a term in the sentence that first uses it. An optional `words` list (20 terms at most) sits at the end.
 
-**No assumed context.** No "as discussed", "see above", "after your second brief", "the earlier plan". No sentence about the document itself.
+**No assumed context.** No "as discussed", "see above", "the earlier plan". No sentence about the document itself.
 
-**Numbers.** Every number has a unit and a period ("$187 a month", "41 seconds"). Every number carries one certainty mark: Measured (we ran it), Estimated (computed from stated prices or assumptions), Designed, not yet tested (a target). Round to what the certainty supports. State a shape honestly: a straight line is a straight line.
+**Numbers.** A unit and a period ("$187 a month"), and one certainty mark: Measured, Estimated, or Designed, not yet tested. A cost on a surface has its unit prices, each with a source and a read date, and a worked example that ends in the same figure.
 
-**Style.** Short sentences, one idea each. Verbs first in names of work. Sentence case. No em or en dashes, no hedging, no praise, no "we will leverage".
+**Style.** Short sentences, one idea each. Sentence case. No em or en dashes, no hedging, no praise.
 
-The checker warns on: a plan code (`W2`, `CP-3`), a numbered reference ("decision 130", "round 3"), a file path, file name (`export.csv`) or branch, a code name (`ExportJob`), any id of this book, a reference to context the reader may not have, a lead that gives instructions, a claim that reads as a label, a number without a unit ("costs 5"), and a story or compare number without a certainty mark. Names in `book.terms` are never flagged. It refuses a dash anywhere. Fix every warning before publishing. The checker cannot judge plain language: read the page as a stranger before publishing.
+## What the build checks
+
+`node scripts/build.mjs <book>` fails (exit 1) when:
+
+- an element is over its word limit, or a dash appears anywhere;
+- a required item below is missing for a large plan book (`profile: "large"` with tickets);
+- a ticket lacks goal, files, depends_on, done_when or verify (a large book also size and risk);
+- a map part has no row in the parts table, or a price row has no source or read date;
+- a `source` or file points at a file that is not published;
+- a level 2 heading of `agent/DESIGN.md` has no section or depth row (a `source` anchor) and is not in `book.unmapped`;
+- a section, depth row or ticket field of the previous round (`agent/rounds/round-<n>.json`) is gone and not in `book.removed` with a reason and who asked;
+- the rendered checks fail (`scripts/check-render.mjs`, headless Chromium at 1440, 1280, 1024, 768 and 390 px, both modes): the header clips or wraps, the page scrolls sideways, a menu link is cut off, the human page lacks a ticket title, the full kickoff, a decision, a research file name or a row of a depth table, agent mode shows the human page or is not monospace, `tables/tickets` lacks a row or a field, a surface is taller than 900 px at 1280, the console shows an error, or the page requests the network. `--no-render` skips them, and the page is then unchecked.
+
+It prints a "Required depth" table: read it before publishing.
+
+**Required depth for a large plan book.** Each line names what the checker looks for (`references/components.md`, "Roles").
+
+1. Why: a measured number with its source.
+2. What exists today: an `inventory` with items in every column, each proven item with proof.
+3. Capabilities, and a depth row with role `out-of-scope`.
+4. Architecture: a map, a `parts` table with one row per map part (columns Choice, Does, Why, Cost, Source), an `open-source` table with a Licence column.
+5. A run's lifecycle with a failure story.
+6. Scaling: rows with roles `scale-rule`, `scale-up`, `scale-down`, `limits`.
+7. Cost: `unit-prices` (Source and Read columns, both filled), `cost-formula`, `cost-example` (its `result` equals the model's figure), `cost-excluded`.
+8. Security: `who-may-act`, `walls`, `secrets`, `accepted-risks`.
+9. Failures: a `failures` table (Lost and Back columns) and `backups`.
+10. Research: every research file listed with question, answer and link.
+11. Decisions: a `decisions` section; every record with who, when, why.
+12. Plan: a `plan` section, waves, pull requests, `critical_path`, full tickets.
+13. Verification: a `verification` section, `coverage_lines`, final checks, `reviews`.
+14. Kickoff: a `kickoff` section and the full prompt.
+15. Ops checklist (`book.ops`), when the work has one.
+16. Beyond: a `roadmap`.
+17. Agent workspace: automatic.
+
+A feature or audit book needs 3, 11 to 14 and 17, plus 5 and 7 where it has a map or a cost.
+
+**Loss review.** Before a book that replaces another is published, a fresh reviewer opens both at 1280 and 390 px, lists every section, table and view of the old one, and marks each yes, weaker or gone. Any "gone" needs the owner's words asking for it.
 
 ## Motion and access
 
-- State changes 150 ms. Movement across a figure 600 to 900 ms, ease in and out. Entrances staggered, 360 ms in total at most. Nothing loops except the 7 px live dot. A figure may play once when it first scrolls into view, then stops.
-- Reduced motion: no autoplay, no travelling dot, no stagger; figures jump to the end state of each step.
-- Every control is a real button or input, 28 px tall at least. Colour never stands alone: a state is a dot and a word. Each figure has a text reading that updates. Visible focus. Everything works by keyboard.
-- Phone: a figure is redrawn for the width (the map has a tall layout, the timeline turns vertical), never shrunk below 11.5 px text. No sideways page scroll. The section anchors stay, as one row that scrolls sideways, and a skip link to the build is the first thing Tab reaches.
-- Colour: the template's tokens only, light and dark. One accent for the thing to look at now; greys for other series; green, amber and red only in small dots.
-- 3D only for physical objects. A software system is a graph; draw it flat.
+- State changes 150 ms. Movement across a figure 600 to 900 ms. Nothing loops except the 7 px live dot.
+- Reduced motion: no autoplay, no travelling dot; figures jump to the end state of each step.
+- Every control is a real button, input or `details` row, 28 px tall at least. A state is a dot and a word. Visible focus. Everything works by keyboard; Escape closes the drawer and the ticket.
+- Phone: a figure is redrawn for the width, never shrunk below 11.5 px text. No sideways page scroll.
+- Print: every depth row opens.
+- Colour: the template's tokens only, light and dark.
 
 ## Live progress without clutter
 
-- One status line on the story is the only place that says what is happening now: "Files, step 2 of 4, is being built. Next: PDFs." It reads `run/current.note` when set. In a preview it says "Sample data" and the live number reads Sample, never Measured.
-- One place for detail: the build. A ring fills as pieces are proven; the piece being built carries the accent dot.
-- Four states for a person: Waiting, Building, In review, Proven, plus Stopped with its reason. Finer states are agent mode.
-- A change while the page is open animates its ring once and the line reads "Updated just now". No toasts, feeds or badge counts.
-- When the last write is older than the run's heartbeat, the line reads "No update for 3 hours" with an amber dot, so the page never shows stale green.
+- The story's status line and the header's status phrase say what is happening now. In a preview they say "Sample data".
+- Four states for a person: Waiting, Building, In review, Proven, plus Stopped with its reason.
+- When the last write is older than the run's heartbeat, the line reads "No update for 3 hours".
 
 ## Human mode and agent mode
 
 | | Human mode | Agent mode |
 |---|---|---|
-| For | Understand and trust in three minutes | Find anything, resume the work |
-| Shows | The sections, pictures first, names only | The same page with ids beside every name, plus the Reference section |
-| Words | Budgeted | Unbounded, dense |
-| Status | Status line, rings, a dot and a word | Raw db documents with times |
+| For | Understand the work, then go as deep as needed | Find anything by id, resume the work |
+| Looks | Inter, the accent colour, pictures first | One monospace font, black on white (white on black in dark), no colour except state words, dense rows |
+| Layout | Side menu, sections, depth rows, ticket drawer | File tree on the left, one view on the right |
+| Holds | Every section, every depth row, every ticket with all fields, the kickoff | `START` (kickoff, read order, stop rules), `tables/` (tickets with every field, pull requests, waves, critical path, reviews, coverage, checks, decided, findings, research, sections), `views/rules`, `views/digest`, `book.json`, every published file by folder, `db/` with counts, live or offline |
 
-Nothing exists only in human mode. Every sentence a person sees comes from a field an agent can read.
+The first line of the agent view is always `START HERE: <file>` with Copy, then stage, wave, updated, round and whether the database is live. A ticket row opens its full record. Every ticket and research card in human mode has "Open in agent mode".

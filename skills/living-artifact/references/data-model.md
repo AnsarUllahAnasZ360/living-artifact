@@ -36,7 +36,7 @@ On a new machine: `Artifact read` the book, then `Artifact read` with `paths` fo
 
 ## book.json
 
-Human text is plain words for a stranger: no em or en dashes, no ids, codes, file names or references to earlier conversations (`design.md`). Every `id` is kebab-case.
+Surface text is plain words for a stranger: no em or en dashes, no bare ids, codes or file names, no references to earlier conversations. Depth text may use real names (`design.md`). Every `id` is kebab-case.
 
 ```json
 {
@@ -52,7 +52,10 @@ Human text is plain words for a stranger: no em or en dashes, no ids, codes, fil
   "now": "The plan is being written.",
   "terms": ["Xero", "QuickBooks"],
 
-  "sections": [ { "id": "story", "component": "story", "claim": "...", "lead": "...", "data": { "numbers": [] } } ],
+  "groups": [ { "id": "understand", "label": "Understand" }, { "id": "how", "label": "How it works" } ],
+  "sections": [ { "id": "story", "component": "story", "claim": "...", "lead": "...", "data": { "numbers": [] } },
+                { "id": "architecture", "group": "how", "nav": "Architecture", "component": "map", "claim": "...", "data": {},
+                  "depth": [ { "id": "parts", "title": "Every part on the map", "kind": "table", "role": "parts", "source": "agent/DESIGN.md#2.2", "data": { "columns": [], "rows": [] } } ] } ],
   "model": { "inputs": [], "values": {} },
   "decided": [ { "id": "keep-30-days", "what": "Files are kept for 30 days", "who": "model", "when": "2026-10-27",
                  "why": "Long enough to download again, short enough to keep storage small.", "section": "risks", "source": "agent/research/storage.md" } ],
@@ -60,6 +63,9 @@ Human text is plain words for a stranger: no em or en dashes, no ids, codes, fil
 
   "plan": { "summary": "...", "heartbeat_minutes": 180, "waves": [], "tickets": [], "prs": [], "branches": {}, "verification": {} },
   "findings": [], "research": [], "kickoff": "...", "prompts": [], "report": { "ready": false, "works_now": [], "not_proven": [] },
+  "ops": { "groups": [ { "id": "before-production", "title": "Before production", "items": [ { "what": "...", "when": "...", "default": "..." } ] } ], "source": "agent/OPS-CHECKLIST.md" },
+  "design_file": "agent/DESIGN.md", "unmapped": [ { "heading": "## 16. What changed", "reason": "history, shown in agent mode" } ],
+  "removed": [ { "what": "glossary", "reason": "...", "who": "Maya" } ], "words": [ { "term": "Lease", "means": "..." } ],
   "history": [], "files": [ { "path": "agent/ASK.md", "title": "The ask, verbatim", "kind": "md" } ]
 }
 ```
@@ -68,26 +74,35 @@ Human text is plain words for a stranger: no em or en dashes, no ids, codes, fil
 |---|---|---|
 | `id`, `title` (8 words), `subtitle` (4), `kind` | both | `kind` is the small line above the story's claim |
 | `owner`, `updated` | agent | |
-| `profile` | both | `feature`, `audit` or `large`; sets the word budget shown on load (450, 750, 1,200) and the section count the checker warns above (5, 6, 9) |
+| `profile` | both | `feature`, `audit` or `large`; sets which required depth the checker asks for (`design.md`, "What the build checks") |
 | `terms` | none | Allowed names: products, vendors and standards a reader must recognise ("Z360", "S3", "Node.js"). The id and code check never flags them. Each still gets a short explanation where it is first used |
 | `round` | agent | `stage` is `explore`, `plan`, `build`, `verify`, `report` or `done`. `report` and `done` switch the story to its `after` state |
 | `now` | human | The status line before any plan exists, one sentence |
-| `sections` | human | Ordered. Rendered in that order and nothing else in human mode. One `story`, first. A section id may not be a ticket id or a page id (`choice`, `reference`, `main`, `digest`, `live`, `mark`, `nav`, `theme`, `skip`, `top`, or one starting `book-`, `ch-`, `h-`, `b-`). `components.md` |
+| `groups` | human | `{ id, label }` in menu order. Every section but the story names one in `group` |
+| `sections` | human | Ordered. Rendered in that order and nothing else in human mode. One `story`, first. Each may carry `depth`, the rows that open under it (`components.md`, "Depth rows"). A section id may not be a ticket id or a page id (`choice`, `reference`, `main`, `digest`, `live`, `mark`, `nav`, `theme`, `skip`, `top`, `words`, or one starting `book-`, `ch-`, `h-`, `b-`). `components.md` |
 | `model` | human | The shared assumptions every `scale` and `cost` figure reads. `components.md` |
 | `decided` | both | What was decided, who (`model` or a person's name, required), when, why. `what` 10 words, `why` 25. `section` links it from that section |
 | `blocking` | human | `null`, or the one choice a person must make (below) |
 | `plan.start` | human | Optional, about 50 words: what a person should know before reading the build. Shown as a "Start here" strip above the steps in human mode |
-| `links` | both | `{ label, value, url, header }`. Human mode shows up to three links with an `https` url in the header (only those with `header: true` when any has it); on a phone they join the section row |
-| `agent_start` | agent | The published file an agent reads first. Default: the kickoff file (a published `kickoff*.md`), else `agent/CHECKPOINT.md`, else `agent/book.json`. Agent mode shows "Start here: <path>" above the Reference tabs, and the index carries it as `start_here` |
-| `plan.waves` | human | `{ n, id, name (2 words), what (8 words), prs }`. The steps a person sees |
-| `plan.tickets` | human | `{ id, title (10 words), goal (30), done_when[] (15 each), depends_on[], after_merge[], file, files[], risk, size }` |
-| `plan.prs`, `.branches`, `.flow`, `.review_policy`, `.merge_checklist`, `.github`, `.stop_rules`, `.verification`, `.milestones` | agent | The shipping process (`planning.md`). The Process tab shows them |
-| `findings`, `research` | agent | Evidence. A section links to one through `source` |
-| `kickoff`, `prompts` | agent | With Copy buttons in the Process tab |
-| `report` | both | `works_now` and `not_proven` show on the story when finished; the rest is agent mode (`report.md`) |
+| `links` | both | `{ label, value, url }`. Every link sits in the header's Links menu |
+| `agent_start` | agent | The published file an agent reads first. Default: the kickoff file (a published `kickoff*.md`), else `agent/CHECKPOINT.md`, else `agent/book.json`. Agent mode opens on "START HERE: <path>", and the index carries it as `start_here` |
+| `plan.waves` | human | `{ n, id, name (2 words), what (8 words), when, why, lanes[], gate[], review, on_fail, prs }` |
+| `plan.tickets` | human | `{ id, title (10 words), goal (30), problem (60), why, done_when[] (15 each), acceptance[], verify ({ run, expect } or text), files[], depends_on[], wave, pr, hours, size, risk, model, reviewers[], area, after_merge[], file }`. Required: title, goal, done_when, verify, files, depends_on (a large book also size and risk); `wave` and `pr` come from `plan.prs` when it lists the ticket. The drawer shows every field |
+| `plan.prs` | human | `{ id, title, wave, base, branch, tickets[] in commit order, depends_on[], risk, approver, problem, outcome }`. Cards on the plan board |
+| `plan.critical_path`, `.totals` | human | `[{ step, hours }]` in order; `{ agent_hours, wall_hours_range, ... }` |
+| `plan.reviews`, `.gate`, `.coverage_lines`, `.verification` | human | Review gates `{ id, title, wave, scope, checks[], hard_gate }`; gate rules `{ steps, baseline, hard_gates, severity, blocker, exit, fable_fallback }`; coverage `{ kind, what, where, result, evidence, commit }`; `verification.ready`, `.building`, `.final` (or `.checks`) |
+| `plan.principles`, `.flow`, `.risks`, `.stop_rules` | human | Depth rows under the plan |
+| `plan.branches`, `.review_policy`, `.merge_checklist`, `.github`, `.milestones` | agent | The shipping process (`planning.md`) |
+| `findings`, `research` | human | Research cards and depth tables. `research[]`: `{ id, question, answer, how_sure, changed, recommendations[], sources[], file }`; every `agent/research/*.md` is named by one |
+| `kickoff`, `prompts` | human | The kickoff section and its depth, with Copy; `START` in agent mode |
+| `ops` | human | What only the owner does, by group |
+| `design_file`, `unmapped` | checker | Every level 2 heading of the design file is the anchor of a `source`, or listed in `unmapped` with a reason |
+| `removed` | checker | What a new round dropped from the last round's sections, depth rows or ticket fields: `{ what, reason, who }` |
+| `words` | human | At most 20 terms, shown at the end |
+| `report` | both | `works_now` and `not_proven` show on the story when finished and under Progress (`report.md`) |
 | `history`, `files` | agent | Rounds, and every published agent file |
 
-Any human object may carry `source`: a published path or a URL. It shows as "Evidence" in human mode and as the path in agent mode.
+Any object may carry `source`: a published path (an `#anchor` is fine) or a URL, or `{ path, label }`. Human mode shows "Source: <what opens>" and opens the file in place; agent mode shows the path. A path not in `files` fails the build.
 
 ### The one blocking choice
 
@@ -110,7 +125,8 @@ The checker refuses these in a book that has `sections` and warns in an old one 
 |---|---|
 | `needs` | The status line. One blocking choice in `blocking` |
 | `decisions` (open questions with options) | Decide and record in `decided`; ask in chat |
-| `glossary` | Define a term in the sentence that first uses it |
+| `glossary` | Define a term in the sentence that first uses it; an optional short `words` list |
+| `sections[].table` | A depth row of kind `table` |
 | `summary.points`, `layout` | The story section; sections render in order |
 | Ticket `short` | One name, `title`, everywhere |
 
@@ -153,8 +169,8 @@ The status line warns "No update for 3 hours" when the run is active and the las
 ## For agents reading the page
 
 - `<script type="application/json" id="book-index">` in `index.html` holds one index: sections, steps with their tickets, every ticket (title, goal, step, pull request, branch, file, files, depends_on, done_when, after_merge, risk, size, status document), every PR, ready item, run, check (with expect and pass), decided record, finding, research note and published file. An agent that fetches the HTML parses it without rendering. `start_here` names the file to read first, and `how_to_read` names it too, with the ticket notes path (`agent/tickets/<ticket-id>.md`) and how to read the live state: ArtifactData inside the page, `db_list` and `db_get` from outside. The content itself is the `book-data` block (the same as `agent/book.json`); `book-build` holds build facts; `book-demo` is empty except in `preview.html`.
-- Every element that stands for a ticket, step, risk or decision carries `data-id`. `#<ticket-id>` opens its card.
-- Agent mode (`?mode=agent` or the switch) shows ids beside every name and the Reference section: Index (every ticket, check, ready item, decision, finding, research note and section), Files (every published file, raw), Raw (`book.json` and every db collection), Process (kickoff and prompts, the pull request plan, how it ships, verification, reviews), History (rounds, the log, report data), and Copy digest.
+- Every element that stands for a ticket, step, risk or decision carries `data-id`. `#plan/<ticket-id>` (or `#<ticket-id>`) opens its drawer; `#<section>/<block>` opens a depth row.
+- Agent mode (`?mode=agent`, the switch, or `#agent/<path>`) is a separate workspace: a file tree (`START`, `tables/`, `views/`, `book.json`, every published file by folder, `db/` with counts) and one view at a time. `tables/tickets` has one row per ticket and every field as a column, sorts, filters, copies as TSV or JSON, and a row opens the full record (`#agent/tables/tickets/<id>`). Copy digest is in the header.
 - Nothing exists only in human mode: every sentence a person sees comes from a field an agent can read.
 
 ## Moving an older book to this shape
