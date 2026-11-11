@@ -14,7 +14,7 @@
     "ready-tool-logins": { "state": "ok", "note": "Maya shared both test logins in chat", "at": "now-2d" }
   },
   "run": {
-    "current": { "wave": 2, "phase": "building", "note": "", "at": "now-4m", "branch": "export/csv", "pr": "csv-export", "sha": "f19a7c3e02" }
+    "current": { "wave": 2, "phase": "building", "note": "The QuickBooks file is in review. The export button is being built.", "at": "now-4m", "branch": "export/csv", "pr": "csv-export", "sha": "f19a7c3e02" }
   },
   "log": {
     "20261109080000-start": { "at": "now-2d", "round": 3, "kind": "start", "text": "Run started from run/current, step 1." },

@@ -13,7 +13,7 @@
     {
       "id": "story", "component": "story", "label": "Plan and architecture",
       "claim": "Bookkeepers get every invoice out in one click, in their tool's format.",
-      "lead": "Today a bookkeeper copies each invoice by hand at month end, which takes about three hours. We are adding one export button that builds the file in the background and can send it every month.",
+      "lead": "Today a bookkeeper copies every invoice by hand at month end, about three hours. One export button will build the file in the background and send it monthly.",
       "data": {
         "figure": { "from": "how" },
         "numbers": [
@@ -27,7 +27,7 @@
     {
       "id": "why", "component": "compare", "label": "Why", "nav": false,
       "claim": "Month end takes three hours because invoices leave the app one at a time.",
-      "lead": "Switch between today and the plan. Parts that change are outlined.",
+      "lead": "Nobody types an invoice twice, and the accounting tool takes the file as it is.",
       "data": {
         "before": { "label": "Today", "points": ["A bookkeeper opens each invoice and copies it", "Mistakes show up only when the books do not balance", "Nothing goes out unless someone remembers"],
           "numbers": [ { "value": "3 hours", "label": "a month per bookkeeper", "certainty": "estimated" } ] },
@@ -46,7 +46,7 @@
     {
       "id": "how", "component": "map", "label": "How it works", "nav": "How it works",
       "claim": "An export is saved as a job first, so a crash never loses it.",
-      "lead": "Follow one export through the parts. Then switch the story and watch a worker stop halfway.",
+      "lead": "Two workers share the work. If one stops halfway, the other goes on from the last finished page.",
       "data": {
         "nodes": [
           { "id": "person", "name": "Bookkeeper", "does": "Asks for a month", "wide": [8, 44, 136, 56], "tall": [104, 8, 150, 54] },
@@ -88,7 +88,7 @@
     {
       "id": "setup", "component": "steps", "label": "How it works",
       "claim": "Setting up the monthly email takes four choices and one minute.",
-      "lead": "Step through what the owner does once. After that the file arrives by itself.",
+      "lead": "The owner sets it up once. After that the file arrives by itself.",
       "data": {
         "steps": [
           { "title": "Pick the tool", "text": "Xero, QuickBooks or a plain spreadsheet. The columns follow that tool's own import page." },
@@ -101,10 +101,11 @@
     {
       "id": "can", "component": "capabilities", "label": "What it can do", "nav": "What it can do",
       "claim": "Three formats and a monthly email, with more formats later.",
-      "lead": "Each line says what works today, what is being built and what comes later.",
+      "lead": "Background exports and Xero files already work; the rest is being built.",
       "data": {
         "items": [
           { "name": "Export runs in the background", "line": "Big months never time out, and every export leaves a record.", "state": "today", "ticket": "export-job-runner" },
+          { "name": "A stopped export goes on", "line": "Another worker continues from the last finished page.", "state": "today", "ticket": "export-resume" },
           { "name": "Files for Xero", "line": "Columns match the Xero sales import, so the file imports as is.", "state": "today", "ticket": "csv-xero" },
           { "name": "Files for QuickBooks", "line": "Columns match the QuickBooks invoice import.", "state": "building", "ticket": "csv-quickbooks" },
           { "name": "One PDF bundle per month", "line": "Every invoice as a PDF, in one download.", "state": "building", "ticket": "pdf-bundle" },
@@ -117,12 +118,12 @@
     {
       "id": "file-sample", "component": "chapter", "label": "What it can do",
       "claim": "Each accounting tool gets exactly the columns it expects.",
-      "lead": "Pick a tool and see the first rows of the file it receives."
+      "lead": "The first rows of the file each tool receives."
     },
     {
       "id": "scale", "component": "scale", "label": "Safety, recovery and cost", "nav": "Safety and cost",
       "claim": "The same design holds for one invoice a month and for a hundred thousand.",
-      "lead": "Drag the slider. Workers are added and removed by the system, never by a person.",
+      "lead": "Workers are added and removed by the system, never by a person.",
       "data": {
         "input": "invoices",
         "inputs": ["exports"],
@@ -143,7 +144,7 @@
     {
       "id": "cost", "component": "cost", "label": "Safety, recovery and cost",
       "claim": "Both costs grow in {shape}. Ours grows about {ratio|times} slower.",
-      "lead": "Change the assumptions and read the gap. The slider is the same one as above.",
+      "lead": "The sync service charges per invoice; our cost is mostly a small always-on part.",
       "data": {
         "x": { "input": "invoices" },
         "controls": ["invoices", "exports"],
@@ -169,7 +170,6 @@
     {
       "id": "risks", "component": "risks", "label": "Safety, recovery and cost",
       "claim": "Five things can go wrong, and four are fully covered.",
-      "lead": "Pick a dot or a line to see what happens then.",
       "data": {
         "risks": [
           { "name": "A worker stops halfway", "likelihood": 3, "impact": 1, "then": "Another worker goes on from the last finished page. The bookkeeper waits a little longer.", "covered": "yes", "ticket": "export-resume" },
@@ -181,27 +181,14 @@
       }
     },
     {
-      "id": "today", "component": "capabilities", "label": "What exists today", "nav": "Today",
-      "claim": "Exports already run in the background and Xero files already import.",
-      "lead": "Only what is built and proven. Open a line for its proof.",
-      "data": {
-        "only": "today",
-        "items": [
-          { "name": "Export runs in the background", "line": "A month of 2,000 invoices finished in 41 seconds while the app stayed fast.", "state": "today", "ticket": "export-job-runner" },
-          { "name": "A stopped export goes on", "line": "Stopping a worker halfway lost no page and repeated none.", "state": "today", "ticket": "export-resume" },
-          { "name": "Files for Xero", "line": "The sample file imported into a test Xero account with no changes.", "state": "today", "ticket": "csv-xero" }
-        ]
-      }
-    },
-    {
       "id": "build", "component": "build", "label": "The build", "nav": "The build",
       "claim": "Four steps, each proven before the next one starts.",
-      "lead": "Pick a step to see its pieces of work. Open one to see what done means and the proof."
+      "lead": "Every piece of work says what done means and shows its proof."
     },
     {
       "id": "beyond", "component": "roadmap", "label": "Beyond", "nav": "Beyond",
       "claim": "Four things come next, each started by a clear signal.",
-      "lead": "No dates. Each starts when its signal shows up.",
+      "lead": "None has a date. Each starts when its signal shows up.",
       "data": {
         "items": [
           { "name": "Pick your own columns", "trigger": "after 50 customers ask for another tool", "line": "One screen to map our fields to any tool's columns." },
@@ -214,7 +201,7 @@
     {
       "id": "decisions", "component": "decided", "label": "Decided", "nav": false,
       "claim": "Choices already made, so nobody has to ask again.",
-      "lead": "Each says who decided and why. Raise any of them in the chat."
+      "lead": "Each says who decided and why. Any of them can be reopened in the chat."
     }
   ],
 
@@ -301,7 +288,7 @@
     }
   },
 
-  "kickoff": "Run Invoice export, round 3, from its book: <book URL>.\nOpen this chat in the Fieldnote repo. The book is the source of truth: read it with the Artifact tool, restore its files if this machine lacks them, read status and run with ArtifactData, and follow the living-artifact skill's run.md.\nI opt in to workflows of up to 8 agents per wave.\nStart from run/current. Ship one PR per category, stacked on develop, one commit per ticket. Prove and review every ticket before its commit is final. Decide what you can and record it in decided; ask me in chat only when a choice is mine and blocks the work.\nWhen every PR is open, run the agreed checklist once on a fresh copy built from the top of the stack.",
+  "kickoff": "Run Invoice export, round 3, from its book: <book URL>.\nOpen this chat in the Fieldnote repo. The book is the source of truth: read it with the Artifact tool, restore its files if this machine lacks them, read status, run and log with ArtifactData, and follow the living-artifact skill's run.md.\nI opt in to workflows of up to 8 agents per wave.\nStart from run/current. Ship one PR per category, stacked on develop, one commit per ticket. Prove and review every ticket before its commit is final. Decide what you can and record it in decided; ask me in chat only when a choice is mine and blocks the work.\nWhen every PR is open, run the agreed checklist once on a fresh copy built from the top of the stack.",
   "prompts": [ { "id": "progress", "title": "Progress update", "when": "Paste any time", "text": "Read the book at <book URL> with the Artifact tool and its status, run and log collections with ArtifactData. Change nothing. In under ten lines and plain words: what step we are on, what each open pull request waits on, what stopped and why, and anything that needs me." } ],
   "report": { "ready": false, "works_now": [], "not_proven": [] },
   "history": [
