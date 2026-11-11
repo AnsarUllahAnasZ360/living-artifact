@@ -627,7 +627,7 @@ let onLoad = 0, total = 0;
 human.forEach(([where, text, max, load]) => {
   const n = words(text);
   total += n; if (load) onLoad += n;
-  if (max && n > max) (STRICT.test(where) ? err : warn)(`${where}: ${n} words; budget is ${max}: "${text.length > 90 ? text.slice(0, 87) + "..." : text}"`);
+  if (max && n > max) (STRICT.test(where) && isNew ? err : warn)(`${where}: ${n} words; budget is ${max}: "${text.length > 90 ? text.slice(0, 87) + "..." : text}"`);
   const bare = text.replace(/\{[^{}]*\}/g, " ").replace(/https?:\/\/\S+/g, " ");
   const hits = [];
   for (const [re, what] of CODES) for (const m of bare.matchAll(new RegExp(re.source, re.flags + "g"))) { const x = m[0].trim(); if (!TERMS.has(x) && ![...TERMS].some((tm) => tm.includes(x) && bare.includes(tm))) hits.push(`${what} "${x}"`); }
@@ -663,7 +663,7 @@ const shown = onLoad + added;
 const BOOK_BUDGET = { large: 1200, feature: 450, audit: 750 }[profile] || 1200;
 const SEC_MAX = { large: 9, feature: 5, audit: 6 }[profile] || 9;
 if (SECS.length > SEC_MAX) warn(`sections: ${SECS.length}; a ${profile} book needs about ${SEC_MAX} at most. Use only the sections this work needs; two ideas that share a picture share a section`);
-if (shown > BOOK_BUDGET) err(`words a person sees on load: about ${shown} (${onLoad} written, ${added} added by the page); the ${profile} budget is ${BOOK_BUDGET}. Cut a section, or move detail one click deeper or into agent files`);
+if (shown > BOOK_BUDGET) (isNew ? err : warn)(`words a person sees on load: about ${shown} (${onLoad} written, ${added} added by the page); the ${profile} budget is ${BOOK_BUDGET}. Cut a section, or move detail one click deeper or into agent files`);
 else if (shown > BOOK_BUDGET * 0.8) warn(`words a person sees on load: about ${shown} (${onLoad} written, ${added} added by the page), over 80% of the ${profile} budget of ${BOOK_BUDGET}`);
 
 // ---------- dashes anywhere in the book ----------

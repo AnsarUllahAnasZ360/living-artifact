@@ -184,6 +184,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 .cap b { font: 600 18px/28px var(--font-display); letter-spacing: -.015em; }
 .cap p { grid-column: 2; color: var(--text-2); font-size: 14px; line-height: 21px; text-wrap: pretty; min-height: 21px; }
 .cap small { grid-column: 2; margin-top: 6px; font-size: 12px; color: var(--text-3); font-variant-numeric: tabular-nums; }
+.cap small:empty::before { content: "\00a0"; }
 .cap.inspect .num { background: var(--accent); }
 .n-box { fill: var(--bg); stroke: var(--line-strong); stroke-width: 1; transition: stroke var(--ease), fill var(--ease), stroke-width var(--ease); }
 .n-zone { fill: none; stroke: var(--line-strong); stroke-dasharray: 3 4; }
