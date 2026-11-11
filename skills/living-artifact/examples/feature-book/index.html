@@ -248,6 +248,14 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 .e-vb { font: 500 11.5px var(--font-sans); fill: var(--accent-text); paint-order: stroke; stroke: var(--bg-subtle); stroke-width: 4px; stroke-linejoin: round; opacity: 0; transition: opacity var(--ease); pointer-events: none; }
 .e-vb.hl { opacity: 1; }
 .tok { fill: var(--accent); }
+.by-origin .o-aws .n-box { fill: var(--bg-muted); }
+.by-origin .o-open .n-box { stroke-dasharray: 5 3; stroke: var(--text-3); }
+.by-origin .o-ours .n-box { stroke: var(--accent); stroke-width: 1.75; }
+.by-origin .o-yours .n-box { stroke-dasharray: 1.5 3; stroke: var(--text-2); }
+.olegend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; font-size: 12.5px; color: var(--text-2); }
+.olegend span { display: inline-flex; gap: 7px; align-items: center; }
+.olegend i { width: 16px; height: 11px; border-radius: 3px; border: 1px solid var(--line-strong); background: var(--bg); }
+.olegend .o-aws i { background: var(--bg-muted); } .olegend .o-open i { border: 1px dashed var(--text-3); } .olegend .o-ours i { border: 1.75px solid var(--accent); } .olegend .o-yours i { border: 1px dotted var(--text-2); }
 .tok-h { fill: var(--accent-ring); }
 .steps li + li { margin-top: 2px; }
 .steps button { width: 100%; display: grid; grid-template-columns: 22px 1fr; gap: 10px; padding: 8px 10px; border-radius: var(--r); color: var(--text-2); transition: background-color var(--ease), color var(--ease); min-height: 38px; }
@@ -816,8 +824,8 @@ table.atbl { border-collapse: collapse; font-size: 11.5px; min-width: 100%; }
 <dialog class="viewer" id="viewer" aria-label="File"></dialog>
 <p class="sr" id="live" aria-live="polite"></p>
 <script id="book-data" type="application/json">{"id":"monthly-send","title":"Monthly invoice email","terms":["Xero","QuickBooks"],"subtitle":"A feature","kind":"Feature plan","owner":{"name":"Maya","role":"Founder of Fieldnote"},"profile":"feature","updated":"2026-11-11T09:00:00Z","round":{"n":1,"title":"Send the file by itself","started":"2026-11-03","stage":"build"},"sections":[{"id":"story","component":"story","label":"Feature plan","claim":"The month's invoice file arrives by email the day the books close.","lead":"Today the owner emails the file by hand each month.","data":{"numbers":[{"value":"1 minute","label":"to set up, once","certainty":"designed"},{"value":"0 of 0","label":"pieces of work proven","live":"proven","certainty":"measured"}]}},{"id":"setup","component":"steps","label":"How it works","claim":"Setting up the monthly email takes four choices and one minute.","lead":"After that the file arrives by itself.","data":{"steps":[{"title":"Pick the tool","text":"Xero, QuickBooks or a plain spreadsheet."},{"title":"Pick the day","text":"The day the books close, not the first of the month."},{"title":"Add the bookkeeper","text":"An email address. The bookkeeper never needs to log in."},{"title":"Send a test","text":"A small file with last week's invoices arrives at once."}]},"group":"understand","nav":"How it works","depth":[{"id":"send-rules","title":"The send, rule by rule","kind":"list","source":"agent/ASK.md","data":{"items":[{"label":"Day:","text":"the closing day the owner picks, at 6 in the morning local time"},{"label":"Empty month:","text":"no invoices means no email"},{"label":"Link:","text":"works for 30 days, no login needed"},{"label":"Bounce:","text":"shown on the export screen within five minutes"}]}}]},{"id":"scope","group":"understand","nav":"Scope","component":"capabilities","label":"Scope","claim":"It sends one file a month and does nothing else.","data":{"items":[{"name":"Monthly email with the file","state":"building","line":"One email a month on the closing day.","ticket":"send-job"},{"name":"Bounce report","state":"building","line":"A bounce shows on the export screen.","ticket":"send-bounce"},{"name":"Several addresses","state":"later","line":"One address for now; more when someone asks."}]},"depth":[{"id":"not-in-scope","role":"out-of-scope","title":"Not in this feature","kind":"list","source":"agent/ASK.md","data":{"items":["Sending to more than one address","Editing the email text","A weekly or daily send"]}}]},{"id":"file-sample","component":"chapter","label":"The file","claim":"Each accounting tool gets exactly the columns it expects.","lead":"The first rows of each tool's file.","group":"understand","nav":"The file"},{"id":"choices","group":"understand","nav":"Decisions","component":"decisions","label":"Decided","claim":"Two choices are already made, so nobody has to ask again."},{"id":"build","group":"build","nav":"The plan","component":"plan","label":"The build","claim":"Two steps, each proven before the next one starts."},{"id":"proof","group":"build","nav":"Proof","component":"verification","label":"Proof","claim":"One check at the end proves the email arrives on the day."},{"id":"kickoff","group":"build","nav":"Kickoff","component":"kickoff","label":"Kickoff","claim":"One prompt starts the build in a fresh session.","data":{"steps":["Open the repo","Paste the prompt","One builder","Final check"]}}],"decided":[{"id":"send-day","what":"The owner picks the day the email goes out","who":"Maya","when":"2026-10-28","why":"Books close on different days, and a file that arrives early is incomplete.","section":"setup"},{"id":"no-login","what":"The bookkeeper never needs an account","who":"model","when":"2026-11-03","why":"A link that works for 30 days is enough.","section":"setup"}],"plan":{"summary":"Three pieces of work in two steps, without pull request planning: one builder, one review, one final check.","waves":[{"n":1,"id":"wave-1","name":"Schedule","what":"The owner picks the tool, day and address."},{"n":2,"id":"wave-2","name":"Delivery","what":"The file goes out and bounces are reported."}],"tickets":[{"id":"send-settings","wave":1,"title":"The owner sets the tool, day and address once","goal":"A settings card on the export screen saves the tool, the closing day and one email address for each customer.","done_when":["The card saves and shows the next send date","A test email arrives within one minute"],"risk":"low","size":"M","files":["apps/web/src/export/"],"depends_on":[],"verify":{"run":"Save the card on the local stack, then press Send a test","expect":"The next date shows and a test email lands within a minute"},"problem":"The owner has nowhere to say which tool, which day and which address the file goes to.","hours":2},{"id":"send-job","wave":2,"title":"The file goes out on the chosen day","goal":"On the closing day a background job builds the month's file and emails a download link that works for 30 days.","done_when":["The email arrives on the chosen day with a working link","A month with no invoices sends nothing"],"depends_on":["send-settings"],"risk":"medium","size":"M","files":["apps/api/src/jobs/send.ts"],"verify":{"run":"Set the clock to the closing day and run the job","expect":"One email with a working link; an empty month sends nothing"},"problem":"The file is built only when the owner clicks export, so it is late when they forget.","hours":3},{"id":"send-bounce","wave":2,"title":"The owner hears when an email bounces","goal":"A bounced email shows on the export screen with the reason, and the file stays there to download.","done_when":["A bounce shows on the export screen within five minutes"],"depends_on":["send-job"],"risk":"low","size":"M","files":["apps/api/src/jobs/send.ts"],"verify":{"run":"Send to an address the test mail server rejects","expect":"The bounce and its reason show on the export screen"},"problem":"A wrong address fails silently and the bookkeeper never gets the file.","hours":1.5}],"verification":{"summary":"One check on the local stack with a seeded account, about 15 minutes.","checks":[{"id":"send-on-day","title":"The month's file arrives on the day","kind":"code","tickets":["send-settings","send-job","send-bounce"],"expect":"With the clock set to the closing day, one email goes out with a working link; a bad address shows a bounce.","pass":"One email in the test inbox, the link downloads the file, and the bounce shows on the screen."}]}},"kickoff":"Build Monthly invoice email from its book: \u003cbook URL>. Open this chat in the Fieldnote repo. Read the book with the Artifact tool and status, run and log with ArtifactData, and follow the living-artifact skill's run.md. One builder, one review per piece of work, then the final check. Decide what you can and record it in decided; ask me in chat only when a choice is mine and blocks the work.","report":{"ready":false,"works_now":[],"not_proven":[]},"files":[{"path":"agent/ASK.md","title":"The ask, verbatim","kind":"md"},{"path":"agent/CHECKPOINT.md","title":"Run ledger","kind":"md"}],"groups":[{"id":"understand","label":"Understand"},{"id":"build","label":"The build"}]}</script>
-<script id="book-index" type="application/json">{"book":"monthly-send","title":"Monthly invoice email","round":{"n":1,"title":"Send the file by itself","started":"2026-11-03","stage":"build"},"updated":"2026-11-11T09:00:00Z","built":"2026-11-11T05:10:53.373Z","start_here":"agent/CHECKPOINT.md","how_to_read":"Start with agent/CHECKPOINT.md. Content is the book-data script block (agent/book.json); notes for one piece of work are agent/tickets/\u003cticket-id>.md. Live state is the page database: status/\u003cticket-id>, status/pr-\u003cid>, status/check-\u003cid>, status/ready-\u003cid>, run/current, run/blocking, log/\u003cid>. Inside the page it is ArtifactData; from outside, read it with db_list and db_get (collections status, run, log) and write it with db_write.","sections":[{"id":"story","component":"story","claim":"The month's invoice file arrives by email the day the books close."},{"id":"setup","component":"steps","claim":"Setting up the monthly email takes four choices and one minute."},{"id":"scope","component":"capabilities","claim":"It sends one file a month and does nothing else."},{"id":"file-sample","component":"chapter","claim":"Each accounting tool gets exactly the columns it expects."},{"id":"choices","component":"decisions","claim":"Two choices are already made, so nobody has to ask again."},{"id":"build","component":"plan","claim":"Two steps, each proven before the next one starts."},{"id":"proof","component":"verification","claim":"One check at the end proves the email arrives on the day."},{"id":"kickoff","component":"kickoff","claim":"One prompt starts the build in a fresh session."}],"steps":[{"n":1,"id":"wave-1","name":"Schedule","order":1,"tickets":["send-settings"]},{"n":2,"id":"wave-2","name":"Delivery","order":2,"tickets":["send-job","send-bounce"]}],"tickets":[{"id":"send-settings","title":"The owner sets the tool, day and address once","goal":"A settings card on the export screen saves the tool, the closing day and one email address for each customer.","step":1,"pr":null,"branch":null,"file":null,"files":["apps/web/src/export/"],"depends_on":[],"done_when":["The card saves and shows the next send date","A test email arrives within one minute"],"after_merge":[],"risk":"low","size":"M","status_doc":"status/send-settings"},{"id":"send-job","title":"The file goes out on the chosen day","goal":"On the closing day a background job builds the month's file and emails a download link that works for 30 days.","step":2,"pr":null,"branch":null,"file":null,"files":["apps/api/src/jobs/send.ts"],"depends_on":["send-settings"],"done_when":["The email arrives on the chosen day with a working link","A month with no invoices sends nothing"],"after_merge":[],"risk":"medium","size":"M","status_doc":"status/send-job"},{"id":"send-bounce","title":"The owner hears when an email bounces","goal":"A bounced email shows on the export screen with the reason, and the file stays there to download.","step":2,"pr":null,"branch":null,"file":null,"files":["apps/api/src/jobs/send.ts"],"depends_on":["send-job"],"done_when":["A bounce shows on the export screen within five minutes"],"after_merge":[],"risk":"low","size":"M","status_doc":"status/send-bounce"}],"ready":[],"runs":[],"prs":[],"checks":[{"id":"send-on-day","title":"The month's file arrives on the day","kind":"code","run":null,"tickets":["send-settings","send-job","send-bounce"],"expect":"With the clock set to the closing day, one email goes out with a working link; a bad address shows a bounce.","pass":"One email in the test inbox, the link downloads the file, and the bounce shows on the screen.","status_doc":"status/check-send-on-day"}],"decided":[{"id":"send-day","what":"The owner picks the day the email goes out","who":"Maya","when":"2026-10-28","section":"setup"},{"id":"no-login","what":"The bookkeeper never needs an account","who":"model","when":"2026-11-03","section":"setup"}],"findings":[],"research":[],"files":["agent/ASK.md","agent/CHECKPOINT.md","agent/book.json","chapters/file-sample.html"]}</script>
-<script id="book-build" type="application/json">{"source":"feature-book/index.html","built":"2026-11-11T05:10:53.373Z","preview":false,"words_written_on_load":239,"words_total":533,"published":["agent/ASK.md","agent/CHECKPOINT.md","agent/book.json","chapters/file-sample.html"]}</script>
+<script id="book-index" type="application/json">{"book":"monthly-send","title":"Monthly invoice email","round":{"n":1,"title":"Send the file by itself","started":"2026-11-03","stage":"build"},"updated":"2026-11-11T09:00:00Z","built":"2026-11-11T05:12:44.722Z","start_here":"agent/CHECKPOINT.md","how_to_read":"Start with agent/CHECKPOINT.md. Content is the book-data script block (agent/book.json); notes for one piece of work are agent/tickets/\u003cticket-id>.md. Live state is the page database: status/\u003cticket-id>, status/pr-\u003cid>, status/check-\u003cid>, status/ready-\u003cid>, run/current, run/blocking, log/\u003cid>. Inside the page it is ArtifactData; from outside, read it with db_list and db_get (collections status, run, log) and write it with db_write.","sections":[{"id":"story","component":"story","claim":"The month's invoice file arrives by email the day the books close."},{"id":"setup","component":"steps","claim":"Setting up the monthly email takes four choices and one minute."},{"id":"scope","component":"capabilities","claim":"It sends one file a month and does nothing else."},{"id":"file-sample","component":"chapter","claim":"Each accounting tool gets exactly the columns it expects."},{"id":"choices","component":"decisions","claim":"Two choices are already made, so nobody has to ask again."},{"id":"build","component":"plan","claim":"Two steps, each proven before the next one starts."},{"id":"proof","component":"verification","claim":"One check at the end proves the email arrives on the day."},{"id":"kickoff","component":"kickoff","claim":"One prompt starts the build in a fresh session."}],"steps":[{"n":1,"id":"wave-1","name":"Schedule","order":1,"tickets":["send-settings"]},{"n":2,"id":"wave-2","name":"Delivery","order":2,"tickets":["send-job","send-bounce"]}],"tickets":[{"id":"send-settings","title":"The owner sets the tool, day and address once","goal":"A settings card on the export screen saves the tool, the closing day and one email address for each customer.","step":1,"pr":null,"branch":null,"file":null,"files":["apps/web/src/export/"],"depends_on":[],"done_when":["The card saves and shows the next send date","A test email arrives within one minute"],"after_merge":[],"risk":"low","size":"M","status_doc":"status/send-settings"},{"id":"send-job","title":"The file goes out on the chosen day","goal":"On the closing day a background job builds the month's file and emails a download link that works for 30 days.","step":2,"pr":null,"branch":null,"file":null,"files":["apps/api/src/jobs/send.ts"],"depends_on":["send-settings"],"done_when":["The email arrives on the chosen day with a working link","A month with no invoices sends nothing"],"after_merge":[],"risk":"medium","size":"M","status_doc":"status/send-job"},{"id":"send-bounce","title":"The owner hears when an email bounces","goal":"A bounced email shows on the export screen with the reason, and the file stays there to download.","step":2,"pr":null,"branch":null,"file":null,"files":["apps/api/src/jobs/send.ts"],"depends_on":["send-job"],"done_when":["A bounce shows on the export screen within five minutes"],"after_merge":[],"risk":"low","size":"M","status_doc":"status/send-bounce"}],"ready":[],"runs":[],"prs":[],"checks":[{"id":"send-on-day","title":"The month's file arrives on the day","kind":"code","run":null,"tickets":["send-settings","send-job","send-bounce"],"expect":"With the clock set to the closing day, one email goes out with a working link; a bad address shows a bounce.","pass":"One email in the test inbox, the link downloads the file, and the bounce shows on the screen.","status_doc":"status/check-send-on-day"}],"decided":[{"id":"send-day","what":"The owner picks the day the email goes out","who":"Maya","when":"2026-10-28","section":"setup"},{"id":"no-login","what":"The bookkeeper never needs an account","who":"model","when":"2026-11-03","section":"setup"}],"findings":[],"research":[],"files":["agent/ASK.md","agent/CHECKPOINT.md","agent/book.json","chapters/file-sample.html"]}</script>
+<script id="book-build" type="application/json">{"source":"feature-book/index.html","built":"2026-11-11T05:12:44.722Z","preview":false,"words_written_on_load":239,"words_total":533,"published":["agent/ASK.md","agent/CHECKPOINT.md","agent/book.json","chapters/file-sample.html"]}</script>
 <script id="book-demo" type="application/json"></script>
 <template id="ch-file-sample">
 <div class="pv">
@@ -1359,6 +1367,7 @@ function statusLine() {
   return el;
 }
 COMP.story = function (stage, d, sec) {
+  if (d.changed) add(stage, h("p", { class: "fine", style: "margin:-12px 0 0;font-size:13px", text: d.changed }));
   var nums = (d.numbers || []).slice(0, 3);
   if (nums.length) {
     var stats = h("div", { class: "stats" });
@@ -1432,8 +1441,18 @@ function extent(nodes, layout) {
   nodes.forEach(function (n) { var b = boxOf(n, layout); w = Math.max(w, b[0] + b[2]); hh = Math.max(hh, b[1] + b[3]); });
   return [w + 8, hh + 8];
 }
+function nodeFacts(n) { return [n.size, n.cost, n.why ? "Why: " + n.why : ""].filter(Boolean).join(" · "); }
+var ORIGINS = { open: "Open source we install", aws: "Cloud service, managed", ours: "Our own code", yours: "Your code" };
 COMP.map = function (stage, d, sec) {
   var nodes = (d.nodes || []).filter(function (n) { return n && n.id; }), N = {};
+  /* bands: a dashed frame around every part of one band, labelled, drawn under the parts */
+  var BANDS = d.bands || {}, bandIds = Object.keys(BANDS).filter(function (k) { return nodes.some(function (n) { return n.band === k; }); });
+  bandIds.forEach(function (k) {
+    var mem = nodes.filter(function (n) { return n.band === k && !n.zone; }), z = { id: "band-" + k, name: BANDS[k], zone: true, band_frame: true };
+    ["wide", "tall"].forEach(function (lay) { if (!mem.every(function (n) { return n[lay] || n.wide; })) return; var x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; mem.forEach(function (n) { var b = n[lay] || n.wide; x0 = Math.min(x0, b[0]); y0 = Math.min(y0, b[1]); x1 = Math.max(x1, b[0] + b[2]); y1 = Math.max(y1, b[1] + b[3]); }); z[lay] = [x0 - 10, y0 - 26, x1 - x0 + 20, y1 - y0 + 36]; });
+    if (z.wide) nodes.unshift(z);
+  });
+  var origins = nodes.some(function (n) { return n.origin; }), OL = Object.assign({}, ORIGINS, d.origins || {});
   nodes.forEach(function (n) { N[n.id] = n; });
   var edges = (d.edges || []).filter(function (e) { return e && e.id && N[e.from] && N[e.to]; });
   var E = {}; edges.forEach(function (e) { E[e.id] = e; });
@@ -1462,8 +1481,14 @@ COMP.map = function (stage, d, sec) {
     });
     add(bar, seg);
   }
-  var hasStory = stories.length > 0;
-  add(stage, h("div", { class: "flow" + (hasStory ? "" : " solo") }, h("div", {}, hasStory ? bar : null, fig, live), hasStory ? stepsEl : null));
+  var hasStory = stories.length > 0, legend = null;
+  if (origins) {
+    var oseg = h("div", { class: "seg", role: "group", "aria-label": "Colour the parts" });
+    legend = h("div", { class: "olegend", hidden: true }, Object.keys(OL).filter(function (k) { return nodes.some(function (n) { return n.origin === k; }); }).map(function (k) { return h("span", { class: "o-" + k }, h("i"), OL[k]); }));
+    [["", "Parts"], ["on", "Where each comes from"]].forEach(function (o, k) { add(oseg, h("button", { type: "button", "aria-pressed": String(k === 0), onclick: function () { $$("button", oseg).forEach(function (b2, j) { b2.setAttribute("aria-pressed", String(j === k)); }); fig.classList.toggle("by-origin", !!o[0]); legend.hidden = !o[0]; } }, o[1])); });
+    if (hasStory) add(bar, oseg); else add(stage, h("div", { class: "flow__bar" }, oseg));
+  }
+  add(stage, h("div", { class: "flow" + (hasStory ? "" : " solo") }, h("div", {}, hasStory ? bar : null, fig, legend, live), hasStory ? stepsEl : null));
 
   function steps() { return hasStory ? stories[st.story].steps : []; }
   function draw() {
@@ -1471,7 +1496,7 @@ COMP.map = function (stage, d, sec) {
     if (layout === st.layout) return;
     st.layout = layout;
     host.textContent = "";
-    var ex = extent(nodes, layout), vb = "0 0 " + ex[0] + " " + ex[1];
+    var ex = extent(nodes, layout), mx0 = Math.min(0, Math.min.apply(null, nodes.map(function (n) { return boxOf(n, layout)[0]; }))), my0 = Math.min(0, Math.min.apply(null, nodes.map(function (n) { return boxOf(n, layout)[1]; }))), vb = mx0 + " " + my0 + " " + (ex[0] - mx0) + " " + (ex[1] - my0);
     var label = "System map: " + nodes.filter(function (n) { return !n.zone; }).map(function (n) { return n.name; }).join(", ") + ".";
     var svg = s("svg", { viewBox: vb, role: "img", "aria-label": label });
     if (layout === "tall") { svg.style.maxWidth = ex[0] + "px"; svg.style.margin = "0 auto"; }
@@ -1484,11 +1509,11 @@ COMP.map = function (stage, d, sec) {
       if (e.verb && layout !== "tall") add(gV, s("text", { class: "e-vb", "data-ev": e.id, "text-anchor": "middle", text: e.verb }));
     });
     nodes.forEach(function (n) {
-      var b = boxOf(n, layout), g = s("g", { class: "node", "data-n": n.id, "data-id": n.id });
+      var b = boxOf(n, layout), g = s("g", { class: "node" + (n.origin ? " o-" + n.origin : ""), "data-n": n.id, "data-id": n.id });
       if (n.zone) { add(g, [s("rect", { x: b[0], y: b[1], width: b[2], height: b[3], rx: 10, class: "n-zone" }), s("text", { x: b[0] + 12, y: b[1] + 18, class: "n-z", text: n.name })]); add(gN, g); return; }
       g.setAttribute("tabindex", "0");
       g.setAttribute("role", "button");
-      g.setAttribute("aria-label", n.name + (n.does ? ": " + n.does : ""));
+      g.setAttribute("aria-label", n.name + (n.does ? ": " + n.does : "") + (nodeFacts(n) ? ". " + nodeFacts(n) : "") + (n.origin ? ". " + (OL[n.origin] || n.origin) : ""));
       add(g, [s("rect", { x: b[0], y: b[1], width: b[2], height: b[3], rx: 8, class: "n-halo" }), s("rect", { x: b[0], y: b[1], width: b[2], height: b[3], rx: 8, class: "n-box" })]);
       if (n.dot) {
         add(g, [s("circle", { cx: b[0] + 14, cy: b[1] + b[3] / 2, r: 3.5, class: "n-dot" }), s("text", { x: b[0] + 26, y: b[1] + b[3] / 2 + 4.5, class: "n-t", text: n.name }),
@@ -1537,7 +1562,7 @@ COMP.map = function (stage, d, sec) {
     if (!n) { caption(); return; }
     cap.classList.add("inspect");
     capN.textContent = "i"; capT.textContent = n.name; capD.textContent = n.does ? n.does.replace(/\.?$/, ".") : "";
-    capK.textContent = "";
+    capK.textContent = nodeFacts(n);
     live.textContent = n.name + ". " + capD.textContent;
   }
   function caption() {
@@ -1607,7 +1632,7 @@ COMP.map = function (stage, d, sec) {
     var all = [];
     (hasStory ? stories : []).forEach(function (s) { var l = s.steps; l.forEach(function (x, i) { all.push([i + 1, x.title, x.text || "", "Step " + (i + 1) + " of " + l.length]); }); });
     if (!hasStory) all.push(["i", d.hint_title || "The parts", d.hint || "Point at or tab to a part to see what it does and who it talks to.", ""]);
-    nodes.forEach(function (n) { if (!n.zone) all.push(["i", n.name, n.does ? n.does.replace(/\.?$/, ".") : "", "", true]); });
+    nodes.forEach(function (n) { if (!n.zone) all.push(["i", n.name, n.does ? n.does.replace(/\.?$/, ".") : "", nodeFacts(n), true]); });
     return all;
   });
   requestAnimationFrame(draw);
@@ -2378,10 +2403,12 @@ COMP.figure = function (stage, d) { add(stage, figureEl(d)); };
 COMP.research = function (stage, d, sec) {
   var R = (B.research || []).filter(function (r) { return r && r.question; });
   if (!R.length) { add(stage, h("p", { class: "empty", text: "No research notes yet." })); return; }
-  var HS = { measured: "measured", estimated: "estimated", designed: "designed" };
+  var HS = { measured: "measured", estimated: "estimated", designed: "designed" }, rest = 0;
+  var F = R.filter(function (r) { return r.featured; }); if (F.length) { rest = R.length - F.length; R = F; }
   add(stage, h("div", { class: "cards" }, R.map(function (r) {
     return cardEl({ title: r.question, text: String(r.answer || "").split(/(?<=\.)\s/)[0], certainty: HS[String(r.how_sure || "").toLowerCase()] || null }, function () { openDepth(sec.id, "notes"); });
   })));
+  if (rest) add(stage, h("p", { class: "fine", style: "margin-top:12px" }, rest + " more research notes are in the table below. ", h("button", { type: "button", class: "linkbtn", text: "Open every note", onclick: function () { openDepth(sec.id, "notes"); } })));
 };
 COMP.decisions = function (stage, d) {
   var top = (d.top || []).map(function (id) { return DECIDED.filter(function (x) { return x.id === id; })[0]; }).filter(Boolean);
@@ -2725,8 +2752,10 @@ function groupedSections() {
   return GROUPS.map(function (g) { return { id: g.id, label: g.label, secs: rest.filter(function (x) { return x.group === g.id; }) }; }).filter(function (g) { return g.secs.length; });
 }
 function tocEl() {
-  var gs = groupedSections(); if (SECS.length < 6) return null;
-  return h("nav", { class: "toc", "aria-label": "What is in this book" }, gs.map(function (g) { return h("div", {}, g.label ? h("h3", { text: g.label }) : null, g.secs.map(function (x) { return h("a", { href: "#" + x.id }, h("b", { text: x.nav || x.label || x.id }), x.promise ? h("small", { text: x.promise }) : null); })); }));
+  var gs = groupedSections(), story = SECS.filter(function (x) { return x.component === "story"; })[0], PROM = {};
+  ((story && story.data && story.data.toc) || []).forEach(function (t) { if (t && t.section) PROM[t.section] = t.promise; });
+  if (SECS.length < 6) return null;
+  return h("nav", { class: "toc", "aria-label": "What is in this book" }, gs.map(function (g) { return h("div", {}, g.label ? h("h3", { text: g.label }) : null, g.secs.map(function (x) { return h("a", { href: "#" + x.id }, h("b", { text: x.nav || x.label || x.id }), (PROM[x.id] || x.promise) ? h("small", { text: PROM[x.id] || x.promise }) : null); })); }));
 }
 var LIVESECS = { plan: 1, progress: 1, build: 1, verification: 1 };
 function topState() {

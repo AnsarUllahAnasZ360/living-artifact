@@ -337,7 +337,8 @@
               8,
               150,
               54
-            ]
+            ],
+            "origin": "yours"
           },
           {
             "id": "button",
@@ -354,7 +355,11 @@
               96,
               150,
               54
-            ]
+            ],
+            "origin": "ours",
+            "size": "One small web route",
+            "cost": "$0",
+            "why": "Answers at once"
           },
           {
             "id": "queue",
@@ -371,7 +376,11 @@
               184,
               150,
               54
-            ]
+            ],
+            "origin": "open",
+            "size": "A table in PostgreSQL",
+            "cost": "$0",
+            "why": "A saved job survives a crash"
           },
           {
             "id": "workers",
@@ -405,7 +414,8 @@
               300,
               150,
               38
-            ]
+            ],
+            "origin": "ours"
           },
           {
             "id": "wb",
@@ -422,7 +432,8 @@
               346,
               150,
               38
-            ]
+            ],
+            "origin": "ours"
           },
           {
             "id": "files",
@@ -439,7 +450,11 @@
               442,
               156,
               54
-            ]
+            ],
+            "origin": "aws",
+            "size": "Object storage",
+            "cost": "$0.0004 per invoice",
+            "why": "Links expire by themselves"
           },
           {
             "id": "invoices",
@@ -456,7 +471,11 @@
               442,
               156,
               54
-            ]
+            ],
+            "origin": "open",
+            "size": "The existing table",
+            "cost": "$0",
+            "why": "No copy to keep in step"
           }
         ],
         "edges": [
@@ -635,10 +654,16 @@
               }
             ]
           }
-        ]
+        ],
+        "origins": {
+          "aws": "Cloud service, managed",
+          "open": "Open source we run",
+          "ours": "Our own code",
+          "yours": "The bookkeeper"
+        }
       },
       "group": "how",
-      "promise": "Eight parts and how a job flows",
+      "promise": "Every part and how jobs flow",
       "depth": [
         {
           "id": "parts",

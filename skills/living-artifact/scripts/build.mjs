@@ -493,7 +493,7 @@ SECS.forEach((sec, i) => {
     }
   }
   H(`${w}.lead`, sec.lead, comp === "story" ? 30 : 40); checkPlaceholders(sec.lead, `${w}.lead`, extra);
-  H(`${w}.label`, sec.label, 4);
+  H(`${w}.label`, sec.label, 4); H(`${w}.promise`, sec.promise, 6, false);
   if (sec.nav !== undefined && sec.nav !== false) { if (!nonEmptyStr(sec.nav)) err(`${w}.nav: the menu label, a word or three`); else H(`${w}.nav`, sec.nav, 3); }
   if (GROUPS.size) { if (comp !== "story" && !GROUPS.has(sec.group)) err(`${w}.group: one of ${[...GROUPS].join(", ")}; the side menu lists sections by group`); }
   else if (sec.group !== undefined) err(`${w}.group: "${sec.group}" but book.groups is missing`);
@@ -513,6 +513,8 @@ SECS.forEach((sec, i) => {
       H(`${ww}.label`, n?.label, 6); H(`${ww}.value`, n?.value, 4);
     });
     if (d.after !== undefined) { H(`${w}.data.after.claim`, d.after.claim, 12, false); H(`${w}.data.after.lead`, d.after.lead, 30, false); }
+    H(`${w}.data.changed`, d.changed, 25, false);
+    (d.toc || []).forEach((t, k) => { if (!nonEmptyStr(t?.section)) err(`${w}.data.toc[${k}]: needs section`); H(`${w}.data.toc[${k}].promise`, t?.promise, 6, false); });
   }
   if (comp === "map") {
     const nodes = d.nodes || [], nid = new Set();
@@ -845,7 +847,7 @@ if (isPlanBook) {
     req(3, "Capabilities and what is out of scope", cap && (oos || !large), (cap?.data?.items || []).length + " capabilities", !cap ? "no capabilities section" : "no depth block with role out-of-scope"); }
   // 4 architecture
   if (large) {
-    const map = secOf("map")[0], nodes = (map?.data?.nodes || []).filter((n) => !n?.zone), parts = role("parts")[0]?.block, oss = role("open-source")[0]?.block;
+    const map = secOf("map")[0], nodes = (map?.data?.nodes || []).filter((n) => !n?.zone && !n?.dot), parts = role("parts")[0]?.block, oss = role("open-source")[0]?.block;
     const rows = rowsOf(parts), firstCells = rows.map((r) => String(r[0] || "").toLowerCase());
     const rowNodes = new Set((parts?.data?.rows || []).map((r) => (isObj(r) ? r.node : null)).filter(Boolean));
     const unmatched = nodes.filter((n) => !rowNodes.has(n.id) && !firstCells.some((c) => c === n.id || c.startsWith(String(n.name || "").toLowerCase())));

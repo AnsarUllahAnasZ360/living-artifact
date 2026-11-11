@@ -242,6 +242,14 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 .e-vb { font: 500 11.5px var(--font-sans); fill: var(--accent-text); paint-order: stroke; stroke: var(--bg-subtle); stroke-width: 4px; stroke-linejoin: round; opacity: 0; transition: opacity var(--ease); pointer-events: none; }
 .e-vb.hl { opacity: 1; }
 .tok { fill: var(--accent); }
+.by-origin .o-aws .n-box { fill: var(--bg-muted); }
+.by-origin .o-open .n-box { stroke-dasharray: 5 3; stroke: var(--text-3); }
+.by-origin .o-ours .n-box { stroke: var(--accent); stroke-width: 1.75; }
+.by-origin .o-yours .n-box { stroke-dasharray: 1.5 3; stroke: var(--text-2); }
+.olegend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; font-size: 12.5px; color: var(--text-2); }
+.olegend span { display: inline-flex; gap: 7px; align-items: center; }
+.olegend i { width: 16px; height: 11px; border-radius: 3px; border: 1px solid var(--line-strong); background: var(--bg); }
+.olegend .o-aws i { background: var(--bg-muted); } .olegend .o-open i { border: 1px dashed var(--text-3); } .olegend .o-ours i { border: 1.75px solid var(--accent); } .olegend .o-yours i { border: 1px dotted var(--text-2); }
 .tok-h { fill: var(--accent-ring); }
 .steps li + li { margin-top: 2px; }
 .steps button { width: 100%; display: grid; grid-template-columns: 22px 1fr; gap: 10px; padding: 8px 10px; border-radius: var(--r); color: var(--text-2); transition: background-color var(--ease), color var(--ease); min-height: 38px; }
@@ -1306,6 +1314,7 @@ function statusLine() {
   return el;
 }
 COMP.story = function (stage, d, sec) {
+  if (d.changed) add(stage, h("p", { class: "fine", style: "margin:-12px 0 0;font-size:13px", text: d.changed }));
   var nums = (d.numbers || []).slice(0, 3);
   if (nums.length) {
     var stats = h("div", { class: "stats" });
@@ -1379,8 +1388,18 @@ function extent(nodes, layout) {
   nodes.forEach(function (n) { var b = boxOf(n, layout); w = Math.max(w, b[0] + b[2]); hh = Math.max(hh, b[1] + b[3]); });
   return [w + 8, hh + 8];
 }
+function nodeFacts(n) { return [n.size, n.cost, n.why ? "Why: " + n.why : ""].filter(Boolean).join(" · "); }
+var ORIGINS = { open: "Open source we install", aws: "Cloud service, managed", ours: "Our own code", yours: "Your code" };
 COMP.map = function (stage, d, sec) {
   var nodes = (d.nodes || []).filter(function (n) { return n && n.id; }), N = {};
+  /* bands: a dashed frame around every part of one band, labelled, drawn under the parts */
+  var BANDS = d.bands || {}, bandIds = Object.keys(BANDS).filter(function (k) { return nodes.some(function (n) { return n.band === k; }); });
+  bandIds.forEach(function (k) {
+    var mem = nodes.filter(function (n) { return n.band === k && !n.zone; }), z = { id: "band-" + k, name: BANDS[k], zone: true, band_frame: true };
+    ["wide", "tall"].forEach(function (lay) { if (!mem.every(function (n) { return n[lay] || n.wide; })) return; var x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; mem.forEach(function (n) { var b = n[lay] || n.wide; x0 = Math.min(x0, b[0]); y0 = Math.min(y0, b[1]); x1 = Math.max(x1, b[0] + b[2]); y1 = Math.max(y1, b[1] + b[3]); }); z[lay] = [x0 - 10, y0 - 26, x1 - x0 + 20, y1 - y0 + 36]; });
+    if (z.wide) nodes.unshift(z);
+  });
+  var origins = nodes.some(function (n) { return n.origin; }), OL = Object.assign({}, ORIGINS, d.origins || {});
   nodes.forEach(function (n) { N[n.id] = n; });
   var edges = (d.edges || []).filter(function (e) { return e && e.id && N[e.from] && N[e.to]; });
   var E = {}; edges.forEach(function (e) { E[e.id] = e; });
@@ -1409,8 +1428,14 @@ COMP.map = function (stage, d, sec) {
     });
     add(bar, seg);
   }
-  var hasStory = stories.length > 0;
-  add(stage, h("div", { class: "flow" + (hasStory ? "" : " solo") }, h("div", {}, hasStory ? bar : null, fig, live), hasStory ? stepsEl : null));
+  var hasStory = stories.length > 0, legend = null;
+  if (origins) {
+    var oseg = h("div", { class: "seg", role: "group", "aria-label": "Colour the parts" });
+    legend = h("div", { class: "olegend", hidden: true }, Object.keys(OL).filter(function (k) { return nodes.some(function (n) { return n.origin === k; }); }).map(function (k) { return h("span", { class: "o-" + k }, h("i"), OL[k]); }));
+    [["", "Parts"], ["on", "Where each comes from"]].forEach(function (o, k) { add(oseg, h("button", { type: "button", "aria-pressed": String(k === 0), onclick: function () { $$("button", oseg).forEach(function (b2, j) { b2.setAttribute("aria-pressed", String(j === k)); }); fig.classList.toggle("by-origin", !!o[0]); legend.hidden = !o[0]; } }, o[1])); });
+    if (hasStory) add(bar, oseg); else add(stage, h("div", { class: "flow__bar" }, oseg));
+  }
+  add(stage, h("div", { class: "flow" + (hasStory ? "" : " solo") }, h("div", {}, hasStory ? bar : null, fig, legend, live), hasStory ? stepsEl : null));
 
   function steps() { return hasStory ? stories[st.story].steps : []; }
   function draw() {
@@ -1418,7 +1443,7 @@ COMP.map = function (stage, d, sec) {
     if (layout === st.layout) return;
     st.layout = layout;
     host.textContent = "";
-    var ex = extent(nodes, layout), vb = "0 0 " + ex[0] + " " + ex[1];
+    var ex = extent(nodes, layout), mx0 = Math.min(0, Math.min.apply(null, nodes.map(function (n) { return boxOf(n, layout)[0]; }))), my0 = Math.min(0, Math.min.apply(null, nodes.map(function (n) { return boxOf(n, layout)[1]; }))), vb = mx0 + " " + my0 + " " + (ex[0] - mx0) + " " + (ex[1] - my0);
     var label = "System map: " + nodes.filter(function (n) { return !n.zone; }).map(function (n) { return n.name; }).join(", ") + ".";
     var svg = s("svg", { viewBox: vb, role: "img", "aria-label": label });
     if (layout === "tall") { svg.style.maxWidth = ex[0] + "px"; svg.style.margin = "0 auto"; }
@@ -1431,11 +1456,11 @@ COMP.map = function (stage, d, sec) {
       if (e.verb && layout !== "tall") add(gV, s("text", { class: "e-vb", "data-ev": e.id, "text-anchor": "middle", text: e.verb }));
     });
     nodes.forEach(function (n) {
-      var b = boxOf(n, layout), g = s("g", { class: "node", "data-n": n.id, "data-id": n.id });
+      var b = boxOf(n, layout), g = s("g", { class: "node" + (n.origin ? " o-" + n.origin : ""), "data-n": n.id, "data-id": n.id });
       if (n.zone) { add(g, [s("rect", { x: b[0], y: b[1], width: b[2], height: b[3], rx: 10, class: "n-zone" }), s("text", { x: b[0] + 12, y: b[1] + 18, class: "n-z", text: n.name })]); add(gN, g); return; }
       g.setAttribute("tabindex", "0");
       g.setAttribute("role", "button");
-      g.setAttribute("aria-label", n.name + (n.does ? ": " + n.does : ""));
+      g.setAttribute("aria-label", n.name + (n.does ? ": " + n.does : "") + (nodeFacts(n) ? ". " + nodeFacts(n) : "") + (n.origin ? ". " + (OL[n.origin] || n.origin) : ""));
       add(g, [s("rect", { x: b[0], y: b[1], width: b[2], height: b[3], rx: 8, class: "n-halo" }), s("rect", { x: b[0], y: b[1], width: b[2], height: b[3], rx: 8, class: "n-box" })]);
       if (n.dot) {
         add(g, [s("circle", { cx: b[0] + 14, cy: b[1] + b[3] / 2, r: 3.5, class: "n-dot" }), s("text", { x: b[0] + 26, y: b[1] + b[3] / 2 + 4.5, class: "n-t", text: n.name }),
@@ -1484,7 +1509,7 @@ COMP.map = function (stage, d, sec) {
     if (!n) { caption(); return; }
     cap.classList.add("inspect");
     capN.textContent = "i"; capT.textContent = n.name; capD.textContent = n.does ? n.does.replace(/\.?$/, ".") : "";
-    capK.textContent = "";
+    capK.textContent = nodeFacts(n);
     live.textContent = n.name + ". " + capD.textContent;
   }
   function caption() {
@@ -1554,7 +1579,7 @@ COMP.map = function (stage, d, sec) {
     var all = [];
     (hasStory ? stories : []).forEach(function (s) { var l = s.steps; l.forEach(function (x, i) { all.push([i + 1, x.title, x.text || "", "Step " + (i + 1) + " of " + l.length]); }); });
     if (!hasStory) all.push(["i", d.hint_title || "The parts", d.hint || "Point at or tab to a part to see what it does and who it talks to.", ""]);
-    nodes.forEach(function (n) { if (!n.zone) all.push(["i", n.name, n.does ? n.does.replace(/\.?$/, ".") : "", "", true]); });
+    nodes.forEach(function (n) { if (!n.zone) all.push(["i", n.name, n.does ? n.does.replace(/\.?$/, ".") : "", nodeFacts(n), true]); });
     return all;
   });
   requestAnimationFrame(draw);
@@ -2325,10 +2350,12 @@ COMP.figure = function (stage, d) { add(stage, figureEl(d)); };
 COMP.research = function (stage, d, sec) {
   var R = (B.research || []).filter(function (r) { return r && r.question; });
   if (!R.length) { add(stage, h("p", { class: "empty", text: "No research notes yet." })); return; }
-  var HS = { measured: "measured", estimated: "estimated", designed: "designed" };
+  var HS = { measured: "measured", estimated: "estimated", designed: "designed" }, rest = 0;
+  var F = R.filter(function (r) { return r.featured; }); if (F.length) { rest = R.length - F.length; R = F; }
   add(stage, h("div", { class: "cards" }, R.map(function (r) {
     return cardEl({ title: r.question, text: String(r.answer || "").split(/(?<=\.)\s/)[0], certainty: HS[String(r.how_sure || "").toLowerCase()] || null }, function () { openDepth(sec.id, "notes"); });
   })));
+  if (rest) add(stage, h("p", { class: "fine", style: "margin-top:12px" }, rest + " more research notes are in the table below. ", h("button", { type: "button", class: "linkbtn", text: "Open every note", onclick: function () { openDepth(sec.id, "notes"); } })));
 };
 COMP.decisions = function (stage, d) {
   var top = (d.top || []).map(function (id) { return DECIDED.filter(function (x) { return x.id === id; })[0]; }).filter(Boolean);
@@ -2672,8 +2699,10 @@ function groupedSections() {
   return GROUPS.map(function (g) { return { id: g.id, label: g.label, secs: rest.filter(function (x) { return x.group === g.id; }) }; }).filter(function (g) { return g.secs.length; });
 }
 function tocEl() {
-  var gs = groupedSections(); if (SECS.length < 6) return null;
-  return h("nav", { class: "toc", "aria-label": "What is in this book" }, gs.map(function (g) { return h("div", {}, g.label ? h("h3", { text: g.label }) : null, g.secs.map(function (x) { return h("a", { href: "#" + x.id }, h("b", { text: x.nav || x.label || x.id }), x.promise ? h("small", { text: x.promise }) : null); })); }));
+  var gs = groupedSections(), story = SECS.filter(function (x) { return x.component === "story"; })[0], PROM = {};
+  ((story && story.data && story.data.toc) || []).forEach(function (t) { if (t && t.section) PROM[t.section] = t.promise; });
+  if (SECS.length < 6) return null;
+  return h("nav", { class: "toc", "aria-label": "What is in this book" }, gs.map(function (g) { return h("div", {}, g.label ? h("h3", { text: g.label }) : null, g.secs.map(function (x) { return h("a", { href: "#" + x.id }, h("b", { text: x.nav || x.label || x.id }), (PROM[x.id] || x.promise) ? h("small", { text: PROM[x.id] || x.promise }) : null); })); }));
 }
 var LIVESECS = { plan: 1, progress: 1, build: 1, verification: 1 };
 function topState() {
