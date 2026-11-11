@@ -1,6 +1,6 @@
 # Components
 
-Every human section is one claim and one component. You write data; the template draws, animates and makes it accessible. `examples/sample-book/book.json` uses every component; copy from it.
+Every human section is one claim and one component. You write data; the template draws, animates and makes it accessible. `examples/sample-book/book.json` (a large plan) and `examples/feature-book/book.json` (a small feature) between them use every component; copy the sections you need.
 
 A section:
 
@@ -14,7 +14,7 @@ A section:
 - `label`: the small grey line above the claim, 4 words. Sections with the same label share one top-bar anchor.
 - `nav`: the anchor text, or `false` for no anchor. Six anchors at most.
 - `claim`: a full sentence a stranger understands, 14 words (12 on the story). Never a label like "Architecture".
-- `lead`: 25 words (40 on the story). Says what to do with the figure or adds the one fact the claim needs.
+- `lead`: optional, 25 words (30 on the story). The one fact the claim needs, or nothing. Never instructions ("Drag the slider"); a control that needs explaining is the wrong control.
 - `source`: a published file or a URL. Shows as a small "Evidence" link; agent mode shows the path.
 - `table`: optional. "Show the numbers" opens it under the figure. Never the first thing a reader sees.
 - Claims and leads may hold `{expression}` or `{expression|format}` filled from `book.model` (formats: `money`, `cents`, `int`, `dec`, `pct`, `word`, `times`).
@@ -25,17 +25,17 @@ Rules every component already follows: state changes take 150 ms, movement 600 t
 
 | Component | Use it for | `data` |
 |---|---|---|
-| `story` | The whole book on one screen. Always first, exactly once. Draws the status line. | `numbers[3]`, `after` |
+| `story` | The whole book on one screen. Always first, exactly once. Draws the status line. | `numbers[3]`, `after`, `figure` |
 | `compare` | Today against the plan, in the same frame. | `before`, `after`, `parts`, `start` |
 | `map` | The parts and who talks to whom, with a flow player and a failure story. | `nodes`, `edges`, `stories` |
 | `steps` | A short sequence a person goes through, stepped one at a time. | `steps` |
-| `capabilities` | What it can do, each with a state. Also "what exists today" with `only`. | `items`, `only`, `empty` |
+| `capabilities` | What it can do and what works today, each with a state. | `items`, `empty` |
 | `risks` | What can go wrong and what happens then, on a 3 by 3 grid. | `risks`, `likelihood`, `impact` |
 | `scale` | The design holding from zero to the top of the range. | `input`, `inputs`, `rows`, `say`, `flags`, `calm` |
 | `cost` | What it costs as use grows, against the alternative. | `x`, `controls`, `series`, `readouts`, `split`, `certainty`, `note` |
 | `build` | Steps in order with live progress rings, and the work cards. | none: reads `plan` and the db |
 | `roadmap` | What comes after, and the signal that starts each. | `items` |
-| `decided` | Every recorded decision in one list. | none: reads `book.decided` |
+| `decided` | Every recorded decision in one list. Only when a person made at least one choice. | none: reads `book.decided` |
 | `chapter` | A custom explorable figure no catalog component fits. | file `chapters/<id>.html` |
 
 The status line, the decided list under each section, the one blocking card, the work card, the proof strip and the reference index are drawn by the template from the plan, `decided` and the db; they need no section.
@@ -48,10 +48,11 @@ The status line, the decided list under each section, the one blocking card, the
     { "value": "3 hours", "label": "saved per bookkeeper each month", "certainty": "estimated", "source": "agent/research/formats.md" },
     { "value": "Under 1 minute", "label": "for a month of 5,000 invoices", "certainty": "designed" },
     { "value": "0 of 0", "label": "pieces of work proven", "live": "proven", "certainty": "measured" } ],
+  "figure": { "from": "how" },
   "after": { "claim": "Bookkeepers now get every invoice out in one click.", "lead": "What is built, proven and not proven yet." } }
 ```
 
-Three numbers at most, each with a unit in `value` or `label` and a `certainty`: `measured` (we ran it), `estimated` (computed from stated prices or assumptions), `designed` (a target, not yet tested). `live: "proven"` makes a number count proven work from the db. `after` replaces claim and lead once `round.stage` is `report` or `done`; the story then lists `report.works_now` and `report.not_proven`.
+Three numbers at most, each with a unit in `value` or `label` and a `certainty`: `measured` (we ran it), `estimated` (computed from stated prices or assumptions), `designed` (a target, not yet tested). `live: "proven"` makes a number count proven work from the db; in a preview with sample data its mark reads Sample, never Measured. `figure.from` names another section (best a `map`): on wide screens the story shows a small, still copy of that figure beside the claim, linked to the section, and hides it on a phone. `after` replaces claim and lead once `round.stage` is `report` or `done`; the story then lists `report.works_now` and `report.not_proven`.
 
 ### compare
 
@@ -99,7 +100,7 @@ Seven steps at most, `title` 5 words, `text` 20 words.
                     { "name": "A whole year at once", "line": "For the tax return.", "state": "later" } ] }
 ```
 
-`state` is `today`, `building` or `later`. With `ticket`, the live status wins: proven reads "Works today", building or in review reads "Being built". A row with a ticket, `proof` lines or a `source` opens to its proof and a link to its work card. `only: "today"` makes the "what exists today" list: no filter, only proven things. `name` 6 words, `line` 15.
+`state` is `today`, `building` or `later`. With `ticket`, the live status wins: proven reads "Works today", building or in review reads "Being built", not started reads "Planned". A row with a ticket, `proof` lines or a `source` opens to its proof and a link to its work card. The filter offers only the states present; once the stage is `report` or `done` it opens on Works today. `name` 6 words, `line` 15. (An older `only: "today"` still works, but do not repeat a list in a second section.)
 
 ### risks
 
@@ -108,7 +109,7 @@ Seven steps at most, `title` 5 words, `text` 20 words.
                        "then": "Another worker goes on from the last finished page." } ] }
 ```
 
-`likelihood` and `impact` are 1 to 3; `covered` is `yes`, `partly` or `no`. Axis words default to Rare, Possible, Likely and Small, Serious, Severe (override with `likelihood` and `impact` lists).
+`likelihood` and `impact` are 1 to 3; `covered` is `yes`, `partly` or `no`. Axis words default to Rare, Possible, Likely and Small, Serious, Severe (override with `likelihood` and `impact` lists). The list shows names; one risk is open at a time, the first on load, and a dot opens its row.
 
 ### scale and cost: the shared model
 
@@ -134,7 +135,7 @@ An input has `stops` (a slider over those values), `options` (a segmented choice
   "calm": "Nothing changes by hand at this size." }
 ```
 
-`kind` is `cells` (one square per unit, `cap` squares at most), `bar` (needs `max`), `sizes` (`labels`, value 1 to 3) or `number`. `unit` may be `[singular, plural]`. The first `say` whose `when` holds is the sentence; a `flag` marks a manual step past a size; `calm` shows when no flag holds.
+`kind` is `cells` (one square per unit, `cap` squares at most), `bar` (needs `max`), `sizes` (`labels`, value 1 to 3) or `number`. `unit` may be `[singular, plural]`. The first `say` whose `when` holds is the sentence; a `flag` marks a manual step past a size; `calm` shows when no flag holds. `certainty` (`measured`, `estimated`, `designed`) marks the figures.
 
 `cost`:
 
@@ -151,7 +152,7 @@ One to three series, one marked `ours`. Readouts default to the `money` format (
 
 ### build
 
-No data. Reads `plan.waves` (`name` 2 words, `what` 8 words), `plan.tickets` and the db. One ring per step: the arc is the share proven, a tick when done, a dot and a word under it (Proven, Building now, Next, Later). Picking a step lists its work cards. A card opens to Goal, Waits for (by name), Done when (each with a dot from `status/<id>.checks`), the proof strip (`status/<id>.lines`, `.summary`, `.proof` images, the commit) and, in agent mode, id, step, pull request, branch, file, raw status. One card is open at a time; `#<ticket-id>` in the URL opens it.
+No data. Reads `plan.waves` (`name` 2 words, `what` 8 words), `plan.tickets` and the db. One ring per step: the arc is the share proven, a tick when done, a dot and a word under it (Proven, Building now, Next, Later). Picking a step lists its work cards. A card opens to Goal, Waits for (by name), Done when (each with a dot from `status/<id>.checks`), the proof strip (`status/<id>.lines`, `.summary`, `.proof` images, the commit) and, in agent mode, id, step, pull request, branch, file, raw status. One card is open at a time; `#<ticket-id>` in the URL opens it. Each card row shows how many of its done-when hold ("1 of 2 done"); an open card also lists the final checks that cover it, with "Passes when". Under the rings, one collapsed line, "How it is proven at the end: 5 final checks, 0 passed", opens every check of `plan.verification.checks` with its live result from `status/check-<id>`: Not run yet, Passed, Failed or Skipped.
 
 ### roadmap
 
@@ -163,7 +164,7 @@ Five at most. `trigger` is the signal that starts it, never a date nobody commit
 
 ### decided
 
-No data. Lists every `book.decided` record. Each other section also shows up to three records whose `section` is its id, the rest behind "All decisions".
+No data. Lists `book.decided`, three shown and the rest behind "All decisions". Use it only when a person made at least one of the choices. Every other section shows one line for its records ("2 decisions shaped this"): it jumps here and marks them, or, with no decided section, opens them in place. A record is never shown twice on load.
 
 ### chapter
 
@@ -173,7 +174,7 @@ No data. Lists every `book.decided` record. Each other section also shows up to 
 api.mount(root.querySelector("[data-steps]"), "steps", { steps: [ { title: "Read the invoice", text: "One page at a time." } ] });
 ```
 
-`api` holds `h` and `s` (element builders), `mount`, `model` (`get`, `set`, `scope`), `onModel`, `fill`, `fmt`, `expr`, `live` and `onLive` (db state), `pstate(ticketId)`, `openTicket`, `jump`, `calm()` (true under reduced motion). Optional `chapters/_kit.css` and `_kit.js` load first for shared helpers. The build refuses a coloured side border, a network font, stylesheet or script, and a dash.
+`api` holds `h` and `s` (element builders), `mount`, `model` (`get`, `set`, `scope`), `onModel`, `fill`, `fmt`, `expr`, `live` and `onLive` (db state), `pstate(ticketId)`, `openTicket`, `jump`, `calm()` (true under reduced motion). Optional `chapters/_kit.css` and `_kit.js` load first for shared helpers. The build refuses a coloured side border or side stripe, any request to the network (a stylesheet, font, script, image, `url()`, `fetch`, `import`), and a dash. A plain `<a href>` link is fine. The artifact's own content security policy is the real wall; the check catches mistakes early.
 
 ## Choosing
 

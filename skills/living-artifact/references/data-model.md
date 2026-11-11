@@ -50,6 +50,7 @@ Human text is plain words for a stranger: no em or en dashes, no ids, codes, fil
   "round": { "n": 3, "title": "PDF bundles and the monthly send", "started": "2026-10-27", "stage": "build" },
   "links": [ { "label": "Branch", "value": "invoice-export-r3", "url": "" } ],
   "now": "The plan is being written.",
+  "terms": ["Xero", "QuickBooks"],
 
   "sections": [ { "id": "story", "component": "story", "claim": "...", "lead": "...", "data": { "numbers": [] } } ],
   "model": { "inputs": [], "values": {} },
@@ -67,12 +68,13 @@ Human text is plain words for a stranger: no em or en dashes, no ids, codes, fil
 |---|---|---|
 | `id`, `title` (8 words), `subtitle` (4), `kind` | both | `kind` is the small line above the story's claim |
 | `owner`, `links`, `updated` | agent | |
-| `profile` | both | `feature`, `audit` or `large`; sets the word budget (600, 900, 1,500 on load) |
+| `profile` | both | `feature`, `audit` or `large`; sets the word budget shown on load (450, 750, 1,200) and the section count the checker warns above (5, 6, 9) |
+| `terms` | none | Allowed names: products, vendors and standards a reader must recognise ("Z360", "S3", "Node.js"). The id and code check never flags them. Each still gets a short explanation where it is first used |
 | `round` | agent | `stage` is `explore`, `plan`, `build`, `verify`, `report` or `done`. `report` and `done` switch the story to its `after` state |
 | `now` | human | The status line before any plan exists, one sentence |
-| `sections` | human | Ordered. Rendered in that order and nothing else in human mode. One `story`, first. `components.md` |
+| `sections` | human | Ordered. Rendered in that order and nothing else in human mode. One `story`, first. A section id may not be a ticket id or a page id (`choice`, `reference`, `main`, `digest`, `live`, `mark`, `nav`, `theme`, `skip`, `top`, or one starting `book-`, `ch-`, `h-`, `b-`). `components.md` |
 | `model` | human | The shared assumptions every `scale` and `cost` figure reads. `components.md` |
-| `decided` | both | What was decided, who (`model` or a person's name), when, why. `what` 10 words, `why` 25. `section` puts it under that section |
+| `decided` | both | What was decided, who (`model` or a person's name, required), when, why. `what` 10 words, `why` 25. `section` links it from that section |
 | `blocking` | human | `null`, or the one choice a person must make (below) |
 | `plan.waves` | human | `{ n, id, name (2 words), what (8 words), prs }`. The steps a person sees |
 | `plan.tickets` | human | `{ id, title (10 words), goal (30), done_when[] (15 each), depends_on[], after_merge[], file, files[], risk, size }` |
@@ -86,7 +88,7 @@ Any human object may carry `source`: a published path or a URL. It shows as "Evi
 
 ### The one blocking choice
 
-Normally `null`. Set it only when a choice blocks the work, only a person can make it, and they have not answered in chat (`method.md`). The status line then reads "The build waits on one choice of yours" and links to one card.
+Normally `null`. Set it only when a choice blocks the work, only a person can make it, and they have not answered in chat (`method.md`). The status line then reads "One choice is waiting for you" and links to one card. `question`, `why`, two `options` and `default` (what happens until they answer) are required.
 
 ```json
 "blocking": { "id": "which-month", "question": "Which real month should the final check export?",
@@ -147,15 +149,16 @@ The status line warns "No update for 3 hours" when the run is active and the las
 
 ## For agents reading the page
 
-- `<script type="application/json" id="book-index">` in `index.html` holds one index: sections, steps with their tickets, every ticket (title, step, pull request, branch, file, files, depends_on, done_when, status document), every PR, check, decided record, finding, research note and published file. An agent that fetches the HTML parses it without rendering.
+- `<script type="application/json" id="book-index">` in `index.html` holds one index: sections, steps with their tickets, every ticket (title, goal, step, pull request, branch, file, files, depends_on, done_when, after_merge, risk, size, status document), every PR, ready item, run, check (with expect and pass), decided record, finding, research note and published file. An agent that fetches the HTML parses it without rendering. The content itself is the `book-data` block (the same as `agent/book.json`); `book-build` holds build facts; `book-demo` is empty except in `preview.html`.
 - Every element that stands for a ticket, step, risk or decision carries `data-id`. `#<ticket-id>` opens its card.
-- Agent mode (`?mode=agent` or the switch) shows ids beside every name and the Reference section: Index (every ticket, check, ready item, decision, finding, research note and section), Files (raw agent files), Raw (`book.json` and every db collection), Process (kickoff and prompts, the pull request plan, how it ships, verification, reviews), History (rounds, the log, report data), and Copy digest.
+- Agent mode (`?mode=agent` or the switch) shows ids beside every name and the Reference section: Index (every ticket, check, ready item, decision, finding, research note and section), Files (every published file, raw), Raw (`book.json` and every db collection), Process (kickoff and prompts, the pull request plan, how it ships, verification, reviews), History (rounds, the log, report data), and Copy digest.
 - Nothing exists only in human mode: every sentence a person sees comes from a field an agent can read.
 
 ## Moving an older book to this shape
 
-An older book still builds: the checker warns and the page shows only a story and the build, with everything else in agent mode. To migrate:
+An older book (no `sections`) builds only as a preview (`--preview`): the page shows a story and the build, everything else in agent mode. Without `--preview` the build refuses it. Do not republish an older book with this template until its sections are written. To migrate:
 
+0. Before anything else, read `decisions`, `feedback` and `gates` with ArtifactData and save them to `agent/rounds/round-<n>-db.json`; add it to `files`. An answer in `decisions/<id>` becomes a `decided` record with that person's name and date. Each open feedback entry becomes an ask line in `agent/ASK.md`. (Agent mode, History, also shows these old documents while the db still has them.)
 1. Freeze the old file as `agent/rounds/round-<n>.json` and add it to `files`.
 2. Write `sections`: the story from `summary.headline`, `problem.statement` and three of `summary.numbers` (add certainty); a `compare` from `problem.today` and the outcomes; a `map` from the main `architecture` frame (12 parts at most) with one normal and one failure story; `capabilities` from `outcomes`; `risks` from `plan.risks`; `build` as is; `roadmap` from `plan.later`.
 3. Turn every answered `decisions` entry into a `decided` record (the person who answered, the date, why). Take the recommendation for each unanswered one, record it as decided by the model, and tell the person in chat. Delete `decisions`, `needs`, `glossary`, `summary.points` and ticket `short`.
@@ -166,4 +169,4 @@ An older book still builds: the checker warns and the page shows only a story an
 
 `node scripts/build.mjs <book-dir>` checks book.json, writes `index.html` and prints the `files` map: every `book.files` entry, every image under `agent/proof/`, every `proto/*.html` and every chapter. Publish with the Artifact tool: `file_path` the index.html, `files` the printed map, the db capability on the first publish only. Use the same `file_path` every time so the URL stays.
 
-To look before publishing: `node scripts/build.mjs <book-dir> --demo <db-seed.json> --preview` embeds sample live state (labelled as sample, used only when the db is not reachable) and writes `preview.html`. Never publish `preview.html`. `examples/sample-book/db-seed.json` shows every document; a seed may write times as `now`, `now-5m`, `now-3h` or `now-2d`.
+To look before publishing: `node scripts/build.mjs <book-dir> --demo <db-seed.json> --preview` writes `preview.html` with sample live state (labelled Sample, used only when the db is not reachable). `index.html` never carries sample state. Never publish `preview.html`. `examples/sample-book/db-seed.json` shows every document; a seed may write times as `now`, `now-5m`, `now-3h` or `now-2d`.

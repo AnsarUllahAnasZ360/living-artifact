@@ -1,6 +1,6 @@
 # The completion report
 
-The report is a state of the same book, not a new section or a new artifact. When `round.stage` becomes `report`, the story switches to its `after` claim and lead and lists what works now and what is not proven; every work card shows its proof; "What exists today" shows everything proven. A person opening the link sees, in one screen, what they can use, what is proven and what is not.
+The report is a state of the same book, not a new section or a new artifact. When `round.stage` becomes `report`, the story switches to its `after` claim and lead and lists what works now and what is not proven; every work card shows its proof and its final check; the capability list opens on Works today. A person opening the link sees, in one screen, what they can use, what is proven and what is not.
 
 ## Fill it
 

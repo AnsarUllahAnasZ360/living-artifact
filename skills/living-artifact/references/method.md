@@ -12,6 +12,8 @@ This rule holds in every stage.
 4. **Record the answer** in `decided` with the person's name. A choice the model made reads "decided by the model" and stays open to challenge in chat.
 5. **The one exception.** When a choice from rule 2 blocks the work and the person has not answered, set `blocking` (or `run/blocking`): the status line says so in one sentence and links to one card with the question, the options and why you cannot choose. Remove it once answered.
 
+6. **Never ask "does this look right" or "shall I continue".** Publish, say what you did in one line, and continue. The person can redirect at any time.
+
 Zero questions is the normal case. Never ask a person to do set-up that access already covers (test data, uploads, accounts you can create).
 
 ## 1. Frame (minutes)
@@ -23,11 +25,11 @@ Produce: `agent/ASK.md`, `profile`, the story section.
 - Pick the profile: **feature** (one step, hours), **audit** (findings and fixes, no build unless fixes follow) or **large** (several steps of parallel work, days). Do not scale a feature up to look thorough.
 - Publish at stage `explore` as soon as the story exists, so the person watches it fill.
 
-Exit: the story says what the person asked for. If the goal is unclear, ask in chat once.
+Exit: the story says what the person asked for. If two readings of the ask lead to different work, pick the likelier, say so in one chat line, and go on.
 
 ## 2. Explore (the longest stage on a big problem)
 
-Produce: `findings`, `research`, files under `agent/research/`, and the sections that explain the solution.
+Produce: `findings`, `research`, files under `agent/research/`, and the sections that explain the solution (only those the work needs).
 
 - **Read what exists first.** Code, data, screens. Cite file and line in `findings`.
 - **Research in parallel.** One background agent per open question: how the industry does it, the official primitives and libraries, what our own code already has. Each writes `agent/research/<topic>.md`, opening with Recommendations and citing sources.
@@ -36,7 +38,7 @@ Produce: `findings`, `research`, files under `agent/research/`, and the sections
 - **Show, then tell.** Turn what you learned into sections (`design.md`): why as before and after, how it works as a map with one job and one failure moving through it, what it can do, risks, scale and cost with assumptions in `book.model`. The found, recommend and why text stays in agent files, linked as `source`.
 - **Critique through lenses.** For each kind of reader and each situation, ask: is it clear to a stranger, is it simple, is it how the industry does it? Fix and look again until a round finds nothing important.
 
-Exit: the person agrees with the approach in chat, recorded in `log` and `decided`.
+Exit: a cold critique finds nothing important. Send the link with one line on the approach and go on to the plan; do not wait.
 
 ## 3. Plan
 
@@ -51,7 +53,7 @@ Produce: `plan`, the build section, the roadmap, `kickoff`. Read `planning.md`.
 7. Check every ask line maps to a ticket, a decided record or a line in Beyond.
 8. **Critique cold.** An agent that has not seen the work reads only the published page and answers: what is this for, what happens first, what would you ask before saying go, what is overbuilt, what is missing? Fix what it found.
 
-Exit: the person says to run, in chat.
+Exit: the plan is published. Starting the build is the one standing go a person gives, because it spends money and opens pull requests: ask once, in one line, with the cost and time. For a feature with no spend, start.
 
 ## 4. Run
 

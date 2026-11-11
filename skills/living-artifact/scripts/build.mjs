@@ -393,7 +393,7 @@ SECS.forEach((sec, i) => {
       if (/:/.test(sec.claim.replace(/\{[^{}]*\}/g, ""))) warn(`${w}.claim: has a colon; write one plain sentence`);
     }
   }
-  H(`${w}.lead`, sec.lead, comp === "story" ? 40 : 25); checkPlaceholders(sec.lead, `${w}.lead`, extra);
+  H(`${w}.lead`, sec.lead, comp === "story" ? 30 : 25); checkPlaceholders(sec.lead, `${w}.lead`, extra);
   H(`${w}.label`, sec.label, 4);
   const T = sec.table || d.table;
   if (T !== undefined && (!isObj(T) || !isArr(T.rows))) err(`${w}.table: { columns, rows, note }`);
@@ -409,7 +409,7 @@ SECS.forEach((sec, i) => {
       if (isStr(n?.value) && /^[\d.,\s]+$/.test(n.value) && words(n.label) < 2) warn(`${ww}: "${n.value}" has no unit; the label must say what it counts`);
       H(`${ww}.label`, n?.label, 6); H(`${ww}.value`, n?.value, 4);
     });
-    if (d.after !== undefined) { H(`${w}.data.after.claim`, d.after.claim, 12, false); H(`${w}.data.after.lead`, d.after.lead, 40, false); }
+    if (d.after !== undefined) { H(`${w}.data.after.claim`, d.after.claim, 12, false); H(`${w}.data.after.lead`, d.after.lead, 30, false); }
   }
   if (comp === "map") {
     const nodes = d.nodes || [], nid = new Set();

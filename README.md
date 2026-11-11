@@ -42,16 +42,15 @@ Ask in your own words. The skill starts when you bring a problem to explore, ask
 
 ## What a reader sees
 
-A book is written for someone who opens the link with no context and has three minutes. Each section makes one claim in plain words and shows one picture that moves:
+A book is written for someone who opens the link with no context and has three minutes. Each section makes one claim in plain words and shows one picture that moves. A book uses only the sections its work needs; a large plan usually has these:
 
 1. **The story**: the headline, one sentence on the problem and the fix, three numbers marked measured, estimated or designed, and one live status line.
 2. **Why**: today against the plan, in the same frame.
 3. **How it works**: the system as a few named parts, with one job travelling through it step by step, and one failure story.
-4. **What it can do**: each capability with its state: works today, being built, later.
+4. **What it can do**: each capability with its state: works today, being built, planned, later.
 5. **Safety, recovery and cost**: a risk grid, a slider that shows the design holding from zero to the top of the range, and a cost chart against the alternative with assumptions you can change.
-6. **What exists today**: only what is built and proven, proof one click away.
-7. **The build**: steps with progress rings that fill live, and a card for each piece of work with its goal, what done means and the proof.
-8. **Beyond**: what comes next and the signal that starts each.
+6. **The build**: steps with progress rings that fill live, a card for each piece of work with its goal, what done means, the proof and its final check, and the final checks with their results.
+7. **Beyond**: what comes next and the signal that starts each.
 
 No questions panel, no glossary, no codes or file names in the text. The agent decides what it can, records each decision with who, when and why, and asks you in the chat only when a choice is truly yours. While such a choice blocks the work, the page shows one card for it.
 
@@ -88,8 +87,10 @@ skills/living-artifact/
     report.md          the report, the PR body, the retro
     kickoff.md         the kickoff and progress prompts
   scripts/build.mjs    checks book.json and builds the page
-  assets/book.html     the page template, with its fonts
-  examples/sample-book a full sample book with sample live data
+  assets/book.html     the page template
+  assets/fonts/        Inter and JetBrains Mono, embedded in every page (SIL Open Font License, OFL.txt)
+  examples/feature-book a small feature book: five sections, no pull requests
+  examples/sample-book a catalog book for a large plan, with sample live data
   research/            the sources the skill is built on
 ```
 
@@ -105,7 +106,7 @@ skills/living-artifact/
 node skills/living-artifact/scripts/build.mjs <book-dir> [--demo seed.json] [--preview]
 ```
 
-It refuses a broken plan (a piece of work in no step, a dependency on a later step), a section without a component, a map with more than 12 parts, a dash, a missing file, a coloured side border, and any font, stylesheet or script loaded from the network. It warns on word budgets, on ids, codes and file names in human text, on numbers without a certainty mark, and on the whole book running long. It writes `index.html` and prints the files map to publish.
+It refuses a broken plan (a piece of work in no step, a dependency on a later step), a section without a component, a map with more than 12 parts, a dash, a missing file, a coloured side border, any request to the network, and a page over its word budget (counted as the browser shows it). It warns on ids, codes and file names in human text (real names go in `book.terms`), on numbers without a unit or certainty mark, on instruction leads and on too many sections. It writes `index.html` and prints the files map to publish. `--demo` sample state goes only into `preview.html`, labelled Sample; `index.html` never carries it.
 
 Try it on the sample:
 
@@ -113,7 +114,7 @@ Try it on the sample:
 node skills/living-artifact/scripts/build.mjs skills/living-artifact/examples/sample-book --demo skills/living-artifact/examples/sample-book/db-seed.json --preview
 ```
 
-Then open `skills/living-artifact/examples/sample-book/preview.html`.
+Then open `skills/living-artifact/examples/sample-book/preview.html`. The same works for `examples/feature-book`.
 
 ## Profiles
 
