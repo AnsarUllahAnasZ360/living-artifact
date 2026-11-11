@@ -99,7 +99,7 @@ The run may write the same object to `run/blocking` instead, so it shows without
 
 ### Removed fields
 
-The checker refuses these in a book that has `sections`, and warns in an old one:
+The checker refuses these in a book that has `sections` and warns in an old one (ticket `short` only warns):
 
 | Removed | Instead |
 |---|---|
