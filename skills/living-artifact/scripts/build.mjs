@@ -63,7 +63,7 @@ const VERDICTS = ["verified", "not verified", "not-verified", "inconclusive"];
 const KINDS = ["production", "tests", "docs and config"];
 const CERTAINTY = ["measured", "estimated", "designed"];
 const COMPONENTS = ["story", "compare", "map", "steps", "capabilities", "risks", "scale", "cost", "build", "decided", "roadmap", "chapter",
-  "inventory", "cards", "research", "decisions", "plan", "verification", "kickoff", "progress", "figure"];
+  "inventory", "cards", "research", "decisions", "plan", "verification", "kickoff", "progress", "figure", "ops"];
 const DEPTH_KINDS = ["table", "text", "list", "figure", "file", "code"];
 const FIGURES = ["steps", "stack", "bars", "line", "layers"];
 const INV_STATES = ["proven", "built", "planned", "later"];
