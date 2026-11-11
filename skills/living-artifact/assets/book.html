@@ -954,7 +954,7 @@ function statusLine() {
     if (run.phase === "done" || FINISHED) tone = "ok";
     if (run.phase === "paused") tone = "warn";
     txt.textContent = text;
-    small.textContent = blk ? blk.question + " " : stopped.length ? (stopped.length === 1 ? "One piece of work stopped: " + title(stopped[0]) + "." : stopped.length + " pieces of work stopped.") : "Nothing waits on you.";
+    small.textContent = blk ? "" : stopped.length ? (stopped.length === 1 ? "One piece of work stopped: " + title(stopped[0]) + "." : stopped.length + " pieces of work stopped.") : "Nothing waits on you.";
     if (blk) add(small, h("a", { class: "linkbtn", href: "#choice", text: "See the choice" }));
     dot.className = "dot " + (calm() ? tone.replace("live", "") : tone);
     $$("a", bar).forEach(function (a, i) { var x = pr.stats[i]; a.classList.toggle("cur", i === pr.cur && !pr.all); $("i", a).style.width = (x.n ? (x.done / x.n) * 100 : 0) + "%"; });
