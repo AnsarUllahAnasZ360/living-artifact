@@ -770,6 +770,7 @@ var title = function (t) { return t ? t.title || t.short || t.id : ""; };
    status/<ticket-id>, status/pr-<id>, status/check-<id>, status/ready-<id>, run/current, run/blocking, log/<id>.
    Written by the run with ArtifactData; never by a person. A preview embeds sample data instead. */
 var L = { live: false, demo: false, status: {}, run: null, blocking: null, log: [] };
+var OLD = { n: 0, docs: {} }; /* answers an older version kept in decisions, feedback and gates; shown in agent mode only */
 var liveFns = [];
 function onLive(fn) { liveFns.push(fn); }
 var queued = false;
@@ -805,6 +806,9 @@ function connect() {
       docs(sn).forEach(function (d) { if (d.id === "current") cur = d.data(); if (d.id === "blocking") blk = d.data(); });
       L.run = cur; L.blocking = blk; schedule();
     }, onErr);
+    ["decisions", "feedback", "gates"].forEach(function (name) {
+      try { db.collection(name).onSnapshot(function (sn) { var o = {}; docs(sn).forEach(function (d) { o[d.id] = d.data(); }); OLD.docs[name] = o; OLD.n = Object.keys(OLD.docs).reduce(function (a, k) { return a + Object.keys(OLD.docs[k]).length; }, 0); }, function () {}); } catch (e) {}
+    });
     db.collection("log").onSnapshot(function (sn) { L.log = docs(sn).map(function (d) { return Object.assign({ _id: d.id }, d.data()); }); schedule(); }, onErr);
     schedule();
   }).catch(function () {});
@@ -1403,6 +1407,7 @@ COMP.scale = function (stage, d) {
     var on = (d.flags || []).filter(function (f) { return test(f.when, sc); });
     on.forEach(function (f) { add(flags, h("p", { class: "flag" }, h("span", { class: "dot " + (f.tone || "warn") }), h("span", { text: fill(f.text, sc) }))); });
     if (!on.length && d.calm) add(flags, h("p", { class: "flag" }, h("span", { class: "dot ok" }), h("span", { text: fill(d.calm, sc) })));
+    if (d.certainty) add(flags, h("p", { class: "fine" }, certEl(d.certainty)));
   }
   MODEL.on(render); render();
 };
@@ -1800,7 +1805,8 @@ function referenceSection() {
       add(body, [h("h3", { text: "Sections" }), tbl(["Id", "Component", "Claim"], SECS.map(function (x) { return [x.id, x.component, x.claim || ""]; }))]);
     }
     if (cur === "files") {
-      var paths = ["book.json"].concat((B.files || []).map(function (f) { return f.path; }));
+      var pub = (BUILD.published || []).filter(function (p) { return p !== "agent/book.json"; });
+      var paths = ["book.json"].concat((B.files || []).map(function (f) { return f.path; }), pub).filter(function (p, i, a) { return a.indexOf(p) === i; });
       var out = h("pre", { class: "pre", text: "Pick a file." }), list = h("ul");
       paths.forEach(function (p) {
         var f = (B.files || []).filter(function (x) { return x.path === p; })[0];
@@ -1823,6 +1829,7 @@ function referenceSection() {
       add(body, [h("h3", { text: "Rounds" }), tbl(["Round", "Title", "Dates", "Ask", "Outcome", "File"], (B.history || []).map(function (r) { return [r.round, r.title, r.dates || "", r.ask || "", r.outcome || "", r.file || ""]; }))]);
       add(body, [h("h3", { text: "Log" }), tbl(["At", "Kind", "Text", "Evidence"], L.log.slice().sort(function (a, b) { return String(b.at).localeCompare(String(a.at)); }).slice(0, 200).map(function (r) { return [r.at, r.kind, r.text, r.evidence || ""]; }))]);
       if (B.report) add(body, [h("h3", { text: "Report data" }), pre(B.report)]);
+      if (OLD.n) add(body, [h("h3", { text: "This book has answers in the old collections" }), h("p", { class: "fine", text: "Earlier versions kept people's answers in decisions, feedback and gates. Save them to an agent file and turn each answer into a decided record." }), pre(OLD.docs)]);
     }
   }
   onLive(render);

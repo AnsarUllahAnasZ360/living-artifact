@@ -119,7 +119,7 @@
           { "text": "{workers} workers share each export. Each file is ready in about {wait} seconds, for about {ours|money} a month." }
         ],
         "flags": [ { "when": "batch > 20000", "text": "Past 20,000 invoices in one export, the file comes in parts of 20,000 inside one zip.", "tone": "warn" } ],
-        "calm": "Nothing changes by hand at this size."
+        "calm": "Nothing changes by hand at this size.", "certainty": "estimated"
       }
     },
     {

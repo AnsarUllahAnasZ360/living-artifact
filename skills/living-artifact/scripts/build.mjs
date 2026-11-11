@@ -4,7 +4,7 @@
 // Reads <book-dir>/book.json, checks it, writes <book-dir>/index.html from assets/book.html,
 // and prints the Artifact `files` map (published path -> absolute source path) as JSON on stdout.
 // Errors and warnings go to stderr. Exit 1 on any error; warnings never stop the build, but fix them.
-//   --demo     embed sample live state (shown only when the db is not available, labelled as sample)
+//   --demo     sample live state for preview.html only (labelled as sample); index.html never carries it
 //   --preview  also write <book-dir>/preview.html for opening locally. Never publish preview.html.
 import fs from "node:fs";
 import path from "node:path";
@@ -109,7 +109,7 @@ if (!isNew) {
   book.sections = [{ id: "story", component: "story", claim: S.headline || book.tagline || book.title, lead: S.text || book.problem?.statement || "",
     data: { numbers: (S.numbers || []).slice(0, 3).map((n) => ({ value: String(n.value), label: n.label })) } }];
   if (isArr(book.plan?.waves) && book.plan.waves.length) book.sections.push({ id: "build", component: "build", label: "The build", claim: "Each step is proven before the next one starts.", lead: "Pick a step to see its pieces of work. Open one to see what done means and the proof." });
-  warn("book.sections: missing, so this is an old book. The page shows only a story and the build; everything else is in agent mode. Write sections to migrate (references/data-model.md).");
+  (preview ? warn : err)("book.sections: missing, so this is an old book. It builds only as a preview (--preview), showing a story and the build; migrate before publishing (references/data-model.md).");
 }
 
 // ---------- the shared model ----------
@@ -345,8 +345,9 @@ const decidedIds = new Set();
   if (!isObj(d)) { err(`${w}: not an object`); return; }
   need(d, "what", w, nonEmptyStr, "a string");
   need(d, "why", w, nonEmptyStr, "a string");
-  if (!nonEmptyStr(d.who)) warn(`${w}: say who decided ("model" or the person's name)`);
-  if (d.when !== undefined && isNaN(Date.parse(d.when))) err(`${w}.when: not a date`);
+  if (!nonEmptyStr(d.who)) err(`${w}.who: say who decided ("model" or the person's name)`);
+  if (d.when === undefined) warn(`${w}.when: say when it was decided`);
+  else if (isNaN(Date.parse(d.when))) err(`${w}.when: not a date`);
   if (d.id !== undefined) { if (!KEBAB.test(d.id)) err(`${w}.id: kebab-case`); if (decidedIds.has(d.id)) err(`${w}: duplicate id "${d.id}"`); decidedIds.add(d.id); }
   if (d.section !== undefined && !sectionIds.has(d.section)) err(`${w}.section: "${d.section}" is not a section id`);
 });
@@ -357,6 +358,7 @@ if (book.blocking !== undefined && book.blocking !== null) {
     need(b, "question", "blocking", nonEmptyStr, "a string");
     need(b, "why", "blocking", nonEmptyStr, "one sentence on why the model cannot decide this itself");
     if (!isArr(b.options) || b.options.length < 2) err("blocking.options: at least two { label, effect }");
+    need(b, "default", "blocking", nonEmptyStr, "what happens until they answer");
   }
 }
 
@@ -480,6 +482,7 @@ SECS.forEach((sec, i) => {
     (d.say || []).forEach((x, k) => { checkExpr(x?.when, `${w}.data.say[${k}].when`); checkPlaceholders(x?.text, `${w}.data.say[${k}].text`); H(`${w}.data.say[${k}].text`, x?.text, 30, k === 0); });
     (d.flags || []).forEach((x, k) => { checkExpr(x?.when, `${w}.data.flags[${k}].when`); checkPlaceholders(x?.text, `${w}.data.flags[${k}].text`); H(`${w}.data.flags[${k}].text`, x?.text, 30, false); });
     H(`${w}.data.calm`, d.calm, 15);
+    if (!CERTAINTY.includes(d.certainty)) warn(`${w}.data.certainty: the figures are numbers; say measured, estimated or designed`);
   }
   if (comp === "cost") {
     if (!inputIds.has(d.x?.input)) err(`${w}.data.x.input: names the model input on the across axis`);
@@ -739,9 +742,11 @@ const index = {
   how_to_read: "Content is the book-data script block (agent/book.json). Live state is the page database: status/<ticket-id>, status/pr-<id>, status/check-<id>, status/ready-<id>, run/current, run/blocking, log/<id>. Read it with ArtifactData.",
   sections: SECS.map((x) => ({ id: x.id, component: x.component, claim: x.claim })),
   steps: [...waveByN.values()].sort((a, b) => a.n - b.n).map((w, i) => ({ n: w.n, id: w.id || `wave-${w.n}`, name: w.name || w.title, order: i + 1, tickets: tickets.filter((t) => waveOfT(t) === w.n).map((t) => t.id) })),
-  tickets: tickets.map((t) => { const p = prById.get(owner.get(t.id)); return { id: t.id, title: t.title, step: waveOfT(t), pr: p?.id || null, branch: p?.branch || null, file: t.file || null, files: t.files || [], depends_on: t.depends_on || [], done_when: t.done_when || [], status_doc: `status/${t.id}` }; }),
+  tickets: tickets.map((t) => { const p = prById.get(owner.get(t.id)); return { id: t.id, title: t.title, goal: t.goal || null, step: waveOfT(t), pr: p?.id || null, branch: p?.branch || null, file: t.file || null, files: t.files || [], depends_on: t.depends_on || [], done_when: t.done_when || [], after_merge: t.after_merge || [], risk: t.risk || null, size: t.size || null, status_doc: `status/${t.id}` }; }),
+  ready: (plan?.verification?.ready || []).map((r) => ({ id: r.id, need: r.need, who: r.who || "agent", status_doc: `status/ready-${r.id}` })),
+  runs: (plan?.verification?.runs || []).map((r) => ({ id: r.id, title: r.title, what: r.what || null, needs: r.needs || null })),
   prs: [...prById.values()].map((p) => ({ id: p.id, title: p.title, wave: p.wave, base: p.base || null, branch: p.branch || null, tickets: p.tickets || [], status_doc: `status/pr-${p.id}` })),
-  checks: (plan?.verification?.checks || []).map((c) => ({ id: c.id, title: c.title, kind: c.kind, run: c.run || null, tickets: c.tickets || [], status_doc: `status/check-${c.id}` })),
+  checks: (plan?.verification?.checks || []).map((c) => ({ id: c.id, title: c.title, kind: c.kind, run: c.run || null, tickets: c.tickets || [], expect: c.expect || null, pass: c.pass || null, status_doc: `status/check-${c.id}` })),
   decided: (book.decided || []).map((d) => ({ id: d.id || null, what: d.what, who: d.who || "model", when: d.when || null, section: d.section || null })),
   findings: (book.findings || []).map((f) => ({ id: f.id, finding: f.finding })),
   research: (book.research || []).map((r) => ({ id: r.id, question: r.question, file: r.file || null })),
