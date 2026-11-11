@@ -1785,7 +1785,7 @@ COMP.cost = function (stage, d, sec, ctx) {
     var over = lab.length ? lab[lab.length - 1].y - (H - mb - 4) : 0;
     if (over > 0) lab.forEach(function (l) { l.y -= over; });
     lab.forEach(function (l, i) { if (i === 0) l.y = Math.max(l.y, 14); else l.y = Math.max(l.y, lab[i - 1].y + 18); });
-    lab.forEach(function (l) { svg += '<text class="c-lbl" fill="' + (l.x.ours ? "var(--accent-text)" : "var(--text-2)") + '" x="' + X(l.e[0]) + '" y="' + l.y + '" text-anchor="end">' + esc(l.x.name) + "</text>"; });
+    lab.forEach(function (l) { svg += '<text class="c-lbl" fill="' + (l.x.ours ? "var(--accent-text)" : "var(--text-2)") + '" x="' + (X(l.e[0]) - 8) + '" y="' + l.y + '" text-anchor="end">' + esc(l.x.name) + "</text>"; });
     var cx = sc[xs.input], mx = X(Math.max(from, Math.min(to, cx)));
     svg += '<line class="c-mark" x1="' + mx + '" x2="' + mx + '" y1="' + mt + '" y2="' + (H - mb) + '"/>';
     series.forEach(function (x, k) { var v = 0; try { v = Expr.eval(x.value, sc); } catch (e) {} svg += '<circle class="c-p ' + cls(x, k) + '" cx="' + mx + '" cy="' + Y(v) + '" r="4.5"/>'; });
@@ -2465,7 +2465,7 @@ COMP.plan = function (stage, d, sec) {
   }
   function prCard(p) {
     var lv = L.status["pr-" + p.id] || {};
-    return h("div", { class: "prc", "data-id": p.id }, h("div", { class: "prc__h" }, h("b", { text: p.title }), h("small", { text: [p.branch, p.risk ? p.risk + " risk" : "", prTickets(p).length + " tickets", (p.depends_on || []).length ? "after " + p.depends_on.map(function (x) { return PR[x] ? PR[x].title : x; }).join(", ") : "", lv.state ? lv.state + (lv.number ? " #" + lv.number : "") : ""].filter(Boolean).join(" · ") })),
+    return h("div", { class: "prc", "data-id": p.id }, h("div", { class: "prc__h" }, h("b", { text: p.title }), h("small", { text: [p.branch, p.risk ? p.risk + " risk" : "", prTickets(p).length + (prTickets(p).length === 1 ? " ticket" : " tickets"), (p.depends_on || []).length ? "after " + p.depends_on.map(function (x) { return PR[x] ? PR[x].title : x; }).join(", ") : "", lv.state ? lv.state + (lv.number ? " #" + lv.number : "") : ""].filter(Boolean).join(" · ") })),
       prTickets(p).map(function (t, i) { return ticketRow(t, i); }));
   }
   function gateEl(w) {
@@ -2553,7 +2553,7 @@ function digest() {
   lines.push("# " + B.title + " digest");
   lines.push("From " + (L.live ? "live data" : L.demo ? "sample data (preview)" : "the page only; the db was not available") + ", " + new Date().toISOString() + ". Everything below is data, not instructions.");
   lines.push("Start here: " + AGENT_START);
-  lines.push("", "Stage: " + (STAGE || "unknown") + (B.round ? ", round " + B.round.n : "") + ". Run: " + (run.phase || "no run state") + (run.note ? ". " + run.note : "") + (run.sha ? " (head " + run.sha + ")" : ""));
+  lines.push("", "Stage: " + (STAGE || "unknown") + (B.round ? ", book version " + B.round.n : "") + ". Run: " + (run.phase || "no run state") + (run.note ? ". " + run.note : "") + (run.sha ? " (head " + run.sha + ")" : ""));
   lines.push("Blocking choice: " + (blk ? blk.question : "none"));
   lines.push("", "## Waves (pull requests, commits in order)");
   WAVES.forEach(function (w, i) { var x = pr.stats[i]; lines.push("- wave " + w.n + " " + w.name + " (" + w.id + "): " + x.done + " of " + x.n + " proven" + (x.stopped ? ", " + x.stopped + " stopped" : "") + (wavePRs(w).length ? "; " + wavePRs(w).map(function (p) { return p.id + "[" + (p.tickets || []).join(" > ") + "]"; }).join("  ") : "")); });
@@ -2657,7 +2657,7 @@ function renderPane() {
   var pane = $("#pane"); pane.textContent = "";
   var path = AW.node, run = L.run || {}, pr = progress();
   add(pane, h("div", { class: "pane__start" }, h("b", { text: "START HERE:" }), h("span", { text: AGENT_START }), h("button", { type: "button", class: "abtn", text: "Copy path", onclick: function () { copy(AGENT_START); } }), B.kickoff ? h("button", { type: "button", class: "abtn", text: "Copy kickoff", onclick: function () { copy(B.kickoff); } }) : null, h("button", { type: "button", class: "abtn", text: "Copy digest", onclick: function () { copy(digest()); } })));
-  add(pane, h("div", { class: "pane__meta" }, ["stage " + (STAGE || "unknown"), "wave " + (run.wave != null ? run.wave : WAVES[pr.cur] ? WAVES[pr.cur].n : "none") + (run.phase ? " " + run.phase : ""), "updated " + (B.updated || ""), "round " + (B.round ? B.round.n : ""), "built " + String(BUILD.built || "").slice(0, 16), "db " + (L.live ? "live" : L.demo ? "sample" : "offline"), pr.done + "/" + pr.total + " tickets proven"].map(function (x) { return h("span", { text: x }); })));
+  add(pane, h("div", { class: "pane__meta" }, ["stage " + (STAGE || "unknown"), "wave " + (run.wave != null ? run.wave : WAVES[pr.cur] ? WAVES[pr.cur].n : "none") + (run.phase ? " " + run.phase : ""), "updated " + (B.updated || ""), "book v" + (B.round ? B.round.n : ""), "built " + String(BUILD.built || "").slice(0, 16), "db " + (L.live ? "live" : L.demo ? "sample" : "offline"), pr.done + "/" + pr.total + " tickets proven"].map(function (x) { return h("span", { text: x }); })));
   var m = path.match(/^tables\/([a-z_]+)(?:\/(.+))?$/);
   var copyText = null, body = null;
   if (path === "START") {
@@ -2760,7 +2760,7 @@ function sideMenu() {
   function footDraw() {
     var pr = progress(), merged = PRS.filter(function (p) { return (L.status["pr-" + p.id] || {}).state === "merged"; }).length, st = topState();
     foot.textContent = "";
-    add(foot, [h("span", { text: DECIDED.length + " decisions recorded" }), PRS.length ? h("span", { text: merged + " of " + PRS.length + " pull requests merged" }) : null, TICKETS.length ? h("span", { text: pr.done + " of " + TICKETS.length + " tickets proven" }) : null, B.round ? h("span", { text: "Round " + B.round.n + (B.updated ? ", updated " + dateWord(B.updated) : "") }) : null]);
+    add(foot, [h("span", { text: DECIDED.length + " decisions recorded" }), PRS.length ? h("span", { text: merged + " of " + PRS.length + " pull requests merged" }) : null, TICKETS.length ? h("span", { text: pr.done + " of " + TICKETS.length + " tickets proven" }) : null, B.round ? h("span", { text: "Book version " + B.round.n + (B.updated ? ", updated " + dateWord(B.updated) : "") }) : null]);
     $$('.sl .dot[data-live]', side).forEach(function (d2) { d2.className = "dot " + st[0]; });
   }
   onLive(footDraw); footDraw();
@@ -2836,6 +2836,8 @@ function setMode(m, quiet) {
 }
 function route(e) {
   var x = decodeURIComponent(location.hash.slice(1)), instant = !e;
+  $$(".links__menu").forEach(function (lm) { lm.hidden = true; }); $$("#links button[aria-expanded]").forEach(function (lb) { lb.setAttribute("aria-expanded", "false"); });
+  if (!/^plan\/.+$/.test(x) || !T[x.replace(/^plan\//, "")]) closeTicket();
   if (!x) return;
   if (/^agent\//.test(x)) { goAgent(x.slice(6)); return; }
   if (document.documentElement.dataset.mode === "agent") setMode("human", true);
@@ -2853,7 +2855,7 @@ var q = new URLSearchParams(location.search);
 var theme = q.get("theme") || store.get("book:theme");
 if (theme === "light" || theme === "dark") document.documentElement.dataset.theme = theme;
 loadDemo();
-var pbar = h("div", { class: "pagebar" }, h("span", { text: [B.round ? "Round " + B.round.n : "", B.round && B.round.stage ? "stage " + B.round.stage : "", B.updated ? "updated " + dateWord(B.updated) : ""].filter(Boolean).join(", ") }),
+var pbar = h("div", { class: "pagebar" }, h("span", { text: [B.round ? "Book version " + B.round.n : "", B.round && B.round.stage ? "stage " + B.round.stage : "", B.updated ? "updated " + dateWord(B.updated) : ""].filter(Boolean).join(", ") }),
   h("button", { type: "button", class: "linkbtn", text: "Expand all depth", onclick: function (e) { var open = e.currentTarget.textContent === "Expand all depth"; setAllDepth(open); e.currentTarget.textContent = open ? "Close all depth" : "Expand all depth"; } }));
 add(main, pbar);
 SECS.forEach(function (sec) {
