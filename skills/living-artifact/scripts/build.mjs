@@ -6,10 +6,12 @@
 // Errors and warnings go to stderr. Exit 1 on any error; warnings never stop the build, but fix them.
 //   --demo     sample live state for preview.html only (labelled as sample); index.html never carries it
 //   --preview  also write <book-dir>/preview.html for opening locally. Never publish preview.html.
+//   --no-render skip the rendered checks in headless Chromium (scripts/check-render.mjs); the page is then unchecked
 import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
 import { fileURLToPath } from "node:url";
+import { spawnSync } from "node:child_process";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const TEMPLATE = path.resolve(here, "../assets/book.html");
@@ -23,6 +25,8 @@ const flag = (name) => {
 const demoPath = flag("--demo");
 const previewIdx = args.indexOf("--preview");
 const preview = previewIdx >= 0; if (preview) args.splice(previewIdx, 1);
+const noRenderIdx = args.indexOf("--no-render");
+const noRender = noRenderIdx >= 0; if (noRender) args.splice(noRenderIdx, 1);
 const dir = args[0] ? path.resolve(args[0]) : null;
 if (!dir) { console.error("Usage: node scripts/build.mjs <book-dir> [--demo <db-seed.json>] [--preview]"); process.exit(1); }
 
@@ -1031,5 +1035,13 @@ if (preview) {
 if (demo && !preview) warn("--demo has no effect without --preview; sample state goes only into preview.html");
 
 for (const w of warnings) console.error(`warning: ${w}`);
-console.error(`wrote ${tilde(out)} (${kb.toFixed(0)} KB, fonts ${fontKb.toFixed(0)} KB), ${total} words of human text, ${Object.keys(filesMap).length} published file(s), ${warnings.length} warning(s)${preview ? ", preview.html" : ""}${demo && preview ? ", sample live data in preview.html only" : ""}`);
+// rendered checks: headless Chromium on the written page (scripts/check-render.mjs)
+let renderNote = "rendered checks not run (--no-render): unknown, not passed";
+if (!noRender && isNew) {
+  const r = spawnSync(process.execPath, [path.join(here, "check-render.mjs"), out], { encoding: "utf8" });
+  process.stderr.write(r.stderr || "");
+  if (r.status !== 0) { console.error(r.status === 2 ? "Run again with --no-render to skip them; the page is then unchecked." : "index.html was written, but it fails the rendered checks. Fix them before publishing."); process.exit(1); }
+  renderNote = "rendered checks passed";
+}
+console.error(`wrote ${tilde(out)} (${kb.toFixed(0)} KB, fonts ${fontKb.toFixed(0)} KB), ${total} words of human text, ${renderNote}, ${Object.keys(filesMap).length} published file(s), ${warnings.length} warning(s)${preview ? ", preview.html" : ""}${demo && preview ? ", sample live data in preview.html only" : ""}`);
 process.stdout.write(JSON.stringify(filesMap, null, 2) + "\n");

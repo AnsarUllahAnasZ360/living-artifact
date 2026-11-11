@@ -686,6 +686,14 @@ table.atbl { border-collapse: collapse; font-size: 11.5px; min-width: 100%; }
   .shell { display: block; }
   .dp > summary .chev { display: none; }
 }
+/* beside the side menu the map needs the full width, so the story steps sit under it as chips */
+@media (min-width: 721px) and (max-width: 1399px) {
+  .flow { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .flow .steps { display: flex; flex-wrap: wrap; gap: 6px; }
+  .flow .steps li + li { margin-top: 0; }
+  .flow .steps button { width: auto; display: inline-flex; gap: 8px; align-items: center; min-height: 32px; padding: 4px 12px 4px 5px; border: 1px solid var(--line); border-radius: 16px; }
+  .flow .steps b { font-size: 13px; line-height: 20px; }
+}
 /* ---------- below 1024 px: the menu is a drawer ---------- */
 @media (max-width: 1023px) {
   .menubtn { display: grid; }
