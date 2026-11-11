@@ -562,12 +562,14 @@ if (isObj(rep)) for (const k of ["works_now", "not_proven"]) (rep[k] || []).forE
 // api.mount(el, "steps" | "map" | "scale" | ..., data) rather than drawing them again.
 const filesMap = {};
 let chapterCss = "", chapterTpl = "", chapterJs = "";
-const SIDE_BORDER = /border-(?:left|top|inline-start|block-start)(?:-color)?\s*:\s*([^;}"'`<]+)/gi;
+const SIDE_BORDER = /border-(?:left|right|top|inline-start|inline-end|block-start)(?:-color)?\s*:\s*([^;}"'`<]+)/gi;
 const HAIRLINE_OK = /^(?:\s|var\(--line\)|transparent|none|inherit|unset|initial|solid|dashed|dotted|0|\d*\.?\d+px|!important)*$/i;
-const NETWORK = /<link[^>]+href=["']https?:|@import\s+url\(["']?https?:|@import\s+["']https?:|src:\s*url\(["']?https?:|<script[^>]+src=["']https?:/i;
+const NETWORK = /<link\b[^>]*\bhref\s*=\s*["']?\s*(?:https?:)?\/\/|\b(?:src|action|poster|srcset)\s*=\s*["']?\s*(?:https?:)?\/\/|url\(\s*["']?\s*(?:https?:)?\/\/|@import\s+["']?\s*(?:https?:)?\/\/|\b(?:fetch|import|importScripts|WebSocket|EventSource)\s*\(\s*["'`]\s*(?:https?:|wss?:)?\/\/|\.(?:src|href)\s*=\s*["'`]\s*(?:https?:)?\/\//i;
+const STRIPE = /border-(?:left|right|inline-start|inline-end)-width\s*:\s*(?!0[;\s}]|1px)[^;}]+|box-shadow\s*:\s*inset\s+-?[1-9]\d*px\s+0(?:px)?\s+0(?:px)?\s/gi;
 function guard(text, where) {
   text.split("\n").forEach((line, i) => {
     for (const m of line.matchAll(SIDE_BORDER)) if (!HAIRLINE_OK.test(m[1])) err(`${where}:${i + 1}: coloured side border "${m[0].trim()}". Use var(--line), or no border: hierarchy comes from type, space and one hairline`);
+    for (const m of line.matchAll(STRIPE)) err(`${where}:${i + 1}: a side stripe "${m[0].trim()}". Use var(--line), or no border: hierarchy comes from type, space and one hairline`);
   });
   if (NETWORK.test(text)) err(`${where}: loads a stylesheet, font or script from the network; the page makes no external request`);
 }
@@ -689,7 +691,7 @@ function walk(rel, test) {
   }
 }
 walk("agent/proof", (n) => IMG.test(n));
-if (fs.existsSync(path.join(dir, "proto"))) for (const n of fs.readdirSync(path.join(dir, "proto"))) if (/\.html$/i.test(n)) filesMap[`proto/${n}`] = path.join(dir, "proto", n);
+if (fs.existsSync(path.join(dir, "proto"))) for (const n of fs.readdirSync(path.join(dir, "proto"))) if (/\.html$/i.test(n)) { filesMap[`proto/${n}`] = path.join(dir, "proto", n); guard(fs.readFileSync(path.join(dir, "proto", n), "utf8"), `proto/${n}`); }
 const published = new Set(Object.keys(filesMap));
 const refd = [];
 (book.research || []).forEach((r) => r?.file && refd.push([r.file, `research "${r.id}"`]));
