@@ -66,12 +66,17 @@ img { max-width: 100%; display: block; }
 .mark span { color: var(--text-3); font-weight: 400; margin-left: 8px; }
 .nav { display: flex; gap: 2px; margin-left: 4px; min-width: 0; overflow-x: auto; scrollbar-width: none; }
 .nav::-webkit-scrollbar { display: none; }
+.nav.more-r { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); }
+.nav.more-l { -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to left, #000 calc(100% - 28px), transparent); }
+.nav.more-l.more-r { -webkit-mask-image: linear-gradient(to right, transparent, #000 28px, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to right, transparent, #000 28px, #000 calc(100% - 28px), transparent); }
 .skip { position: absolute; left: 12px; top: -60px; z-index: 20; padding: 8px 12px; border-radius: var(--r-sm); background: var(--text); color: var(--bg); font-size: 13px; }
 .skip:focus { top: 8px; }
 .nav a { padding: 6px 10px; border-radius: var(--r-sm); font-size: 13px; color: var(--text-2); white-space: nowrap; transition: color var(--ease), background-color var(--ease); }
 .nav a:hover { color: var(--text); background: var(--bg-hover); }
 .spacer { flex: 1; }
 .seg { display: inline-flex; padding: 2px; border-radius: var(--r); background: var(--bg-muted); flex-wrap: wrap; }
+.top__in > .seg, .top__in > .btn, .top__in > .iconbtn { flex: none; flex-wrap: nowrap; }
+.top__in > .btn { white-space: nowrap; }
 .seg button { min-height: 28px; padding: 0 10px; border-radius: 6px; font-size: 13px; font-weight: 500; color: var(--text-2); transition: color var(--ease), background-color var(--ease); white-space: nowrap; }
 .seg button:hover { color: var(--text); }
 .seg button[aria-pressed="true"] { background: var(--bg); color: var(--text); box-shadow: 0 0 0 1px var(--line-strong); }
@@ -466,7 +471,8 @@ input[type=range]:focus-visible::-webkit-slider-thumb { outline: 2px solid var(-
 }
 @media (max-width: 720px) {
   .top__in { padding: 0 16px; gap: 0 8px; height: auto; min-height: 52px; flex-wrap: wrap; }
-  .top__in > .mark { height: 52px; display: flex; align-items: center; }
+  .top__in > .mark { flex: 1 1 0; line-height: 52px; }
+  .top__in > .spacer { display: none; }
   .nav { order: 9; flex: 1 0 100%; margin: 0 -16px; padding: 0 12px 8px; }
   .nav a { padding: 6px 8px; }
   html { scroll-padding-top: 104px; }
@@ -1488,13 +1494,13 @@ COMP.cost = function (stage, d, sec, ctx) {
       svg += '<path class="c-gap" d="' + path(pts[other]) + "L" + pts[oi].slice().reverse().map(function (q) { return X(q[0]).toFixed(1) + " " + Y(q[1]).toFixed(1); }).join("L") + 'Z"/>';
     }
     series.forEach(function (x, k) { svg += '<path class="c-l ' + cls(x, k) + '" d="' + path(pts[k]) + '"/>'; });
-    var used = [];
-    series.forEach(function (x, k) {
-      var e = pts[k][N], y = Y(e[1]) - 10;
-      used.forEach(function (u) { if (Math.abs(u - y) < 16) y = u + (y >= u ? 16 : -16); });
-      used.push(y);
-      svg += '<text class="c-lbl" fill="' + (x.ours ? "var(--accent-text)" : "var(--text-2)") + '" x="' + X(e[0]) + '" y="' + y + '" text-anchor="end">' + esc(x.name) + "</text>";
-    });
+    // end labels: sorted top to bottom, then pushed apart so no two share a line, kept inside the plot
+    var lab = series.map(function (x, k) { return { x: x, e: pts[k][N], y: Y(pts[k][N][1]) - 10 }; }).sort(function (p, q) { return p.y - q.y; });
+    lab.forEach(function (l, i) { if (i) l.y = Math.max(l.y, lab[i - 1].y + 18); });
+    var over = lab.length ? lab[lab.length - 1].y - (H - mb - 4) : 0;
+    if (over > 0) lab.forEach(function (l) { l.y -= over; });
+    lab.forEach(function (l, i) { if (i === 0) l.y = Math.max(l.y, 14); else l.y = Math.max(l.y, lab[i - 1].y + 18); });
+    lab.forEach(function (l) { svg += '<text class="c-lbl" fill="' + (l.x.ours ? "var(--accent-text)" : "var(--text-2)") + '" x="' + X(l.e[0]) + '" y="' + l.y + '" text-anchor="end">' + esc(l.x.name) + "</text>"; });
     var cx = sc[xs.input], mx = X(Math.max(from, Math.min(to, cx)));
     svg += '<line class="c-mark" x1="' + mx + '" x2="' + mx + '" y1="' + mt + '" y2="' + (H - mb) + '"/>';
     series.forEach(function (x, k) { var v = 0; try { v = Expr.eval(x.value, sc); } catch (e) {} svg += '<circle class="c-p ' + cls(x, k) + '" cx="' + mx + '" cy="' + Y(v) + '" r="4.5"/>'; });
@@ -1909,6 +1915,9 @@ function shell() {
     add(nav, h("a", { href: "#" + x.id, text: x.nav || x.label || x.id }));
   });
   add(nav, h("a", { href: "#reference", class: "agent-only", text: "Reference" }));
+  function navFade() { var end = nav.scrollWidth - nav.clientWidth; nav.classList.toggle("more-r", nav.scrollLeft < end - 2); nav.classList.toggle("more-l", nav.scrollLeft > 2); }
+  nav.addEventListener("scroll", navFade, { passive: true });
+  if ("ResizeObserver" in window) new ResizeObserver(navFade).observe(nav);
   $$("button[data-mode]").forEach(function (b) { b.addEventListener("click", function () { setMode(b.dataset.mode); }); });
   $("#theme").addEventListener("click", function () {
     var root = document.documentElement, cur = root.dataset.theme;
@@ -1922,6 +1931,7 @@ function setMode(m, quiet) {
   store.set("book:mode", m);
   $$("button[data-mode]").forEach(function (x) { x.setAttribute("aria-pressed", String(x.dataset.mode === m)); });
   if (refSec && refSec._render) refSec._render();
+  $("#nav").dispatchEvent(new Event("scroll"));
   if (!quiet) say(m === "agent" ? "Agent mode: ids and the reference layer are shown." : "Human mode.");
 }
 
