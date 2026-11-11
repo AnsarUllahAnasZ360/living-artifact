@@ -1,75 +1,348 @@
 {
   "id": "monthly-send",
   "title": "Monthly invoice email",
-  "terms": ["Xero", "QuickBooks"],
+  "terms": [
+    "Xero",
+    "QuickBooks"
+  ],
   "subtitle": "A feature",
   "kind": "Feature plan",
-  "owner": { "name": "Maya", "role": "Founder of Fieldnote" },
+  "owner": {
+    "name": "Maya",
+    "role": "Founder of Fieldnote"
+  },
   "profile": "feature",
   "updated": "2026-11-11T09:00:00Z",
-  "round": { "n": 1, "title": "Send the file by itself", "started": "2026-11-03", "stage": "build" },
+  "round": {
+    "n": 1,
+    "title": "Send the file by itself",
+    "started": "2026-11-03",
+    "stage": "build"
+  },
   "sections": [
     {
-      "id": "story", "component": "story", "label": "Feature plan",
+      "id": "story",
+      "component": "story",
+      "label": "Feature plan",
       "claim": "The month's invoice file arrives by email the day the books close.",
       "lead": "Today the owner emails the file by hand each month.",
       "data": {
         "numbers": [
-          { "value": "1 minute", "label": "to set up, once", "certainty": "designed" },
-          { "value": "0 of 0", "label": "pieces of work proven", "live": "proven", "certainty": "measured" }
+          {
+            "value": "1 minute",
+            "label": "to set up, once",
+            "certainty": "designed"
+          },
+          {
+            "value": "0 of 0",
+            "label": "pieces of work proven",
+            "live": "proven",
+            "certainty": "measured"
+          }
         ]
       }
     },
     {
-      "id": "setup", "component": "steps", "label": "How it works",
+      "id": "setup",
+      "component": "steps",
+      "label": "How it works",
       "claim": "Setting up the monthly email takes four choices and one minute.",
       "lead": "After that the file arrives by itself.",
       "data": {
         "steps": [
-          { "title": "Pick the tool", "text": "Xero, QuickBooks or a plain spreadsheet." },
-          { "title": "Pick the day", "text": "The day the books close, not the first of the month." },
-          { "title": "Add the bookkeeper", "text": "An email address. The bookkeeper never needs to log in." },
-          { "title": "Send a test", "text": "A small file with last week's invoices arrives at once." }
+          {
+            "title": "Pick the tool",
+            "text": "Xero, QuickBooks or a plain spreadsheet."
+          },
+          {
+            "title": "Pick the day",
+            "text": "The day the books close, not the first of the month."
+          },
+          {
+            "title": "Add the bookkeeper",
+            "text": "An email address. The bookkeeper never needs to log in."
+          },
+          {
+            "title": "Send a test",
+            "text": "A small file with last week's invoices arrives at once."
+          }
         ]
-      }
+      },
+      "group": "understand",
+      "nav": "How it works",
+      "depth": [
+        {
+          "id": "send-rules",
+          "title": "The send, rule by rule",
+          "kind": "list",
+          "source": "agent/ASK.md",
+          "data": {
+            "items": [
+              {
+                "label": "Day:",
+                "text": "the closing day the owner picks, at 6 in the morning local time"
+              },
+              {
+                "label": "Empty month:",
+                "text": "no invoices means no email"
+              },
+              {
+                "label": "Link:",
+                "text": "works for 30 days, no login needed"
+              },
+              {
+                "label": "Bounce:",
+                "text": "shown on the export screen within five minutes"
+              }
+            ]
+          }
+        }
+      ]
     },
     {
-      "id": "file-sample", "component": "chapter", "label": "The file",
+      "id": "scope",
+      "group": "understand",
+      "nav": "Scope",
+      "component": "capabilities",
+      "label": "Scope",
+      "claim": "It sends one file a month and does nothing else.",
+      "data": {
+        "items": [
+          {
+            "name": "Monthly email with the file",
+            "state": "building",
+            "line": "One email a month on the closing day.",
+            "ticket": "send-job"
+          },
+          {
+            "name": "Bounce report",
+            "state": "building",
+            "line": "A bounce shows on the export screen.",
+            "ticket": "send-bounce"
+          },
+          {
+            "name": "Several addresses",
+            "state": "later",
+            "line": "One address for now; more when someone asks."
+          }
+        ]
+      },
+      "depth": [
+        {
+          "id": "not-in-scope",
+          "role": "out-of-scope",
+          "title": "Not in this feature",
+          "kind": "list",
+          "source": "agent/ASK.md",
+          "data": {
+            "items": [
+              "Sending to more than one address",
+              "Editing the email text",
+              "A weekly or daily send"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "file-sample",
+      "component": "chapter",
+      "label": "The file",
       "claim": "Each accounting tool gets exactly the columns it expects.",
-      "lead": "The first rows of each tool's file."
+      "lead": "The first rows of each tool's file.",
+      "group": "understand",
+      "nav": "The file"
     },
     {
-      "id": "build", "component": "build", "label": "The build", "nav": "The build",
+      "id": "choices",
+      "group": "understand",
+      "nav": "Decisions",
+      "component": "decisions",
+      "label": "Decided",
+      "claim": "Two choices are already made, so nobody has to ask again."
+    },
+    {
+      "id": "build",
+      "group": "build",
+      "nav": "The plan",
+      "component": "plan",
+      "label": "The build",
       "claim": "Two steps, each proven before the next one starts."
     },
     {
-      "id": "decisions", "component": "decided", "label": "Decided", "nav": false,
-      "claim": "Two choices are already made, so nobody has to ask again."
+      "id": "proof",
+      "group": "build",
+      "nav": "Proof",
+      "component": "verification",
+      "label": "Proof",
+      "claim": "One check at the end proves the email arrives on the day."
+    },
+    {
+      "id": "kickoff",
+      "group": "build",
+      "nav": "Kickoff",
+      "component": "kickoff",
+      "label": "Kickoff",
+      "claim": "One prompt starts the build in a fresh session.",
+      "data": {
+        "steps": [
+          "Open the repo",
+          "Paste the prompt",
+          "One builder",
+          "Final check"
+        ]
+      }
     }
   ],
   "decided": [
-    { "id": "send-day", "what": "The owner picks the day the email goes out", "who": "Maya", "when": "2026-10-28", "why": "Books close on different days, and a file that arrives early is incomplete.", "section": "setup" },
-    { "id": "no-login", "what": "The bookkeeper never needs an account", "who": "model", "when": "2026-11-03", "why": "A link that works for 30 days is enough.", "section": "setup" }
+    {
+      "id": "send-day",
+      "what": "The owner picks the day the email goes out",
+      "who": "Maya",
+      "when": "2026-10-28",
+      "why": "Books close on different days, and a file that arrives early is incomplete.",
+      "section": "setup"
+    },
+    {
+      "id": "no-login",
+      "what": "The bookkeeper never needs an account",
+      "who": "model",
+      "when": "2026-11-03",
+      "why": "A link that works for 30 days is enough.",
+      "section": "setup"
+    }
   ],
   "plan": {
     "summary": "Three pieces of work in two steps, without pull request planning: one builder, one review, one final check.",
     "waves": [
-      { "n": 1, "id": "wave-1", "name": "Schedule", "what": "The owner picks the tool, day and address." },
-      { "n": 2, "id": "wave-2", "name": "Delivery", "what": "The file goes out and bounces are reported." }
+      {
+        "n": 1,
+        "id": "wave-1",
+        "name": "Schedule",
+        "what": "The owner picks the tool, day and address."
+      },
+      {
+        "n": 2,
+        "id": "wave-2",
+        "name": "Delivery",
+        "what": "The file goes out and bounces are reported."
+      }
     ],
     "tickets": [
-      { "id": "send-settings", "wave": 1, "title": "The owner sets the tool, day and address once", "goal": "A settings card on the export screen saves the tool, the closing day and one email address for each customer.", "done_when": ["The card saves and shows the next send date", "A test email arrives within one minute"], "risk": "low", "size": "M", "files": ["apps/web/src/export/"] },
-      { "id": "send-job", "wave": 2, "title": "The file goes out on the chosen day", "goal": "On the closing day a background job builds the month's file and emails a download link that works for 30 days.", "done_when": ["The email arrives on the chosen day with a working link", "A month with no invoices sends nothing"], "depends_on": ["send-settings"], "risk": "medium", "size": "M", "files": ["apps/api/src/jobs/send.ts"] },
-      { "id": "send-bounce", "wave": 2, "title": "The owner hears when an email bounces", "goal": "A bounced email shows on the export screen with the reason, and the file stays there to download.", "done_when": ["A bounce shows on the export screen within five minutes"], "depends_on": ["send-job"], "risk": "low", "size": "M", "files": ["apps/api/src/jobs/send.ts"] }
+      {
+        "id": "send-settings",
+        "wave": 1,
+        "title": "The owner sets the tool, day and address once",
+        "goal": "A settings card on the export screen saves the tool, the closing day and one email address for each customer.",
+        "done_when": [
+          "The card saves and shows the next send date",
+          "A test email arrives within one minute"
+        ],
+        "risk": "low",
+        "size": "M",
+        "files": [
+          "apps/web/src/export/"
+        ],
+        "depends_on": [],
+        "verify": {
+          "run": "Save the card on the local stack, then press Send a test",
+          "expect": "The next date shows and a test email lands within a minute"
+        },
+        "problem": "The owner has nowhere to say which tool, which day and which address the file goes to.",
+        "hours": 2
+      },
+      {
+        "id": "send-job",
+        "wave": 2,
+        "title": "The file goes out on the chosen day",
+        "goal": "On the closing day a background job builds the month's file and emails a download link that works for 30 days.",
+        "done_when": [
+          "The email arrives on the chosen day with a working link",
+          "A month with no invoices sends nothing"
+        ],
+        "depends_on": [
+          "send-settings"
+        ],
+        "risk": "medium",
+        "size": "M",
+        "files": [
+          "apps/api/src/jobs/send.ts"
+        ],
+        "verify": {
+          "run": "Set the clock to the closing day and run the job",
+          "expect": "One email with a working link; an empty month sends nothing"
+        },
+        "problem": "The file is built only when the owner clicks export, so it is late when they forget.",
+        "hours": 3
+      },
+      {
+        "id": "send-bounce",
+        "wave": 2,
+        "title": "The owner hears when an email bounces",
+        "goal": "A bounced email shows on the export screen with the reason, and the file stays there to download.",
+        "done_when": [
+          "A bounce shows on the export screen within five minutes"
+        ],
+        "depends_on": [
+          "send-job"
+        ],
+        "risk": "low",
+        "size": "M",
+        "files": [
+          "apps/api/src/jobs/send.ts"
+        ],
+        "verify": {
+          "run": "Send to an address the test mail server rejects",
+          "expect": "The bounce and its reason show on the export screen"
+        },
+        "problem": "A wrong address fails silently and the bookkeeper never gets the file.",
+        "hours": 1.5
+      }
     ],
     "verification": {
       "summary": "One check on the local stack with a seeded account, about 15 minutes.",
       "checks": [
-        { "id": "send-on-day", "title": "The month's file arrives on the day", "kind": "code", "tickets": ["send-settings", "send-job", "send-bounce"], "expect": "With the clock set to the closing day, one email goes out with a working link; a bad address shows a bounce.", "pass": "One email in the test inbox, the link downloads the file, and the bounce shows on the screen." }
+        {
+          "id": "send-on-day",
+          "title": "The month's file arrives on the day",
+          "kind": "code",
+          "tickets": [
+            "send-settings",
+            "send-job",
+            "send-bounce"
+          ],
+          "expect": "With the clock set to the closing day, one email goes out with a working link; a bad address shows a bounce.",
+          "pass": "One email in the test inbox, the link downloads the file, and the bounce shows on the screen."
+        }
       ]
     }
   },
   "kickoff": "Build Monthly invoice email from its book: <book URL>. Open this chat in the Fieldnote repo. Read the book with the Artifact tool and status, run and log with ArtifactData, and follow the living-artifact skill's run.md. One builder, one review per piece of work, then the final check. Decide what you can and record it in decided; ask me in chat only when a choice is mine and blocks the work.",
-  "report": { "ready": false, "works_now": [], "not_proven": [] },
-  "files": [ { "path": "agent/ASK.md", "title": "The ask, verbatim", "kind": "md" }, { "path": "agent/CHECKPOINT.md", "title": "Run ledger", "kind": "md" } ]
+  "report": {
+    "ready": false,
+    "works_now": [],
+    "not_proven": []
+  },
+  "files": [
+    {
+      "path": "agent/ASK.md",
+      "title": "The ask, verbatim",
+      "kind": "md"
+    },
+    {
+      "path": "agent/CHECKPOINT.md",
+      "title": "Run ledger",
+      "kind": "md"
+    }
+  ],
+  "groups": [
+    {
+      "id": "understand",
+      "label": "Understand"
+    },
+    {
+      "id": "build",
+      "label": "The build"
+    }
+  ]
 }
