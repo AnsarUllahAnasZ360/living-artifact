@@ -170,7 +170,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 .choice li { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 10px; padding: 10px 0; border-top: 1px solid var(--line); }
 .choice li b { font-weight: 500; }
 .choice li span { color: var(--text-2); display: block; }
-.choice .num { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; box-shadow: inset 0 0 0 1px var(--line-strong); color: var(--text-3); }
+.choice .num { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font-size: 11.5px; box-shadow: inset 0 0 0 1px var(--line-strong); color: var(--text-3); }
 .choice .def { margin-top: 14px; font-size: 13px; color: var(--text-2); }
 
 /* ---------- system map and flow player ---------- */
@@ -215,7 +215,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 .steps li + li { margin-top: 2px; }
 .steps button { width: 100%; display: grid; grid-template-columns: 22px 1fr; gap: 10px; padding: 8px 10px; border-radius: var(--r); color: var(--text-2); transition: background-color var(--ease), color var(--ease); min-height: 38px; }
 .steps button:hover { background: var(--bg-hover); color: var(--text); }
-.steps .num { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: 500; box-shadow: inset 0 0 0 1px var(--line-strong); color: var(--text-3); font-variant-numeric: tabular-nums; }
+.steps .num { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 11.5px; font-weight: 500; box-shadow: inset 0 0 0 1px var(--line-strong); color: var(--text-3); font-variant-numeric: tabular-nums; }
 .steps b { font-weight: 500; font-size: 14px; display: block; line-height: 22px; }
 .steps button[aria-current="step"] { background: var(--bg-muted); color: var(--text); }
 .steps button[aria-current="step"] .num { background: var(--text); color: var(--bg); box-shadow: none; }
@@ -356,7 +356,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb { outline: 2px solid var(-
 .rl__more p + p { margin-top: 4px; }
 .rl li:last-child { border-bottom: 1px solid var(--line); }
 .rl li.hl { background: var(--bg-hover); }
-.rl .rn { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: 600; box-shadow: inset 0 0 0 1px var(--line-strong); color: var(--text-2); }
+.rl .rn { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 11.5px; font-weight: 600; box-shadow: inset 0 0 0 1px var(--line-strong); color: var(--text-2); }
 .rl li.hl .rn { background: var(--text); color: var(--bg); box-shadow: none; }
 .rl b { font-weight: 500; }
 .rl p { color: var(--text-2); font-size: 13.5px; }
@@ -371,7 +371,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb { outline: 2px solid var(-
 .ring .arc { fill: none; stroke: var(--text); stroke-width: 2.5; stroke-linecap: round; transition: stroke-dashoffset var(--move); }
 .wave.cur .ring .arc { stroke: var(--accent); }
 .wave.stopped .ring .arc { stroke: var(--err); }
-.ring em { position: absolute; inset: 0; display: grid; place-items: center; font: 500 11px var(--font-sans); font-style: normal; color: var(--text-2); font-variant-numeric: tabular-nums; }
+.ring em { position: absolute; inset: 0; display: grid; place-items: center; font: 500 11.5px var(--font-sans); font-style: normal; color: var(--text-2); font-variant-numeric: tabular-nums; }
 .ring em svg { width: 14px; height: 14px; transform: none; fill: none; stroke: var(--text); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .wave > b { display: block; margin-top: 14px; font-weight: 600; font-size: 14px; }
 .wave .what { display: block; font-size: 13px; color: var(--text-2); line-height: 19px; margin-top: 2px; max-width: 17em; }
@@ -1155,7 +1155,7 @@ COMP.map = function (stage, d, sec) {
     edges.forEach(function (e) {
       var dd = e[layout] || autoPath(boxOf(N[e.from], layout), boxOf(N[e.to], layout));
       add(gE, [s("path", { d: dd, class: "e-ln", "data-e": e.id }), s("path", { d: "M-5 -4L1 0L-5 4z", class: "e-hd", "data-eh": e.id })]);
-      if (e.verb) add(gV, s("text", { class: "e-vb", "data-ev": e.id, "text-anchor": "middle", text: e.verb }));
+      if (e.verb && layout !== "tall") add(gV, s("text", { class: "e-vb", "data-ev": e.id, "text-anchor": "middle", text: e.verb }));
     });
     nodes.forEach(function (n) {
       var b = boxOf(n, layout), g = s("g", { class: "node", "data-n": n.id, "data-id": n.id });
@@ -1181,7 +1181,7 @@ COMP.map = function (stage, d, sec) {
     add(gT, [s("circle", { r: 9, class: "tok-h", opacity: 0 }), s("circle", { r: 4.5, class: "tok", opacity: 0 })]);
     /* a label never spills out of its box: shrink it to fit, never below 11.5 px */
     nodes.forEach(function (n) {
-      var b = boxOf(n, layout), g = $('[data-n="' + n.id + '"]', host), room = b[2] - (n.dot ? 60 : 28);
+      var b = boxOf(n, layout), g = $('[data-n="' + n.id + '"]', host), room = b[2] - (n.dot ? 82 : 28);
       $$("text.n-t, text.n-s", g).forEach(function (tx) {
         var w = tx.getComputedTextLength ? tx.getComputedTextLength() : 0, fs = parseFloat(getComputedStyle(tx).fontSize) || 13;
         if (w > room && w > 0) tx.style.fontSize = Math.max(11.5, fs * room / w) + "px";
@@ -1209,12 +1209,9 @@ COMP.map = function (stage, d, sec) {
       var v = $('[data-ev="' + e.id + '"]', host); if (v) v.classList.toggle("hl", on);
     });
     if (!n) { caption(); return; }
-    var talks = edges.filter(function (e) { return e.from === id || e.to === id; }).map(function (e) {
-      return e.from === id ? (e.verb || "talks to") + " " + N[e.to].name.toLowerCase() : N[e.from].name + " " + (e.verb || "talks to") + " it";
-    });
     cap.classList.add("inspect");
-    capN.textContent = "i"; capT.textContent = n.name; capD.textContent = (n.does ? n.does.replace(/\.?$/, ".") + " " : "") + (talks.length ? talks.join(". ").replace(/^./, function (c) { return c.toUpperCase(); }) + "." : "");
-    capK.textContent = hasStory ? "Move away to return to the story" : "";
+    capN.textContent = "i"; capT.textContent = n.name; capD.textContent = n.does ? n.does.replace(/\.?$/, ".") : "";
+    capK.textContent = "";
     live.textContent = n.name + ". " + capD.textContent;
   }
   function caption() {
@@ -1270,7 +1267,7 @@ COMP.map = function (stage, d, sec) {
     if (!st.hover) caption();
     live.textContent = "Step " + (st.i + 1) + " of " + list.length + ". " + x.title + ". " + (x.text || "");
   }
-  function go(i, animate) { var n = steps().length; st.i = (i + n) % n; show(animate !== false); }
+  function go(i, animate) { var n = steps().length; st.i = (i + n) % n; if (st.hover) inspect(""); show(animate !== false); }
   function setPlaying(on) {
     st.playing = on; clearInterval(st.timer);
     $("span", playBtn).textContent = on ? "Pause" : "Play";

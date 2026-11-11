@@ -431,7 +431,7 @@ SECS.forEach((sec, i) => {
       if (!nonEmptyStr(e?.id)) { err(`${ww}: needs id`); return; }
       eid.add(e.id);
       if (!nid.has(e.from) || !nid.has(e.to)) err(`${ww}: ${e.from} to ${e.to} names a part not on the map`);
-      if (!nonEmptyStr(e.verb)) warn(`${ww}: every arrow has a verb ("sends jobs")`); else H(`${ww}.verb`, e.verb, 3);
+      if (!nonEmptyStr(e.verb)) warn(`${ww}: every arrow has a verb ("sends jobs")`); else H(`${ww}.verb`, e.verb, 3, false);
     });
     const stories = d.stories || [];
     if (stories.length > 3) warn(`${w}.data.stories: ${stories.length}; three at most`);
