@@ -1,6 +1,6 @@
 # living-artifact
 
-A Claude Code skill for long-running work. Every piece of work, from a small feature to an audit to a multi-week build, runs through **one living HTML page** called the book. The book is the plan, the live tracker, the decision log, the docs and the final report. Any agent in any session can pick the work up from the book's link alone.
+A Claude Code skill for long-running work. Every piece of work, from a small feature to an audit to a multi-week build, runs through **one living HTML page** called the book. The book is the proposal, the plan, the live tracker and the final report, written so a first-time reader understands it in three minutes. Any agent in any session can pick the work up from the book's link alone.
 
 ## Install
 
@@ -33,68 +33,79 @@ To update the plugin later: `/plugin marketplace update living-artifact`.
 
 ## Use it
 
-Ask in your own words. The skill starts when you bring a problem to explore, ask for a plan or tickets, paste a kickoff, give feedback on a book, or ask for a report. For example:
+Ask in your own words. The skill starts when you bring a problem to explore, ask for a plan or a proposal, paste a kickoff, give feedback on a book, or ask for a report. For example:
 
 - "Plan the new export flow with the living-artifact skill."
 - "Audit our onboarding and write up what to fix."
 - "Here is my feedback on the book, start the next round."
 - "Run the build from this book: <link>."
 
-## How it works
+## What a reader sees
 
-Work moves through stages, and feedback at any stage starts a new round in the same book:
+A book is written for someone who opens the link with no context and has three minutes. Each section makes one claim in plain words and shows one picture that moves:
+
+1. **The story**: the headline, one sentence on the problem and the fix, three numbers marked measured, estimated or designed, and one live status line.
+2. **Why**: today against the plan, in the same frame.
+3. **How it works**: the system as a few named parts, with one job travelling through it step by step, and one failure story.
+4. **What it can do**: each capability with its state: works today, being built, later.
+5. **Safety, recovery and cost**: a risk grid, a slider that shows the design holding from zero to the top of the range, and a cost chart against the alternative with assumptions you can change.
+6. **What exists today**: only what is built and proven, proof one click away.
+7. **The build**: steps with progress rings that fill live, and a card for each piece of work with its goal, what done means and the proof.
+8. **Beyond**: what comes next and the signal that starts each.
+
+No questions panel, no glossary, no codes or file names in the text. The agent decides what it can, records each decision with who, when and why, and asks you in the chat only when a choice is truly yours. While such a choice blocks the work, the page shows one card for it.
+
+**Agent mode** is the same page with every id switched on, plus a reference section: every ticket with its file, branch and status, the raw files, the raw data, the pull request plan, reviews and rounds. A machine-readable index sits in the page so an agent can read it without rendering it.
+
+## How the work runs
 
 ```
 frame -> explore <-> feedback -> plan <-> feedback -> run -> verify -> report -> next round
 ```
 
-1. **Frame.** Your words go verbatim into `agent/ASK.md`. The agent turns them into three to five outcome claims you can check.
-2. **Explore.** It reads the code, runs research agents, and records findings with evidence (a file and line, a screenshot, a number). It explains the fix one area at a time: what it found, what it recommends, a today and a proposed picture with steps you can walk through, why it is right, and what you will notice.
-3. **Plan.** Goal-sized tickets, grouped into milestones people can see working, scheduled into parallel waves where no two builders touch the same files. Each ticket says where the problem was found, how to reproduce it, the fix, why it is right and how to check it. A PR plan shows every small pull request, which are stacked, and who reviews each risk level. Every choice you must make becomes a decision card with a recommendation. The first screen is an executive summary.
-4. **Approve.** You read the book, answer the decisions and approve the plan on the page. Nothing builds before that.
-5. **Run.** A kickoff prompt starts a fresh session. Each ticket ships as its own small PR (or a short stack) into your development branch, is reviewed by risk before it merges, and merges one at a time when proven. Every status change is written to the page as it happens, and a progress prompt gives anyone a plain status.
-6. **Verify.** Every PR needs green checks, proof for each done-when, and a fresh-eyes review scaled by risk; high risk also needs a person. Each wave ends with a browser check on the merged branch. A ticket is done only with its proof.
-7. **Report.** The book fills its completion report: what shipped, proof per outcome, what did not ship and why, and a short retro.
+1. **Frame.** Your words go verbatim into `agent/ASK.md`; the agent writes the story.
+2. **Explore.** It reads the code, runs research agents, records findings with evidence, and turns what it learned into sections.
+3. **Plan.** Goal-sized pieces of work in steps that can run in parallel, one pull request per problem category, and a small checklist that proves every piece.
+4. **Run.** A kickoff prompt starts a fresh session. Each piece is built, proven on the local stack and reviewed before its commit is final; each pull request is reviewed whole before it opens. Status is written to the page as it happens.
+5. **Verify.** The agreed checklist runs once on a fresh copy holding every pull request.
+6. **Report.** The same page switches to what works now and what is not proven, with proof on every card.
 
-The page has two modes. **Human mode** is for the person who owns the work: pictures, status and decisions, very little text. **Agent mode** shows every raw file the agents use.
-
-## Components
+## Files
 
 ```
 .claude-plugin/
   plugin.json          the plugin
   marketplace.json     lets /plugin marketplace add find it
 skills/living-artifact/
-  SKILL.md             the loop, the profiles, the rules every stage follows
+  SKILL.md             the loop and the rules every stage follows
   references/
-    method.md          what each stage produces
-    data-model.md      the book.json shape, the agent files, the live database
-    planning.md        tickets, milestones, waves, decisions, verification
-    run.md             the orchestrator: PRs, review before merge, wave workflow, status writes
-    report.md          the completion report, proof and retro
-    kickoff.md         the kickoff prompt template
-    design.md          how human mode reads, and word budgets per field
+    method.md          the stages, and when to ask a person
+    design.md          the shape of a book, writing rules, motion and access
+    components.md      the component catalog and the data each takes
+    data-model.md      book.json, agent files, the live database, moving an older book
+    planning.md        tickets, steps, pull requests, verification
+    run.md             running the build, with the wave workflows
+    report.md          the report, the PR body, the retro
+    kickoff.md         the kickoff and progress prompts
   scripts/build.mjs    checks book.json and builds the page
-  assets/book.html     the page template
-  examples/sample-book a full sample book with demo live data
+  assets/book.html     the page template, with its fonts
+  examples/sample-book a full sample book with sample live data
   research/            the sources the skill is built on
 ```
 
-**The three layers of a book**
-
 | Layer | What it holds | How it changes |
 | --- | --- | --- |
-| `book.json` | Problem, outcomes, findings, research, plan, decisions, kickoff, report, history | The agent edits it and republishes the same page |
-| `agent/` files | Verbatim ask, checkpoint ledger, research notes, earlier rounds | Published next to the page for agents |
-| Live database | Ticket status, run state, log, your decisions, feedback, approvals | Written as work happens, so the page is always current |
+| `book.json` | Sections, the shared assumptions, decisions, the plan, the report, and everything agent mode shows | The agent edits it and republishes the same page |
+| `agent/` files | The verbatim ask, the checkpoint, research notes, ticket notes, earlier rounds, proof images | Published next to the page |
+| Live database | Status of each piece of work, the run state, the log | Written by the run as work happens |
 
-**The build script**
+## The build script
 
 ```bash
 node skills/living-artifact/scripts/build.mjs <book-dir> [--demo seed.json] [--preview]
 ```
 
-It refuses a book with a ticket in no wave, a dependency on a later wave, a dash in human text or a missing field. It warns on word budgets and on two builders in one wave sharing files. It writes `index.html` and prints the files map to publish.
+It refuses a broken plan (a piece of work in no step, a dependency on a later step), a section without a component, a map with more than 12 parts, a dash, a missing file, a coloured side border, and any font, stylesheet or script loaded from the network. It warns on word budgets, on ids, codes and file names in human text, on numbers without a certainty mark, and on the whole book running long. It writes `index.html` and prints the files map to publish.
 
 Try it on the sample:
 
@@ -102,11 +113,13 @@ Try it on the sample:
 node skills/living-artifact/scripts/build.mjs skills/living-artifact/examples/sample-book --demo skills/living-artifact/examples/sample-book/db-seed.json --preview
 ```
 
+Then open `skills/living-artifact/examples/sample-book/preview.html`.
+
 ## Profiles
 
-- **feature**: one milestone, one agent, the gate and one review. Hours.
-- **audit**: findings and recommendations with evidence, no waves unless fixes follow.
-- **large**: milestones, waves of parallel builders, gates, reviews with a refuter, real-data runs, the full report. Days.
+- **feature**: one step, one agent, one review. Hours.
+- **audit**: findings and fixes with evidence; a build only if fixes follow.
+- **large**: several steps of parallel builders, reviews with a refuter, real-data runs, the full report. Days.
 
 ## License
 
