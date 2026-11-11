@@ -1320,7 +1320,7 @@ function statusLine() {
   return el;
 }
 COMP.story = function (stage, d, sec) {
-  if (d.changed) add(stage, h("p", { class: "fine", style: "margin:-12px 0 0;font-size:13px", text: d.changed }));
+  if (d.changed) add(stage, h("p", { class: "fine", style: "margin:8px 0 0;font-size:13px", text: d.changed }));
   var nums = (d.numbers || []).slice(0, 3);
   if (nums.length) {
     var stats = h("div", { class: "stats" });
