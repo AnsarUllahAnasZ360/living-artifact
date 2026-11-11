@@ -15,7 +15,11 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const TEMPLATE = path.resolve(here, "../assets/book.html");
 
 const args = process.argv.slice(2);
-const flag = (name) => { const i = args.indexOf(name); if (i < 0) return null; const v = args[i + 1]; args.splice(i, 2); return v ?? ""; };
+const flag = (name) => {
+  const i = args.indexOf(name); if (i < 0) return null; const v = args[i + 1];
+  if (v === undefined || v.startsWith("--")) { console.error(`${name} needs a file. Usage: node scripts/build.mjs <book-dir> [--demo <db-seed.json>] [--preview]`); process.exit(1); }
+  args.splice(i, 2); return v;
+};
 const demoPath = flag("--demo");
 const previewIdx = args.indexOf("--preview");
 const preview = previewIdx >= 0; if (preview) args.splice(previewIdx, 1);
@@ -55,7 +59,7 @@ const VERDICTS = ["verified", "not verified", "not-verified", "inconclusive"];
 const KINDS = ["production", "tests", "docs and config"];
 const CERTAINTY = ["measured", "estimated", "designed"];
 const COMPONENTS = ["story", "compare", "map", "steps", "capabilities", "risks", "scale", "cost", "build", "decided", "roadmap", "chapter"];
-const RESERVED_SECTIONS = new Set(["choice", "reference", "main"]);
+const RESERVED_SECTIONS = new Set(["choice", "reference", "main", "digest", "live", "mark", "nav", "theme", "skip", "top"]);
 const nonEmptyStr = (v) => isStr(v) && v.trim() !== "";
 const nonEmptyArr = (v) => isArr(v) && v.length > 0;
 function need(obj, key, where, test = (v) => v !== undefined && v !== null && v !== "", what = "a value") {
@@ -367,7 +371,8 @@ SECS.forEach((sec, i) => {
   const w = `sections[${i}]${sec?.id ? ` "${sec.id}"` : ""}`;
   if (!isObj(sec)) { err(`${w}: not an object`); return; }
   if (!nonEmptyStr(sec.id) || !KEBAB.test(sec.id)) err(`${w}.id: missing or not kebab-case`);
-  else if (secSeen.has(sec.id) || RESERVED_SECTIONS.has(sec.id)) err(`${w}.id: "${sec.id}" is taken`);
+  else if (secSeen.has(sec.id) || RESERVED_SECTIONS.has(sec.id) || /^(book|ch|h|b)-/.test(sec.id)) err(`${w}.id: "${sec.id}" is taken by the page`);
+  else if (ticketIds.has(sec.id)) err(`${w}.id: "${sec.id}" is also a ticket id; #<ticket-id> opens that ticket's card`);
   secSeen.add(sec.id);
   const comp = sec.component;
   if (!COMPONENTS.includes(comp)) { err(`${w}.component: one of ${COMPONENTS.join(", ")}; every section opens on a component`); return; }
@@ -572,6 +577,7 @@ guard(tpl, "assets/book.html");
   if (fs.existsSync(kitJs)) { const k = fs.readFileSync(kitJs, "utf8"); guard(k, "chapters/_kit.js"); chapterJs += k + "\n"; chapterJsAll.push(k); }
   SECS.filter((x) => x?.component === "chapter" && nonEmptyStr(x.id)).forEach((c) => {
     const rel = c.file || `chapters/${c.id}.html`, abs = path.join(dir, rel);
+    if (path.basename(rel) === "preview.html") { err(`section "${c.id}": chapter file ${rel}: rename it; preview.html is the local preview output`); return; }
     if (!fs.existsSync(abs)) { err(`section "${c.id}": chapter file ${rel} not found`); return; }
     let src = fs.readFileSync(abs, "utf8");
     if (/[–—]/.test(src)) err(`${rel}: has an em or en dash; use plain words or a comma`);
@@ -689,7 +695,7 @@ const build = { source: path.basename(dir) + "/index.html", built, preview: fals
 const waveOfT = (t) => (owner.has(t.id) ? prById.get(owner.get(t.id))?.wave : t.wave);
 const index = {
   book: book.id, title: book.title, round: book.round, updated: book.updated, built,
-  how_to_read: "Content is the book script block (agent/book.json). Live state is the page database: status/<ticket-id>, status/pr-<id>, status/check-<id>, status/ready-<id>, run/current, run/blocking, log/<id>. Read it with ArtifactData.",
+  how_to_read: "Content is the book-data script block (agent/book.json). Live state is the page database: status/<ticket-id>, status/pr-<id>, status/check-<id>, status/ready-<id>, run/current, run/blocking, log/<id>. Read it with ArtifactData.",
   sections: SECS.map((x) => ({ id: x.id, component: x.component, claim: x.claim })),
   steps: [...waveByN.values()].sort((a, b) => a.n - b.n).map((w, i) => ({ n: w.n, id: w.id || `wave-${w.n}`, name: w.name || w.title, order: i + 1, tickets: tickets.filter((t) => waveOfT(t) === w.n).map((t) => t.id) })),
   tickets: tickets.map((t) => { const p = prById.get(owner.get(t.id)); return { id: t.id, title: t.title, step: waveOfT(t), pr: p?.id || null, branch: p?.branch || null, file: t.file || null, files: t.files || [], depends_on: t.depends_on || [], done_when: t.done_when || [], status_doc: `status/${t.id}` }; }),
@@ -711,15 +717,21 @@ put("__TITLE__", escHTML(book.title));
 put("/*BOOK_JSON*/", safeJSON(book));
 put("/*INDEX_JSON*/", safeJSON(index));
 put("/*BUILD_JSON*/", safeJSON(build));
-put("/*DEMO_JSON*/", demo ? safeJSON(demo) : "");
+put("/*DEMO_JSON*/", ""); // index.html never carries sample state
 
 const out = path.join(dir, "index.html");
 fs.writeFileSync(out, html);
 const kb = Buffer.byteLength(html) / 1024;
 const fontKb = Buffer.byteLength(fontFaces) / 1024;
 if (kb - fontKb > 400) warn(`index.html is ${kb.toFixed(0)} KB (${(kb - fontKb).toFixed(0)} KB without the embedded fonts); keep it under 400 KB without fonts by moving long text into agent files`);
-if (preview) fs.writeFileSync(path.join(dir, "preview.html"), html.replace(safeJSON(build), safeJSON({ ...build, preview: true })));
+if (preview) {
+  const empty = '<script id="book-demo" type="application/json"></script>';
+  if (!html.includes(empty)) { console.error("error: template is missing the book-demo block"); process.exit(1); }
+  fs.writeFileSync(path.join(dir, "preview.html"), html.replace(empty, () => `<script id="book-demo" type="application/json">${demo ? safeJSON(demo) : ""}</script>`)
+    .replace(safeJSON(build), () => safeJSON({ ...build, preview: true })));
+}
+if (demo && !preview) warn("--demo has no effect without --preview; sample state goes only into preview.html");
 
 for (const w of warnings) console.error(`warning: ${w}`);
-console.error(`wrote ${tilde(out)} (${kb.toFixed(0)} KB, fonts ${fontKb.toFixed(0)} KB), about ${onLoad} words on load of ${BOOK_BUDGET}, ${Object.keys(filesMap).length} published file(s), ${warnings.length} warning(s)${preview ? ", preview.html" : ""}${demo ? ", with sample live data" : ""}`);
+console.error(`wrote ${tilde(out)} (${kb.toFixed(0)} KB, fonts ${fontKb.toFixed(0)} KB), about ${onLoad} words on load of ${BOOK_BUDGET}, ${Object.keys(filesMap).length} published file(s), ${warnings.length} warning(s)${preview ? ", preview.html" : ""}${demo && preview ? ", sample live data in preview.html only" : ""}`);
 process.stdout.write(JSON.stringify(filesMap, null, 2) + "\n");

@@ -1,3 +1,4 @@
 .DS_Store
-**/preview.html
+skills/living-artifact/examples/*/preview.html
+docs/*/book/preview.html
 node_modules/

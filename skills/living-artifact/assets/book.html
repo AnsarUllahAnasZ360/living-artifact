@@ -511,10 +511,10 @@ input[type=range]:focus-visible::-webkit-slider-thumb { outline: 2px solid var(-
 </header>
 <main class="wrap" id="main"></main>
 <p class="sr" id="live" aria-live="polite"></p>
-<script id="book" type="application/json">/*BOOK_JSON*/</script>
+<script id="book-data" type="application/json">/*BOOK_JSON*/</script>
 <script id="book-index" type="application/json">/*INDEX_JSON*/</script>
-<script id="build" type="application/json">/*BUILD_JSON*/</script>
-<script id="demo" type="application/json">/*DEMO_JSON*/</script>
+<script id="book-build" type="application/json">/*BUILD_JSON*/</script>
+<script id="book-demo" type="application/json">/*DEMO_JSON*/</script>
 <!--CHAPTER_TEMPLATES-->
 <script>
 window.BOOKCH = {}; window.BOOKFN = {};
@@ -694,7 +694,7 @@ var ICON = {
 };
 function svgIcon(html) { var t = document.createElement("template"); t.innerHTML = html.trim(); return t.content.firstChild; }
 function stateEl(dotCls, word) { return h("span", { class: "st" }, h("span", { class: "dot " + (dotCls || "") }), word); }
-var CERT = { measured: ["m", "Measured"], estimated: ["", "Estimated"], designed: ["", "Designed, not yet tested"] };
+var CERT = { sample: ["", "Sample"], measured: ["m", "Measured"], estimated: ["", "Estimated"], designed: ["", "Designed, not yet tested"] };
 function certEl(c) { var x = CERT[c]; return x ? h("span", { class: "cert " + x[0] }, h("i"), x[1]) : null; }
 function isUrl(x) { return /^https?:\/\//.test(x); }
 function evidence(src) {
@@ -709,10 +709,10 @@ function evidence(src) {
 function idTag(id) { return id ? h("span", { class: "agent-only id", text: id }) : null; }
 
 /* ================= data ================= */
-var B = readJSON("book");
+var B = readJSON("book-data");
 var INDEX = readJSON("book-index") || {};
-var BUILD = readJSON("build") || {};
-var DEMO = readJSON("demo");
+var BUILD = readJSON("book-build") || {};
+var DEMO = readJSON("book-demo");
 if (!B) { $("#main").textContent = "This page has no book data yet. Run scripts/build.mjs on a book folder."; return; }
 var SECS = (B.sections || []).filter(function (x) { return x && x.id; });
 var P = B.plan || {};
@@ -961,11 +961,12 @@ function statusLine() {
     var t = lastWrite(), active = ["building", "review", "fixing", "final", "ready"].indexOf(run.phase) >= 0;
     var beat = (+P.heartbeat_minutes || 180) * 60000;
     fresh.textContent = "";
+    if (L.demo) add(fresh, h("span", { class: "dot warn" }), "Sample data. ");
     if (t) {
       var age = Date.now() - t;
       if (active && age > beat) add(fresh, h("span", { class: "dot warn" }), "No update for " + ago(age).replace(" ago", ""));
       else add(fresh, "Updated " + ago(age));
-    } else if (L.demo) add(fresh, "Sample data");
+    }
   }
   onLive(render); render();
   return el;
@@ -975,8 +976,15 @@ COMP.story = function (stage, d, sec) {
   if (nums.length) {
     var stats = h("div", { class: "stats" });
     nums.forEach(function (n) {
-      var b = h("b", { text: n.value }), st = h("div", { class: "stat" }, b, h("span", { text: n.label }), certEl(n.certainty), evidence(n.source));
-      if (n.live === "proven") { var upd = function () { var p = progress(); b.textContent = p.done + " of " + p.total; }; onLive(upd); upd(); }
+      var cert = certEl(n.live === "proven" && L.demo ? "sample" : n.certainty), b = h("b", { text: n.value }), st = h("div", { class: "stat" }, b, h("span", { text: n.label }), cert, evidence(n.source));
+      if (n.live === "proven") {
+        var upd = (function (b, n, st) { return function () {
+          var p = progress(); b.textContent = p.done + " of " + p.total;
+          var c = certEl(L.demo ? "sample" : n.certainty), old = $(".cert", st);
+          if (old && c) st.replaceChild(c, old);
+        }; })(b, n, st);
+        onLive(upd); upd();
+      }
       add(stats, st);
     });
     add(stage, stats);

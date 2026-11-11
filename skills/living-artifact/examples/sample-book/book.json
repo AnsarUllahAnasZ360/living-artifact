@@ -114,7 +114,7 @@
       }
     },
     {
-      "id": "preview", "component": "chapter", "label": "What it can do",
+      "id": "file-sample", "component": "chapter", "label": "What it can do",
       "claim": "Each accounting tool gets exactly the columns it expects.",
       "lead": "Pick a tool and see the first rows of the file it receives."
     },
