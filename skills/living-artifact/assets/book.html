@@ -648,6 +648,19 @@ var Expr = (function () {
 var $ = function (s, r) { return (r || document).querySelector(s); };
 var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
 // a live region speaks what a person changes; what a figure draws on load is already on the page
+// a caption keeps the height of its tallest state, so nothing below it moves when a step or a part changes it
+function steadyCap(cap, kids, states) {
+  function fit() {
+    if (!cap.offsetWidth) return;
+    var keep = kids.map(function (k) { return k.textContent; }), cls = cap.className, max = 0;
+    cap.style.minHeight = "";
+    states().forEach(function (s) { cap.className = "cap" + (s[4] ? " inspect" : ""); kids.forEach(function (k, j) { k.textContent = s[j]; }); max = Math.max(max, cap.offsetHeight); });
+    kids.forEach(function (k, j) { k.textContent = keep[j]; }); cap.className = cls;
+    cap.style.minHeight = max + "px";
+  }
+  requestAnimationFrame(fit);
+  if ("ResizeObserver" in window) { var w = 0; new ResizeObserver(function () { if (cap.offsetWidth !== w) { w = cap.offsetWidth; fit(); } }).observe(cap); }
+}
 var acted = false;
 ["pointerdown", "keydown", "input"].forEach(function (e) { window.addEventListener(e, function () { acted = true; }, { capture: true, once: true }); });
 function speak(el, text) { if (acted) el.textContent = text; }
@@ -1284,6 +1297,13 @@ COMP.map = function (stage, d, sec) {
   }
   playBtn.addEventListener("click", function () { if (!st.playing && st.i === steps().length - 1) go(0); setPlaying(!st.playing); });
   if (hasStory) buildSteps();
+  steadyCap(cap, [capN, capT, capD, capK], function () {
+    var all = [];
+    (hasStory ? stories : []).forEach(function (s) { var l = s.steps; l.forEach(function (x, i) { all.push([i + 1, x.title, x.text || "", "Step " + (i + 1) + " of " + l.length]); }); });
+    if (!hasStory) all.push(["i", d.hint_title || "The parts", d.hint || "Point at or tab to a part to see what it does and who it talks to.", ""]);
+    nodes.forEach(function (n) { if (!n.zone) all.push(["i", n.name, n.does ? n.does.replace(/\.?$/, ".") : "", "", true]); });
+    return all;
+  });
   requestAnimationFrame(draw);
   if ("ResizeObserver" in window) new ResizeObserver(function () { draw(); }).observe(host);
   if (hasStory && !calm() && "IntersectionObserver" in window) {
@@ -1305,6 +1325,7 @@ COMP.steps = function (stage, d) {
     h("button", { class: "btn", type: "button", text: "Back", onclick: function () { setPlaying(false); go(st.i - 1); } }),
     h("button", { class: "btn", type: "button", text: "Next", onclick: function () { setPlaying(false); go(st.i + 1); } })),
     chain, h("div", { class: "cap" }, capN, capT, capD, capK), live]);
+  steadyCap(capN.parentNode, [capN, capT, capD, capK], function () { return list.map(function (x, i) { return [i + 1, x.title, x.text || "", "Step " + (i + 1) + " of " + list.length]; }); });
   function go(i) {
     st.i = (i + list.length) % list.length;
     $$("button", chain).forEach(function (b, k) { if (k === st.i) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current"); b.classList.toggle("past", k < st.i); });
