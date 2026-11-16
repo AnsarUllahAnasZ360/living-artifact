@@ -1,5 +1,30 @@
 # References for the living-artifact skill
 
+## Round 2, 15 Nov 2026: a calm page and waves from the graph
+
+Why: the founder called the version 1 page extremely busy, asked for problems shown like a Linear board, one place for findings and research, and waves that mean parallel work rather than equal shares. His words are in the MillOS planning folder (`docs/week-nov-16/ASK-round2.md`); they are the requirement. Searched with web search and read with WebFetch on 15 Nov 2026.
+
+Sources:
+
+7. Linear, "Display options". https://linear.app/docs/display-options
+8. Linear, "Filters". https://linear.app/docs/filters
+9. Linear changelog, "Issue grouping" (Feb 2021) and "Collapsed issue history" (Apr 2025). https://linear.app/changelog/2021-02-12-issue-grouping and https://linear.app/changelog/2025-04-03-collapsed-issue-history
+10. Jiayi Geng and others, "Effective Strategies for Asynchronous Software Engineering Agents" (CAID), arXiv 2603.21489, March 2026. https://arxiv.org/abs/2603.21489
+11. Verdent, "Parallel AI agents and task dependencies". https://www.verdent.ai/guides/answers/parallel-ai-agents-task-dependencies
+12. Daniel Vaughan, "The multi-agent coordination problem: when three agents edit the same file", June 2026. https://codex.danielvaughan.com/2026/06/06/multi-agent-coordination-problem-concurrent-agents-semantic-conflicts-codex-cli/
+13. Aident, "How to run parallel Claude Code agents with git worktrees". https://aident.ai/blog/run-parallel-claude-code-agents-git-worktrees
+
+What they say, and what the skill takes from them:
+
+- **A list that shows little and opens to everything (7, 8, 9).** Linear's list rows show only the properties you choose (status, priority, assignee, labels, dates); display options hide or show details without removing issues, while filters narrow the list. Groups carry a count. Opening an issue shows all its properties; long history collapses. The skill takes: a problem row holds only severity, title and area; an area filter narrows the list; the detail page holds everything in sections that collapse.
+- **Plan from a dependency graph (10, 11).** CAID has a central manager build a dependency aware plan and run independent subtasks at the same time in isolated workspaces, merging through tested integration. Verdent puts tasks with no dependency on each other in parallel and moves tasks that need another's output to later waves. The skill takes: the earliest-wave rule, and the build's check that a dependency is always in an earlier wave.
+- **File ownership decides what can share a wave (11, 12, 13).** Tasks whose file lists overlap run one after the other; each file has one writer at a time. Shared hot files (routes, configs, registries) cause most conflicts. Worktrees make interference physically impossible but do not replace an ownership plan. The skill takes: every ticket names its files, two tickets that edit the same file never share a wave, one worktree per pull request, and an early small ticket for a shared hot file.
+- **Review is where parallel work turns serial (12).** The skill places a Fable review per pull request after the wave that finishes it, rather than after every ticket.
+
+The 29 Oct recommendations below predate round 2. Where they mention decisions on the page, milestones or a report section, round 2 replaced them.
+
+## Round 1 sources
+
 Read on 2026-10-29. All six sources were read in full.
 
 Sources:

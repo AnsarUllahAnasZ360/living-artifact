@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" font-family="system-ui, sans-serif">
+  <rect width="960" height="600" fill="#f4f5f7"/>
+  <rect x="32" y="32" width="430" height="536" rx="10" fill="#fff" stroke="#dcdfe5"/>
+  <text x="56" y="72" font-size="20" font-weight="600" fill="#1b2330">Fieldnote: Invoices</text>
+  <g font-size="14" fill="#3b4452">
+    <text x="56" y="116">INV-1041   Harbor Dental   $1,240.00</text>
+    <text x="56" y="152">INV-1042   Pine Studio     $380.50</text>
+    <text x="56" y="188">INV-1043   Lake Bakery     $2,105.00</text>
+    <text x="56" y="224">INV-1044   North Gym       $96.00</text>
+    <text x="56" y="260">INV-1045   Cedar Clinic    $4,410.25</text>
+  </g>
+  <rect x="56" y="296" width="150" height="34" rx="6" fill="#eef0f4"/>
+  <text x="72" y="318" font-size="14" fill="#3b4452">Download PDF</text>
+  <text x="56" y="370" font-size="13" fill="#8a93a3">One PDF at a time, about 4 seconds each</text>
+  <rect x="498" y="32" width="430" height="536" rx="10" fill="#fff" stroke="#dcdfe5"/>
+  <text x="522" y="72" font-size="20" font-weight="600" fill="#1b2330">Bookkeeper's sheet</text>
+  <g stroke="#e3e6eb">
+    <line x1="522" y1="100" x2="904" y2="100"/><line x1="522" y1="136" x2="904" y2="136"/><line x1="522" y1="172" x2="904" y2="172"/>
+    <line x1="522" y1="208" x2="904" y2="208"/><line x1="522" y1="244" x2="904" y2="244"/><line x1="660" y1="100" x2="660" y2="280"/><line x1="800" y1="100" x2="800" y2="280"/>
+  </g>
+  <g font-size="14" fill="#3b4452"><text x="530" y="124">1041</text><text x="668" y="124">Harbor</text><text x="808" y="124">1240</text>
+    <text x="530" y="160">1042</text><text x="668" y="160">Pine</text><text x="808" y="160">380.5</text>
+    <text x="530" y="196">1043</text><text x="668" y="196">Lake</text><text x="808" y="196" fill="#cf3b3b">2150</text></g>
+  <text x="522" y="320" font-size="13" fill="#cf3b3b">Typed by hand: 2,150 should be 2,105</text>
+  <path d="M440 200 C 470 200, 490 160, 520 160" fill="none" stroke="#3a57d6" stroke-width="2.5" stroke-dasharray="6 5"/>
+  <text x="300" y="470" font-size="22" font-weight="600" fill="#1b2330">Today: copied by hand, every month</text>
+</svg>

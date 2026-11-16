@@ -1,1963 +1,332 @@
 {
- "id": "invoice-export",
- "title": "Invoice Export",
- "tagline": "Bookkeepers get every invoice out of Fieldnote in one click, in their tool's format.",
- "owner": {
-  "name": "Maya Okafor",
-  "role": "Product lead"
- },
- "profile": "large",
- "updated": "2026-10-29T15:40:00Z",
- "links": [
-  {
-   "label": "Branch",
-   "value": "invoice-export-r3",
-   "url": ""
-  },
-  {
-   "label": "Draft PR",
-   "value": "#214",
-   "url": "https://github.com/fieldnote/app/pull/214"
-  }
- ],
- "round": {
-  "n": 3,
-  "title": "PDF bundles and the monthly send",
-  "started": "2026-10-27",
-  "stage": "build"
- },
- "needs": [
-  {
-   "text": "Invite the build bot to the staging account so the monthly send can run its walk",
-   "link": "",
-   "kind": "action"
-  },
-  {
-   "text": "Wave 3 starts after the wave 2 gate, about Thursday",
-   "kind": "info"
-  }
- ],
- "problem": {
-  "statement": "Every month our customers' bookkeepers copy invoices out of Fieldnote by hand. They rebuild a spreadsheet, download PDFs one at a time, and email them on. It takes hours and the totals often drift.",
-  "today": [
-   "41 support tickets in September asked for an export",
-   "PDFs download one at a time, about 4 seconds each",
-   "Nobody can see who took which invoices out"
+  "version": 2,
+  "id": "invoice-export",
+  "title": "Invoice Export",
+  "tagline": "Bookkeepers get every invoice out of Fieldnote in one click, in their tool's format.",
+  "owner": { "name": "Maya Okafor", "role": "Founder" },
+  "updated": "2026-11-14T18:30:00Z",
+  "stage": "build",
+  "links": [
+    { "label": "Branch invoice-export", "url": "" },
+    { "label": "Data foundations pull request", "url": "https://github.com/example/fieldnote/pull/231" }
   ],
-  "quotes": [
-   {
-    "text": "I spend the first Monday of every month copying numbers between two tabs.",
-    "source": "Bookkeeper interview, round 1"
-   },
-   {
-    "text": "Make it one button. My bookkeeper should never need to log in.",
-    "source": "Maya, round 2 feedback"
-   }
-  ]
- },
- "outcomes": [
-  {
-   "id": "one-click-csv",
-   "claim": "A bookkeeper exports a month of invoices as one CSV that imports into their accounting tool with no edits.",
-   "icon": "table",
-   "done_when": [
-    "The CSV imports cleanly into the three tools we support",
-    "Totals match the invoice list to the cent"
-   ],
-   "milestone": "csv-export"
+  "summary": {
+    "headline": "Month end costs each bookkeeper about three hours of copying. One Export button, in their tool's format, ends it.",
+    "paragraphs": [
+      "Every month our customers' bookkeepers rebuild a spreadsheet from Fieldnote by hand and download PDFs one at a time. Totals drift, and in the Americas the month itself ends on the wrong day because our dates are in UTC.",
+      "The fix is one export: the right month in the account's time zone, a CSV for QuickBooks, Xero or FreeAgent, every PDF in one zip, a record of who took what, and a monthly email on the day the owner closes the books.",
+      "Eight tickets in three waves. The first wave is built and verified; the second is building now."
+    ],
+    "kpis": [
+      { "label": "Month end copying", "value": "3 h", "note": "Per bookkeeper today, from five interviews. Target: under 5 minutes." },
+      { "label": "Export requests", "value": "41", "note": "Support tickets asking for an export in September." },
+      { "label": "PDF download", "value": "4 s each", "note": "One at a time today. Target: 200 in one zip under 60 s." },
+      { "label": "Wrong month end", "value": "1 in 9", "note": "Invoices near month end land in the wrong month for US accounts." }
+    ]
   },
-  {
-   "id": "pdf-bundle",
-   "claim": "Anyone with the finance role downloads a zip of PDFs for any date range, 2,000 invoices in under 30 seconds.",
-   "icon": "file",
-   "done_when": [
-    "2,000 invoices zip in under 30 seconds on staging",
-    "Every PDF in the zip matches the one on screen"
-   ],
-   "milestone": "pdf-bundle"
-  },
-  {
-   "id": "monthly-send",
-   "claim": "An owner sets a monthly export once, and it lands in the bookkeeper's inbox on the day they chose.",
-   "icon": "calendar",
-   "done_when": [
-    "A test schedule sends on the chosen day in the account's time zone"
-   ],
-   "milestone": "scheduled-export"
-  },
-  {
-   "id": "audit-trail",
-   "claim": "Every export is recorded with who ran it, when, and which invoices left.",
-   "icon": "shield",
-   "done_when": [
-    "The export history shows every run, including scheduled ones"
-   ],
-   "milestone": "csv-export"
-  }
- ],
- "findings": [
-  {
-   "id": "manual-csv",
-   "finding": "Bookkeepers rebuild the spreadsheet by hand every month.",
-   "evidence": [
+  "problems": [
     {
-     "label": "41 tickets in Sep",
-     "ref": "support/export-tag-2026-09"
+      "id": "copy-by-hand",
+      "title": "Bookkeepers copy every invoice into a spreadsheet by hand",
+      "area": "Export",
+      "severity": "high",
+      "asked": "Make it one button. My bookkeeper should never need to log in.",
+      "problem": "There is no export. Each month a bookkeeper opens every invoice, types its number, client and total into a sheet, then imports that sheet into their accounting tool.",
+      "why": "It takes about three hours per account each month, and typing errors make the books disagree with Fieldnote. It is the top request in support.",
+      "found": [
+        { "text": "41 support tickets in September asked for an export, more than any other request.", "evidence": "Support export, September, tag export" },
+        { "text": "Five of five bookkeepers interviewed rebuild the sheet by hand; the median takes three hours.", "evidence": "agent/ASK.md, round 1 interviews" },
+        { "text": "QuickBooks, Xero and FreeAgent each want different column names and date formats.", "evidence": "https://quickbooks.intuit.com/learn-support/en-us/help-article/import-export-data-files/import-invoices-quickbooks-online/L4CWBrAZr_US_en_US" },
+        { "text": "The invoice list already loads every field an export needs.", "evidence": "apps/web/src/invoices/InvoiceList.tsx:88" }
+      ],
+      "solution": {
+        "summary": "Add one Export button to the invoice list. It opens a short dialog: pick the tool, the month, and whether to include PDFs. The file arrives in that tool's own format.",
+        "points": [
+          "Three presets, one per accounting tool, each a column map and a date format.",
+          "The dialog remembers the last choice, so the second export is one click.",
+          "Exports run as a background job, so a large month never times out."
+        ],
+        "not_doing": [
+          "A direct sync with each accounting tool. Files cover every customer we have; syncs can come later.",
+          "A custom column builder. Three presets cover all 41 requests."
+        ],
+        "reference": "Stripe's invoice export works this way: one button, a format picker, the file emailed when ready. FreshBooks offers the same three accounting presets."
+      },
+      "visuals": [
+        { "label": "Today", "kind": "shot", "src": "shots/today-copy-by-hand.svg", "caption": "Today: invoices typed into a sheet, one by one." },
+        { "label": "Proposed", "kind": "shot", "src": "shots/proposed-one-button.svg", "caption": "One Export button and a three field dialog." },
+        { "label": "Proposed", "kind": "proto", "src": "proto/export-dialog.html", "caption": "Try the dialog." }
+      ],
+      "outcome": [
+        "A bookkeeper exports a month in their tool's format in under five minutes.",
+        "The exported totals match Fieldnote to the cent.",
+        "The second export of a month is one click."
+      ]
     },
     {
-     "label": "5 of 6 interviews",
-     "ref": "agent/research/csv-layouts.md"
-    }
-   ],
-   "solution": "One CSV with presets for the three tools our customers use most.",
-   "impact": "high",
-   "tickets": [
-    "csv-mapping-presets",
-    "export-dialog-ui"
-   ],
-   "area": "Export"
-  },
-  {
-   "id": "slow-pdf",
-   "finding": "PDFs render on the web server, about 4 seconds each, one at a time.",
-   "evidence": [
-    {
-     "label": "render.ts:88",
-     "ref": "apps/web/src/invoices/render.ts:88"
+      "id": "pdfs-one-at-a-time",
+      "title": "PDFs download one at a time, four seconds each",
+      "area": "PDFs",
+      "severity": "medium",
+      "problem": "Each invoice PDF is drawn on the web server when someone clicks it. A month of 200 invoices means 200 clicks and about 13 minutes of waiting.",
+      "why": "Bookkeepers need every PDF for their records. Drawing on the web server also slows the app for everyone during month end.",
+      "found": [
+        { "text": "A PDF takes 3.8 to 4.4 seconds to draw, measured on 50 invoices.", "evidence": "agent/proof/export-job-runner-1.png" },
+        { "text": "The same invoice is redrawn every time, even when nothing changed.", "evidence": "apps/web/src/invoices/pdf.ts:31" },
+        { "text": "App response time doubles on the first two days of each month.", "evidence": "Metrics dashboard, October" }
+      ],
+      "solution": {
+        "summary": "Draw PDFs in a worker, eight at a time, and keep each one until its invoice changes. An export bundles them into one zip.",
+        "points": [
+          "A cache keyed by invoice id and version, so a PDF is drawn once.",
+          "The zip streams as it fills, so the first bytes arrive at once."
+        ],
+        "not_doing": ["A new PDF design. The layout stays exactly as it is."],
+        "reference": "Shopify draws order PDFs in background workers and caches them by order version."
+      },
+      "visuals": [
+        { "label": "Diagram", "kind": "diagram", "src": "shots/diagram-pdf-worker.svg", "caption": "The export job hands PDFs to a worker and a cache." }
+      ],
+      "outcome": [
+        "200 PDFs arrive in one zip in under 60 seconds.",
+        "The app stays as fast on the first of the month as on any other day."
+      ]
     },
     {
-     "label": "p95 4.1 s",
-     "ref": "dashboards/pdf-render"
-    }
-   ],
-   "solution": "Render in a background worker, 8 at a time, and cache each PDF by invoice version.",
-   "impact": "high",
-   "tickets": [
-    "pdf-render-worker",
-    "zip-bundle-download"
-   ],
-   "area": "Speed",
-   "detail": "The web server renders each PDF inside the request that asked for it. A month of 300 invoices takes about 20 minutes and times out after 60 seconds, so bookkeepers download them one by one.",
-   "solution_detail": "A worker pulls render jobs from the queue, eight at a time, and stores each PDF keyed by invoice version. A second export of the same month reuses the stored files and only renders what changed."
-  },
-  {
-   "id": "no-record",
-   "finding": "There is no record of who downloaded which invoices.",
-   "evidence": [
-    {
-     "label": "No audit table",
-     "ref": "db/schema.sql"
-    }
-   ],
-   "solution": "Every export writes one row: who, when, filters and invoice count.",
-   "impact": "medium",
-   "tickets": [
-    "export-job-runner",
-    "export-history-page"
-   ],
-   "area": "Records"
-  },
-  {
-   "id": "utc-months",
-   "finding": "Date filters use UTC, so month ends drift for customers in the Americas.",
-   "evidence": [
-    {
-     "label": "filters.ts:31",
-     "ref": "apps/web/src/invoices/filters.ts:31"
-    }
-   ],
-   "solution": "Filter by the account's own time zone everywhere exports run.",
-   "impact": "medium",
-   "tickets": [
-    "invoice-query-api"
-   ],
-   "area": "Export"
-  }
- ],
- "research": [
-  {
-   "id": "csv-layouts",
-   "question": "What CSV layout do the accounting tools our customers use actually import?",
-   "answer": "All three accept one row per invoice with a fixed set of columns. Two of them also accept one row per line item, which bookkeepers prefer for tax splits.",
-   "recommendations": [
-    "Ship one row per invoice as the default",
-    "Offer line items as a preset, not a setting"
-   ],
-   "sources": [
-    {
-     "title": "Import format guide, tool A",
-     "url": "https://example.com/tool-a/import"
+      "id": "month-ends-drift",
+      "title": "Month ends land on the wrong day in the Americas",
+      "area": "Data",
+      "severity": "high",
+      "problem": "Date filters use UTC. An invoice sent at 7 pm in Los Angeles on 31 October counts as November.",
+      "why": "The export would carry the same error into the books, so totals per month would never match the bank.",
+      "found": [
+        { "text": "The range query compares created_at with UTC midnight.", "evidence": "apps/api/src/invoices/range.ts:14" },
+        { "text": "1 in 9 October invoices for US accounts fell in the wrong month.", "evidence": "Query on a copy of October data, 3 Nov" }
+      ],
+      "solution": {
+        "summary": "Read each account's time zone and build month boundaries in it before querying.",
+        "points": ["Every export, and the invoice list filter, use the same boundary function."],
+        "reference": "Stripe reports use the account's time zone for every date boundary."
+      },
+      "outcome": ["An invoice belongs to the month its account saw it in."]
     },
     {
-     "title": "Bookkeeper interviews, round 1",
-     "url": ""
-    }
-   ],
-   "file": "",
-   "shaped": [
-    "csv-export",
-    "csv-mapping-presets"
-   ]
-  },
-  {
-   "id": "pdf-speed",
-   "question": "How do we render 2,000 PDFs in under 30 seconds?",
-   "answer": "A worker pool of 8 renders about 90 PDFs a second once warm. Caching by invoice version removes most of the work for repeat exports.",
-   "recommendations": [
-    "Move rendering to a queue worker",
-    "Cache PDFs by invoice id and version"
-   ],
-   "sources": [
+      "id": "no-export-record",
+      "title": "Nobody can see who took which invoices out",
+      "area": "Export",
+      "severity": "medium",
+      "problem": "Downloads leave no record. An owner cannot tell whether last month was exported, or by whom.",
+      "why": "Two bookkeepers sometimes import the same month twice, which doubles revenue in the books.",
+      "found": [
+        { "text": "Two accounts reported a doubled month in October.", "evidence": "Support tickets 8812 and 8840" },
+        { "text": "No table stores downloads today.", "evidence": "db/schema.sql" }
+      ],
+      "solution": {
+        "summary": "Store each export as a row: who, when, which range, which format, and the file. Show them on an Export history page.",
+        "not_doing": ["Blocking a repeat export. We show it was done; the person decides."]
+      },
+      "outcome": ["An owner sees every export of the last year, with who ran it and the file."]
+    },
     {
-     "title": "Load test notes",
-     "url": ""
+      "id": "monthly-send-day",
+      "title": "The monthly file should arrive on the owner's close day",
+      "area": "Delivery",
+      "severity": "low",
+      "asked": "The monthly email has to land on the day they close the month, not ours.",
+      "problem": "Owners want the export to send itself each month. Each closes the books on a different day.",
+      "why": "A file on the wrong day is stale or early, so the bookkeeper exports by hand anyway.",
+      "found": [
+        { "text": "Owners named 1st, 3rd, 5th and last working day as their close day.", "evidence": "agent/ASK.md, round 3" }
+      ],
+      "solution": {
+        "summary": "A setting for the close day. On that day an email goes to the bookkeeper with a link that expires after seven days.",
+        "reference": "Xero's scheduled reports let the owner pick the day and the recipients."
+      },
+      "outcome": ["The bookkeeper gets last month's file on the owner's close day without logging in."]
     }
-   ],
-   "file": "",
-   "shaped": [
-    "pdf-bundles"
-   ]
-  },
-  {
-   "id": "delivery",
-   "question": "Do bookkeepers want the monthly export by email or in a shared folder?",
-   "answer": "Email, by a wide margin. They forward it into their own systems and do not want another login.",
-   "recommendations": [
-    "Email a link that expires after 7 days",
-    "Skip shared folders for now"
-   ],
-   "sources": [],
-   "file": "",
-   "shaped": [
-    "monthly-send"
-   ]
-  }
- ],
- "architecture": {
-  "summary": "Exports run as background jobs so the web app stays fast. Each job writes a record, renders what it needs, and hands the file to storage or email.",
-  "frames": [
-   {
-    "title": "Today",
-    "caption": "Bookkeepers copy invoices out by hand.",
-    "nodes": [
-     {
-      "id": "list",
-      "label": "Invoice list",
-      "kind": "screen",
-      "x": 0,
-      "y": 1
-     },
-     {
-      "id": "api",
-      "label": "Web API",
-      "kind": "service",
-      "x": 1,
-      "y": 1
-     },
-     {
-      "id": "db",
-      "label": "Postgres",
-      "kind": "store",
-      "x": 2,
-      "y": 1
-     },
-     {
-      "id": "keeper",
-      "label": "Bookkeeper",
-      "kind": "external",
-      "x": 0,
-      "y": 0
-     }
-    ],
-    "edges": [
-     {
-      "from": "list",
-      "to": "api",
-      "label": "loads"
-     },
-     {
-      "from": "api",
-      "to": "db",
-      "label": "reads"
-     },
-     {
-      "from": "keeper",
-      "to": "list",
-      "label": "copies by hand"
-     }
-    ],
-    "new": []
-   },
-   {
-    "title": "Export jobs",
-    "caption": "A job runner takes the work off the web server and records every run.",
-    "nodes": [
-     {
-      "id": "list",
-      "label": "Invoice list",
-      "kind": "screen",
-      "x": 0,
-      "y": 1
-     },
-     {
-      "id": "api",
-      "label": "Web API",
-      "kind": "service",
-      "x": 1,
-      "y": 1
-     },
-     {
-      "id": "db",
-      "label": "Postgres",
-      "kind": "store",
-      "x": 2,
-      "y": 1
-     },
-     {
-      "id": "keeper",
-      "label": "Bookkeeper",
-      "kind": "external",
-      "x": 0,
-      "y": 0
-     },
-     {
-      "id": "jobs",
-      "label": "Export jobs",
-      "kind": "queue",
-      "x": 1,
-      "y": 2
-     }
-    ],
-    "edges": [
-     {
-      "from": "list",
-      "to": "api",
-      "label": "export"
-     },
-     {
-      "from": "api",
-      "to": "db",
-      "label": "reads"
-     },
-     {
-      "from": "api",
-      "to": "jobs",
-      "label": "queues"
-     },
-     {
-      "from": "jobs",
-      "to": "db",
-      "label": "records run"
-     },
-     {
-      "from": "keeper",
-      "to": "list",
-      "label": "one click"
-     }
-    ],
-    "new": [
-     "jobs"
-    ]
-   },
-   {
-    "title": "PDF worker",
-    "caption": "A worker renders PDFs eight at a time and stores the zip.",
-    "nodes": [
-     {
-      "id": "list",
-      "label": "Invoice list",
-      "kind": "screen",
-      "x": 0,
-      "y": 1
-     },
-     {
-      "id": "api",
-      "label": "Web API",
-      "kind": "service",
-      "x": 1,
-      "y": 1
-     },
-     {
-      "id": "db",
-      "label": "Postgres",
-      "kind": "store",
-      "x": 2,
-      "y": 1
-     },
-     {
-      "id": "keeper",
-      "label": "Bookkeeper",
-      "kind": "external",
-      "x": 0,
-      "y": 0
-     },
-     {
-      "id": "jobs",
-      "label": "Export jobs",
-      "kind": "queue",
-      "x": 1,
-      "y": 2
-     },
-     {
-      "id": "pdf",
-      "label": "PDF worker",
-      "kind": "agent",
-      "x": 2,
-      "y": 2
-     },
-     {
-      "id": "files",
-      "label": "File storage",
-      "kind": "store",
-      "x": 3,
-      "y": 2
-     }
-    ],
-    "edges": [
-     {
-      "from": "list",
-      "to": "api",
-      "label": "export"
-     },
-     {
-      "from": "api",
-      "to": "db",
-      "label": "reads"
-     },
-     {
-      "from": "api",
-      "to": "jobs",
-      "label": "queues"
-     },
-     {
-      "from": "jobs",
-      "to": "pdf",
-      "label": "renders"
-     },
-     {
-      "from": "pdf",
-      "to": "files",
-      "label": "zips"
-     },
-     {
-      "from": "keeper",
-      "to": "list",
-      "label": "one click"
-     }
-    ],
-    "new": [
-     "pdf",
-     "files"
-    ]
-   },
-   {
-    "title": "Monthly send",
-    "caption": "A schedule starts the job each month and emails a link.",
-    "nodes": [
-     {
-      "id": "list",
-      "label": "Invoice list",
-      "kind": "screen",
-      "x": 0,
-      "y": 1
-     },
-     {
-      "id": "api",
-      "label": "Web API",
-      "kind": "service",
-      "x": 1,
-      "y": 1
-     },
-     {
-      "id": "db",
-      "label": "Postgres",
-      "kind": "store",
-      "x": 2,
-      "y": 1
-     },
-     {
-      "id": "keeper",
-      "label": "Bookkeeper",
-      "kind": "external",
-      "x": 0,
-      "y": 0
-     },
-     {
-      "id": "jobs",
-      "label": "Export jobs",
-      "kind": "queue",
-      "x": 1,
-      "y": 2
-     },
-     {
-      "id": "pdf",
-      "label": "PDF worker",
-      "kind": "agent",
-      "x": 2,
-      "y": 2
-     },
-     {
-      "id": "files",
-      "label": "File storage",
-      "kind": "store",
-      "x": 3,
-      "y": 2
-     },
-     {
-      "id": "cron",
-      "label": "Scheduler",
-      "kind": "service",
-      "x": 1,
-      "y": 0
-     },
-     {
-      "id": "mail",
-      "label": "Email",
-      "kind": "external",
-      "x": 3,
-      "y": 0
-     }
-    ],
-    "edges": [
-     {
-      "from": "list",
-      "to": "api",
-      "label": "export"
-     },
-     {
-      "from": "api",
-      "to": "db",
-      "label": "reads"
-     },
-     {
-      "from": "api",
-      "to": "jobs",
-      "label": "queues"
-     },
-     {
-      "from": "jobs",
-      "to": "pdf",
-      "label": "renders"
-     },
-     {
-      "from": "pdf",
-      "to": "files",
-      "label": "zips"
-     },
-     {
-      "from": "cron",
-      "to": "jobs",
-      "label": "monthly"
-     },
-     {
-      "from": "files",
-      "to": "mail",
-      "label": "link"
-     },
-     {
-      "from": "mail",
-      "to": "keeper",
-      "label": "inbox"
-     }
-    ],
-    "new": [
-     "cron",
-     "mail"
-    ]
-   }
   ],
-  "changes": [
-   {
-    "area": "Exports",
-    "before": "Copied by hand from the invoice list",
-    "after": "One button, CSV or PDF zip, any date range"
-   },
-   {
-    "area": "PDF rendering",
-    "before": "On the web server, one at a time",
-    "after": "Queue worker, eight at a time, cached by version"
-   },
-   {
-    "area": "Records",
-    "before": "None",
-    "after": "One row per export with who, when and how many"
-   },
-   {
-    "area": "Time zones",
-    "before": "UTC month boundaries",
-    "after": "The account's own time zone"
-   }
-  ],
-  "areas": [
-   {
-    "id": "export-jobs",
-    "title": "Exports run as background jobs",
-    "short": "Take the slow work off the web server",
-    "found": "Every export runs inside a web request. Under load the request times out after 60 seconds, and nothing records what was exported, by whom, or with which filters.",
-    "evidence": [
-     {
-      "label": "render.ts:88",
-      "ref": "apps/web/src/invoices/render.ts:88"
-     },
-     {
-      "label": "No audit table",
-      "ref": "db/schema.sql"
-     }
-    ],
-    "recommend": "The web app only queues a job and returns at once. A job runner does the work, writes one history row per run, and tells the screen when the file is ready.",
-    "why": "It is the standard pattern for slow work in web apps, our framework ships a job queue already, and it gives the audit record for free.",
-    "user_sees": "The export button answers at once, a progress chip shows the job, and a history page lists every past export.",
-    "tradeoffs": [
-     "One more process to run and watch",
-     "A finished export arrives a few seconds later than a tiny one does today"
-    ],
-    "not_building": [
-     "A custom queue; we use the framework's",
-     "Real-time streaming of partial files"
-    ],
-    "today": {
-     "title": "Today",
-     "caption": "The request does all the work, then nothing is recorded.",
-     "nodes": [
-      {
-       "id": "keeper",
-       "label": "Bookkeeper",
-       "kind": "external",
-       "x": 0,
-       "y": 0
-      },
-      {
-       "id": "list",
-       "label": "Invoice list",
-       "kind": "screen",
-       "x": 0,
-       "y": 1
-      },
-      {
-       "id": "api",
-       "label": "Web API",
-       "kind": "service",
-       "x": 1,
-       "y": 1
-      },
-      {
-       "id": "db",
-       "label": "Postgres",
-       "kind": "store",
-       "x": 2,
-       "y": 1
-      }
-     ],
-     "edges": [
-      {
-       "from": "keeper",
-       "to": "list",
-       "label": "clicks export"
-      },
-      {
-       "from": "list",
-       "to": "api",
-       "label": "waits"
-      },
-      {
-       "from": "api",
-       "to": "db",
-       "label": "reads"
-      }
-     ]
-    },
-    "proposed": {
-     "title": "Proposed",
-     "caption": "The request queues a job; the runner records every run.",
-     "nodes": [
-      {
-       "id": "keeper",
-       "label": "Bookkeeper",
-       "kind": "external",
-       "x": 0,
-       "y": 0
-      },
-      {
-       "id": "list",
-       "label": "Invoice list",
-       "kind": "screen",
-       "x": 0,
-       "y": 1
-      },
-      {
-       "id": "api",
-       "label": "Web API",
-       "kind": "service",
-       "x": 1,
-       "y": 1
-      },
-      {
-       "id": "db",
-       "label": "Postgres",
-       "kind": "store",
-       "x": 2,
-       "y": 1
-      },
-      {
-       "id": "jobs",
-       "label": "Export jobs",
-       "kind": "queue",
-       "x": 1,
-       "y": 2
-      },
-      {
-       "id": "hist",
-       "label": "History",
-       "kind": "store",
-       "x": 2,
-       "y": 2
-      }
-     ],
-     "edges": [
-      {
-       "from": "keeper",
-       "to": "list",
-       "label": "clicks export"
-      },
-      {
-       "from": "list",
-       "to": "api",
-       "label": "queues"
-      },
-      {
-       "from": "api",
-       "to": "jobs",
-       "label": "adds job"
-      },
-      {
-       "from": "jobs",
-       "to": "db",
-       "label": "reads"
-      },
-      {
-       "from": "jobs",
-       "to": "hist",
-       "label": "writes row"
-      }
-     ],
-     "new": [
-      "jobs",
-      "hist"
-     ]
-    },
-    "steps": [
-     {
-      "text": "The bookkeeper clicks export; the request adds a job and returns at once.",
-      "nodes": [
-       "keeper",
-       "list",
-       "api",
-       "jobs"
-      ]
-     },
-     {
-      "text": "The runner reads the invoices with the account's own time zone.",
-      "nodes": [
-       "jobs",
-       "db"
-      ]
-     },
-     {
-      "text": "Each run writes who, when, filters and count to history.",
-      "nodes": [
-       "jobs",
-       "hist"
-      ]
-     }
-    ],
+  "plan": {
+    "goal": "Ship one Export that is right to the cent, in every customer's time zone, with a record and a monthly send.",
     "tickets": [
-     "export-job-runner",
-     "export-history-page"
-    ],
-    "research": [
-     "delivery"
-    ]
-   },
-   {
-    "id": "pdf-worker",
-    "title": "A worker renders PDFs in parallel",
-    "short": "From 20 minutes to about 2 for a month",
-    "found": "PDFs render one at a time on the web server, about 4 seconds each, so a month of 300 invoices takes 20 minutes.",
-    "evidence": [
-     {
-      "label": "p95 4.1 s",
-      "ref": "dashboards/pdf-render"
-     }
-    ],
-    "recommend": "A separate worker renders eight PDFs at a time and stores each one by invoice version, then zips the month.",
-    "why": "Rendering is the slow step and it is independent per invoice, so parallel workers cut the time almost linearly; caching by version avoids repeat work.",
-    "user_sees": "A month of PDFs arrives as one zip in about two minutes.",
-    "today": {
-     "caption": "One PDF at a time inside the web request.",
-     "nodes": [
       {
-       "id": "api",
-       "label": "Web API",
-       "kind": "service",
-       "x": 0,
-       "y": 0
+        "id": "range-in-account-zone",
+        "title": "Build month ranges in the account's time zone",
+        "problem": "month-ends-drift",
+        "also_serves": ["copy-by-hand"],
+        "does": "Replaces the UTC comparison with one boundary function that reads the account's time zone.",
+        "how": ["Add the boundary function beside the range query", "Use it in the range query", "Add a test with a Los Angeles invoice at 7 pm on 31 October"],
+        "files": ["apps/api/src/invoices/range.ts", "apps/api/src/invoices/range.test.ts"],
+        "depends_on": [],
+        "wave": "foundations",
+        "pr": "data-foundations",
+        "proof": { "kind": "test", "text": "The Los Angeles and Sydney month end tests pass." }
       },
       {
-       "id": "render",
-       "label": "Renderer",
-       "kind": "service",
-       "x": 1,
-       "y": 0
+        "id": "export-record-table",
+        "title": "Store every export as a record",
+        "problem": "no-export-record",
+        "does": "Adds an exports table and a job that writes one row per export with who, when, range, format and file.",
+        "how": ["Add the migration", "Write the row when an export job starts and finishes", "Test a failed job leaves a failed row"],
+        "files": ["db/migrations/0042_exports.sql", "apps/api/src/jobs/export.ts"],
+        "depends_on": [],
+        "wave": "foundations",
+        "pr": "data-foundations",
+        "proof": { "kind": "test", "text": "A job run writes one row; a failed job writes a failed row." }
+      },
+      {
+        "id": "pdf-worker-cache",
+        "title": "Draw PDFs in a worker and keep them",
+        "problem": "pdfs-one-at-a-time",
+        "does": "Moves PDF drawing off the web server into a worker that draws eight at a time and caches by invoice version.",
+        "how": ["Move the drawing code into the worker", "Cache by invoice id and version", "Point the existing download at the cache"],
+        "files": ["apps/worker/src/pdf.ts", "apps/web/src/invoices/pdf.ts"],
+        "depends_on": [],
+        "wave": "foundations",
+        "pr": "pdf-bundle",
+        "proof": { "kind": "measure", "text": "50 PDFs drawn in under 15 seconds; a second request returns from the cache." }
+      },
+      {
+        "id": "csv-presets",
+        "title": "Write CSVs for QuickBooks, Xero and FreeAgent",
+        "problem": "copy-by-hand",
+        "does": "Adds three presets, each a column map and a date format, and a writer that uses the month range.",
+        "how": ["Write the three presets from each tool's import guide", "Write the CSV from the month range", "Compare against each tool's sample file"],
+        "files": ["apps/api/src/export/csv.ts", "apps/api/src/export/presets.ts"],
+        "depends_on": ["range-in-account-zone"],
+        "wave": "files",
+        "pr": "csv-export",
+        "proof": { "kind": "test", "text": "Each preset's output imports cleanly in a fresh trial of that tool." }
+      },
+      {
+        "id": "zip-bundle",
+        "title": "Bundle a month of PDFs into one zip",
+        "problem": "pdfs-one-at-a-time",
+        "does": "Streams every PDF in the range into one zip from the export job and saves the file on the export record.",
+        "how": ["Stream cached PDFs into a zip", "Save it on the export row", "Time a 200 invoice month"],
+        "files": ["apps/api/src/export/zip.ts", "apps/api/src/jobs/export.ts"],
+        "depends_on": ["pdf-worker-cache", "export-record-table"],
+        "wave": "files",
+        "pr": "pdf-bundle",
+        "proof": { "kind": "measure", "text": "A 200 invoice zip is ready in under 60 seconds." }
+      },
+      {
+        "id": "export-history-page",
+        "title": "Show every export on an Export history page",
+        "problem": "no-export-record",
+        "does": "Adds a settings page that lists exports with who, when, range, format and a download link.",
+        "how": ["Add the page", "Link it from settings", "Show the newest first"],
+        "files": ["apps/web/src/settings/ExportHistory.tsx", "apps/web/src/settings/SettingsNav.tsx"],
+        "depends_on": ["export-record-table"],
+        "wave": "files",
+        "pr": "history-and-email",
+        "proof": { "kind": "browser", "text": "After an export, the page shows its row and the file downloads." }
+      },
+      {
+        "id": "export-dialog",
+        "title": "Add the Export button and dialog",
+        "problem": "copy-by-hand",
+        "does": "Adds the button to the invoice list and the three field dialog from the prototype, remembering the last choice.",
+        "how": ["Build the dialog from the prototype", "Start the export job on submit", "Remember the last preset and range"],
+        "files": ["apps/web/src/invoices/ExportDialog.tsx", "apps/web/src/invoices/InvoiceList.tsx"],
+        "depends_on": ["csv-presets"],
+        "wave": "screens",
+        "pr": "csv-export",
+        "proof": { "kind": "browser", "text": "Export October as QuickBooks with PDFs; the CSV and zip download and match the list." }
+      },
+      {
+        "id": "monthly-email",
+        "title": "Send the file on the owner's close day",
+        "problem": "monthly-send-day",
+        "does": "Adds a close day setting and a scheduled job that emails the bookkeeper a link that expires after seven days.",
+        "how": ["Add the close day to export settings", "Schedule the job per account", "Email the link and expire it"],
+        "files": ["apps/api/src/jobs/schedule.ts", "apps/api/src/mail/export.tsx", "apps/web/src/settings/SettingsNav.tsx"],
+        "depends_on": ["zip-bundle"],
+        "wave": "screens",
+        "pr": "history-and-email",
+        "proof": { "kind": "test", "text": "With the clock set to the close day, one email goes out and its link stops working after seven days." }
       }
-     ],
-     "edges": [
-      {
-       "from": "api",
-       "to": "render",
-       "label": "one at a time"
-      }
-     ]
-    },
-    "proposed": {
-     "caption": "Eight at a time in a worker, cached by version.",
-     "nodes": [
-      {
-       "id": "api",
-       "label": "Web API",
-       "kind": "service",
-       "x": 0,
-       "y": 0
-      },
-      {
-       "id": "jobs",
-       "label": "Export jobs",
-       "kind": "queue",
-       "x": 1,
-       "y": 0
-      },
-      {
-       "id": "pdf",
-       "label": "PDF worker",
-       "kind": "agent",
-       "x": 2,
-       "y": 0
-      },
-      {
-       "id": "files",
-       "label": "File storage",
-       "kind": "store",
-       "x": 2,
-       "y": 1
-      }
-     ],
-     "edges": [
-      {
-       "from": "api",
-       "to": "jobs",
-       "label": "queues"
-      },
-      {
-       "from": "jobs",
-       "to": "pdf",
-       "label": "8 at a time"
-      },
-      {
-       "from": "pdf",
-       "to": "files",
-       "label": "stores, zips"
-      }
-     ],
-     "new": [
-      "pdf",
-      "files"
-     ]
-    },
-    "steps": [
-     {
-      "text": "The job splits the month into one render task per invoice.",
-      "nodes": [
-       "jobs",
-       "pdf"
-      ]
-     },
-     {
-      "text": "The worker skips invoices whose version is already stored.",
-      "nodes": [
-       "pdf",
-       "files"
-      ]
-     },
-     {
-      "text": "When all tasks finish, the worker zips the month and links it.",
-      "nodes": [
-       "pdf",
-       "files"
-      ]
-     }
     ],
-    "tickets": [
-     "pdf-render-worker",
-     "zip-bundle-download"
-    ],
-    "research": [
-     "pdf-speed"
-    ]
-   }
-  ]
- },
- "prototypes": [
-  {
-   "id": "export-dialog",
-   "title": "Export dialog",
-   "url": "",
-   "file": "proto/export-dialog.html",
-   "caption": "Pick a range, a format and a preset. Approved in round 2 with one change: presets first.",
-   "status": "approved"
-  },
-  {
-   "id": "schedule-settings",
-   "title": "Monthly schedule settings",
-   "url": "https://claude.ai/artifact/example-schedule",
-   "file": "",
-   "caption": "Owner picks the day and the bookkeeper's email. Waiting on the send-day decision.",
-   "status": "draft"
-  }
- ],
- "plan": {
-  "summary": "Four PRs, one per problem, in three waves. Each ticket is one commit, proven and reviewed before it lands; each PR is reviewed whole and walked end to end before it opens.",
-  "principles": [
-   {
-    "title": "Jobs, not requests",
-    "text": "Anything over a second runs as a job with a record."
-   },
-   {
-    "title": "Presets over settings",
-    "text": "Bookkeepers pick their tool; we pick the columns."
-   },
-   {
-    "title": "Account time zone",
-    "text": "Every date range uses the account's own zone."
-   }
-  ],
-  "milestones": [
-   {
-    "id": "csv-export",
-    "title": "One-click CSV",
-    "goal": "A bookkeeper exports any month as a CSV their tool imports.",
-    "done_when": [
-     "CSV imports cleanly into the three supported tools",
-     "Every export has a history row"
+    "waves": [
+      {
+        "id": "foundations",
+        "title": "Foundations",
+        "why": "Nothing here depends on anything, and no two tickets share a file.",
+        "gives": "Months are right in every time zone, every export leaves a record, and PDFs draw fast.",
+        "tickets": ["range-in-account-zone", "export-record-table", "pdf-worker-cache"],
+        "then": [
+          { "kind": "code-review", "by": "Fable", "what": "Reviews the data foundations pull request: the boundary math and the new table." }
+        ]
+      },
+      {
+        "id": "files",
+        "title": "The files",
+        "why": "Each needs a foundation from wave 1.",
+        "gives": "Real files: a CSV each accounting tool imports, a month of PDFs in one zip, and the history page.",
+        "tickets": ["csv-presets", "zip-bundle", "export-history-page"],
+        "then": [
+          { "kind": "code-review", "by": "Fable", "what": "Reviews the PDF bundle pull request, worker and zip together." },
+          { "kind": "browser-check", "by": "Opus", "what": "Downloads a 200 invoice zip on the local app and times it." }
+        ]
+      },
+      {
+        "id": "screens",
+        "title": "The screens and the send",
+        "why": "The dialog needs the presets; the email needs the zip.",
+        "gives": "The whole feature: one Export button, and the file arrives by itself on the close day.",
+        "tickets": ["export-dialog", "monthly-email"],
+        "then": [
+          { "kind": "code-review", "by": "Fable", "what": "Reviews the CSV export pull request, presets and dialog." },
+          { "kind": "code-review", "by": "Fable", "what": "Reviews the history and email pull request." },
+          { "kind": "critical-review", "by": "Fable", "what": "Reads the whole change against the five problems and asks what a bookkeeper would still trip on." },
+          { "kind": "browser-check", "by": "Opus", "what": "Walks one export end to end: dialog, files, history row, scheduled email." },
+          { "kind": "merge", "by": "Founder", "what": "Merges the four pull requests, data foundations first." }
+        ]
+      }
     ],
     "prs": [
-     "export-jobs",
-     "csv-export"
-    ]
-   },
-   {
-    "id": "pdf-bundle",
-    "title": "PDF bundles",
-    "goal": "A zip of PDFs for any range, fast enough to wait for.",
-    "done_when": [
-     "2,000 invoices in under 30 seconds on staging"
+      { "id": "data-foundations", "title": "Month ranges and export records", "branch": "export/data-foundations", "base": "main", "tickets": ["range-in-account-zone", "export-record-table"] },
+      { "id": "pdf-bundle", "title": "PDFs in a worker, bundled as one zip", "branch": "export/pdf-bundle", "base": "main", "tickets": ["pdf-worker-cache", "zip-bundle"] },
+      { "id": "csv-export", "title": "CSV presets and the Export dialog", "branch": "export/csv", "base": "main", "tickets": ["csv-presets", "export-dialog"] },
+      { "id": "history-and-email", "title": "Export history and the monthly email", "branch": "export/history-email", "base": "main", "tickets": ["export-history-page", "monthly-email"] }
     ],
+    "verification": {
+      "strategy": "Each ticket proves itself before its commit lands: tests for logic, a measured number for speed, a browser walk for screens. A Fable agent reviews every pull request. At the end an Opus agent runs one export end to end on a fresh local copy with all four pull requests, using a made up account in Los Angeles.",
+      "checks": [
+        { "id": "month-end-tests", "kind": "test", "by": "Opus", "what": "Month end tests for Los Angeles, New York and Sydney.", "pass": "Every invoice lands in the month its account saw it in.", "tickets": ["range-in-account-zone"] },
+        { "id": "csv-imports", "kind": "test", "by": "Opus", "what": "Import each preset's file into a fresh trial of that tool.", "pass": "All three import with no errors and totals match to the cent.", "tickets": ["csv-presets"] },
+        { "id": "zip-timing", "kind": "measure", "by": "Opus", "what": "Time a 200 invoice export with PDFs, twice.", "pass": "Under 60 seconds the first time, under 10 the second.", "tickets": ["pdf-worker-cache", "zip-bundle"] },
+        { "id": "export-walk", "kind": "browser", "by": "Opus", "what": "Export October as QuickBooks with PDFs from the invoice list.", "pass": "Both files download, the history page shows the row, and the dialog remembers the choice.", "tickets": ["export-dialog", "export-history-page", "export-record-table"] },
+        { "id": "send-on-close-day", "kind": "test", "by": "Opus", "what": "Move the clock to the close day and run the schedule.", "pass": "One email goes out and its link expires after seven days.", "tickets": ["monthly-email"] },
+        { "id": "whole-review", "kind": "review", "by": "Fable", "what": "Read all four pull requests together.", "pass": "No finding a bookkeeper would notice is left open.", "tickets": ["csv-presets", "zip-bundle", "export-dialog", "monthly-email"] }
+      ]
+    }
+  },
+  "proof": {
     "prs": [
-     "pdf-bundles"
+      { "id": "data-foundations", "url": "https://github.com/example/fieldnote/pull/231", "state": "open" }
+    ],
+    "items": [
+      {
+        "ticket": "range-in-account-zone",
+        "result": "The month end tests pass for all three time zones, including the 7 pm Los Angeles case that failed before.",
+        "evidence": { "kind": "text", "text": "range.test.ts\n  month boundaries\n    ✓ Los Angeles, 31 Oct 19:00 is October (4 ms)\n    ✓ New York, 1 Nov 00:30 is November (1 ms)\n    ✓ Sydney, 31 Oct 23:59 is October (1 ms)\n\nTests: 3 passed, 3 total" },
+        "commit": "9b03f11c42"
+      },
+      {
+        "ticket": "range-in-account-zone",
+        "result": "Invoices in the wrong month, on a copy of October data for US accounts.",
+        "evidence": { "kind": "number", "text": "1 in 9 → 0" },
+        "commit": "9b03f11c42"
+      },
+      {
+        "ticket": "export-record-table",
+        "result": "A finished job writes its row with who, range, format and the file; a failed job writes a failed row.",
+        "evidence": { "kind": "image", "src": "agent/proof/export-job-runner-1.png", "text": "The exports table after two runs, one finished and one failed." },
+        "commit": "4e1c9a2d77"
+      }
+    ],
+    "not_verified": [
+      "Sydney and Auckland are proven in tests only; no customer there yet to try it."
     ]
-   },
-   {
-    "id": "scheduled-export",
-    "title": "Monthly send",
-    "goal": "Set it once and the export arrives every month.",
-    "done_when": [
-     "A test schedule sends on the chosen day",
-     "The email link expires after 7 days"
-    ],
-    "prs": [
-     "monthly-send"
-    ]
-   }
-  ],
-  "tickets": [
-   {
-    "id": "export-job-runner",
-    "title": "Export job runner and history table",
-    "short": "Job runner and history",
-    "milestone": "csv-export",
-    "area": "Backend",
-    "size": "L",
-    "risk": "high",
-    "problem": "Exports would block web requests and leave no record.",
-    "goal": "Any export runs as a background job and writes one history row.",
-    "done_when": [
-     "A queued export finishes with the web server under load",
-     "Each run writes who, when, filters and count"
-    ],
-    "verify": {
-     "code": "pnpm test jobs/export",
-     "browser": "Start an export, reload, see it finish in history",
-     "run": "Start a 300 invoice export on staging, reload the page, and watch it finish and appear in history."
-    },
-    "files": [
-     "apps/api/src/jobs/export.ts",
-     "db/migrations/0042_exports.sql"
-    ],
-    "depends_on": [],
-    "evidence": "agent/proof/export-job-runner-1.png",
-    "where_found": [
-     "apps/web/src/invoices/render.ts:88, export runs in the request",
-     "db/schema.sql, no table records exports"
-    ],
-    "reproduce": [
-     "Open the invoice list with 300 invoices in one month",
-     "Click export as PDF",
-     "The request times out after 60 seconds and no history exists"
-    ],
-    "solution": "Queue each export as a background job using the framework's job queue. The runner retries twice, writes one history row per run, and posts progress the screen can poll.",
-    "why_right": "The framework already ships the queue, so this adds no new service and gives the audit record in the same change.",
-    "estimate": "2 h build, 30 min review",
-    "pr": "export-jobs"
-   },
-   {
-    "id": "invoice-query-api",
-    "title": "Invoice range query in the account time zone",
-    "short": "Range query by zone",
-    "milestone": "csv-export",
-    "area": "Backend",
-    "size": "M",
-    "risk": "medium",
-    "problem": "Month filters use UTC and drift.",
-    "goal": "One query returns invoices for a range in the account's own time zone.",
-    "done_when": [
-     "October in Los Angeles returns exactly the invoices dated in October there"
-    ],
-    "verify": {
-     "code": "pnpm test invoices/range",
-     "browser": ""
-    },
-    "files": [
-     "apps/api/src/invoices/range.ts"
-    ],
-    "depends_on": [],
-    "evidence": "",
-    "pr": "export-jobs"
-   },
-   {
-    "id": "csv-mapping-presets",
-    "title": "CSV presets for the three accounting tools",
-    "short": "CSV presets",
-    "milestone": "csv-export",
-    "area": "Backend",
-    "size": "L",
-    "risk": "medium",
-    "problem": "Each tool wants different columns.",
-    "goal": "A bookkeeper picks a tool and gets a CSV that tool imports as is.",
-    "done_when": [
-     "Sample files import into all three tools with no edits",
-     "Totals match the invoice list to the cent"
-    ],
-    "verify": {
-     "code": "pnpm test export/csv",
-     "browser": "Export October with each preset and import it"
-    },
-    "files": [
-     "apps/api/src/export/csv.ts",
-     "apps/api/src/export/presets.ts"
-    ],
-    "depends_on": [
-     "invoice-query-api"
-    ],
-    "evidence": "",
-    "pr": "csv-export"
-   },
-   {
-    "id": "pdf-render-worker",
-    "title": "PDF render worker with cache",
-    "short": "PDF worker",
-    "milestone": "pdf-bundle",
-    "area": "Worker",
-    "size": "L",
-    "risk": "high",
-    "problem": "PDFs render one at a time on the web server.",
-    "goal": "A worker renders eight PDFs at a time and reuses cached ones.",
-    "done_when": [
-     "500 PDFs render in under 8 seconds warm",
-     "A changed invoice renders again, an unchanged one does not"
-    ],
-    "verify": {
-     "code": "pnpm test worker/pdf",
-     "browser": ""
-    },
-    "files": [
-     "apps/worker/src/pdf.ts"
-    ],
-    "depends_on": [
-     "export-job-runner"
-    ],
-    "evidence": "",
-    "pr": "pdf-bundles"
-   },
-   {
-    "id": "export-dialog-ui",
-    "title": "Export dialog on the invoice list",
-    "short": "Export dialog",
-    "milestone": "csv-export",
-    "area": "Web",
-    "size": "M",
-    "risk": "low",
-    "problem": "There is no way to start an export.",
-    "goal": "The approved prototype, built: range, format, preset, start.",
-    "done_when": [
-     "The dialog matches the prototype at desktop and phone width",
-     "Starting an export shows progress and a download"
-    ],
-    "verify": {
-     "code": "pnpm test web/export-dialog",
-     "browser": "Open the invoice list, export last month as CSV"
-    },
-    "files": [
-     "apps/web/src/invoices/ExportDialog.tsx"
-    ],
-    "depends_on": [
-     "invoice-query-api"
-    ],
-    "evidence": "",
-    "pr": "csv-export"
-   },
-   {
-    "id": "schedule-settings",
-    "title": "Monthly schedule settings",
-    "short": "Schedule settings",
-    "milestone": "scheduled-export",
-    "area": "Web",
-    "size": "M",
-    "risk": "low",
-    "problem": "Owners must remember to export every month.",
-    "goal": "An owner sets the day, the format and the bookkeeper's email once.",
-    "done_when": [
-     "A saved schedule shows its next send date in the account's zone"
-    ],
-    "verify": {
-     "code": "pnpm test web/schedule",
-     "browser": "Save a schedule, see the next send date"
-    },
-    "files": [
-     "apps/web/src/settings/ExportSchedule.tsx"
-    ],
-    "depends_on": [
-     "export-dialog-ui",
-     "export-job-runner"
-    ],
-    "evidence": "",
-    "pr": "monthly-send",
-    "after_merge": [
-     "The first real monthly email arrives on the 1st after release"
-    ]
-   },
-   {
-    "id": "zip-bundle-download",
-    "title": "Zip bundle download for any range",
-    "short": "Zip download",
-    "milestone": "pdf-bundle",
-    "area": "Backend",
-    "size": "M",
-    "risk": "medium",
-    "problem": "PDFs come one file at a time.",
-    "goal": "One zip with every PDF in the range, ready in under 30 seconds for 2,000.",
-    "done_when": [
-     "2,000 invoices zip in under 30 seconds on staging"
-    ],
-    "verify": {
-     "code": "pnpm test export/zip",
-     "browser": "Export a year as PDF zip"
-    },
-    "files": [
-     "apps/api/src/export/zip.ts"
-    ],
-    "depends_on": [
-     "pdf-render-worker"
-    ],
-    "evidence": "",
-    "pr": "pdf-bundles"
-   },
-   {
-    "id": "export-history-page",
-    "title": "Export history page",
-    "short": "History page",
-    "milestone": "csv-export",
-    "area": "Web",
-    "size": "M",
-    "risk": "low",
-    "problem": "Owners cannot see what left the system.",
-    "goal": "A page lists every export with who, when, what and a fresh download link.",
-    "done_when": [
-     "Every run appears, scheduled ones included"
-    ],
-    "verify": {
-     "code": "",
-     "browser": "Run two exports, see both in history"
-    },
-    "files": [
-     "apps/web/src/settings/ExportHistory.tsx"
-    ],
-    "depends_on": [
-     "export-job-runner"
-    ],
-    "evidence": "",
-    "pr": "csv-export"
-   },
-   {
-    "id": "monthly-email-delivery",
-    "title": "Monthly email with an expiring link",
-    "short": "Monthly email",
-    "milestone": "scheduled-export",
-    "area": "Backend",
-    "size": "M",
-    "risk": "high",
-    "problem": "The export still has to reach the bookkeeper.",
-    "goal": "On the chosen day the job runs and emails a link that expires after 7 days.",
-    "done_when": [
-     "A test schedule sends on the chosen day",
-     "The link stops working after 7 days"
-    ],
-    "verify": {
-     "code": "pnpm test jobs/schedule",
-     "browser": "Trigger a test send, open the email"
-    },
-    "files": [
-     "apps/api/src/jobs/schedule.ts",
-     "apps/api/src/mail/export.tsx"
-    ],
-    "depends_on": [
-     "schedule-settings",
-     "zip-bundle-download"
-    ],
-    "evidence": "",
-    "pr": "monthly-send"
-   },
-   {
-    "id": "end-to-end-proof",
-    "title": "End to end proof on staging",
-    "short": "Staging walk",
-    "milestone": "scheduled-export",
-    "area": "QA",
-    "size": "M",
-    "risk": "medium",
-    "problem": "Each part is proven alone, not together.",
-    "goal": "One recorded walk through every outcome on staging data.",
-    "done_when": [
-     "A video shows CSV, zip and the monthly email working on staging"
-    ],
-    "verify": {
-     "code": "",
-     "browser": "Full walk on staging, recorded"
-    },
-    "files": [],
-    "depends_on": [
-     "csv-mapping-presets",
-     "export-history-page"
-    ],
-    "evidence": "",
-    "pr": "monthly-send"
-   }
-  ],
-  "waves": [
-   {
-    "n": 1,
-    "title": "Foundations",
-    "why": "Every later PR reads from the query and runs as a job.",
-    "when": "Day 1",
-    "prs": [
-     "export-jobs"
-    ],
-    "gate": [
-     "tests pass",
-     "whole-PR review",
-     "spot check on staging"
-    ]
-   },
-   {
-    "n": 2,
-    "title": "CSV and PDF, side by side",
-    "why": "Two categories with no shared files, built at once.",
-    "when": "Day 2",
-    "prs": [
-     "csv-export",
-     "pdf-bundles"
-    ],
-    "gate": [
-     "tests pass",
-     "whole-PR review",
-     "spot check on staging"
-    ]
-   },
-   {
-    "n": 3,
-    "title": "The monthly send",
-    "why": "Joins CSV and PDF and proves the whole flow on staging.",
-    "when": "Day 3",
-    "prs": [
-     "monthly-send"
-    ],
-    "gate": [
-     "tests pass",
-     "refuter",
-     "your check"
-    ]
-   }
-  ],
-  "gate": {
-   "steps": [
-    "Full test suite",
-    "Two fresh reviews of the wave's diff",
-    "Browser walk of what the wave changed",
-    "Lead spot check of one proof"
-   ],
-   "baseline": [
-    "pnpm test",
-    "pnpm typecheck",
-    "pnpm lint"
-   ]
-  },
-  "stop_rules": [
-   "A blocking decision is still not opened",
-   "The baseline goes red and one fix does not bring it back",
-   "A review finding survives three rounds",
-   "Anything would delete customer data"
-  ],
-  "verification": {
-   "summary": "One pass on a fresh local copy built from the top of the PR stack: three code and screen checks, then one month-end run on the seeded account with the rest. About 40 minutes, no paid services.",
-   "where": "a fresh local copy built from the top of the PR stack",
-   "ready": [
-    {
-     "id": "stack",
-     "need": "The local stack starts on the newest code",
-     "check": "make dev, then the app answers on port 3000",
-     "who": "agent",
-     "state": "ok"
-    },
-    {
-     "id": "seed",
-     "need": "A seeded account with 2,000 invoices in Los Angeles time",
-     "check": "The seed script reports 2,000 invoices",
-     "who": "agent",
-     "state": "ok"
-    },
-    {
-     "id": "baseline",
-     "need": "Last month's zip time on today's code, as the baseline",
-     "check": "The timing file from the baseline run is saved",
-     "who": "agent",
-     "state": "ok"
-    },
-    {
-     "id": "mailbox",
-     "need": "A test mailbox for the monthly email",
-     "check": "The local mail catcher shows its inbox",
-     "who": "agent",
-     "state": "ok"
-    },
-    {
-     "id": "tool-logins",
-     "need": "Sandbox logins for the three accounting tools",
-     "check": "Each tool opens its import screen",
-     "who": "Sam",
-     "state": "missing"
-    }
-   ],
-   "building": [
-    {
-     "where": "Every ticket",
-     "what": "Area tests, its done-when proven in the browser, a fresh review of the commit"
-    },
-    {
-     "where": "Every PR, before it opens",
-     "what": "Whole-PR review and an end to end walk on the local stack"
-    },
-    {
-     "where": "Every PR, on GitHub",
-     "what": "CI green on the last commit; it stays open in the stack until Sam merges"
-    }
-   ],
-   "runs": [
-    {
-     "id": "month-end",
-     "title": "Month end on the seeded account",
-     "what": "Seeded account, fresh browser, the October range",
-     "cost": "No paid services",
-     "time": "25 min"
-    }
-   ],
-   "checks": [
-    {
-     "id": "range-zones",
-     "title": "Range query holds in three time zones",
-     "kind": "code",
-     "tickets": [
-      "invoice-query-api"
-     ],
-     "expect": "October returns exactly the invoices dated in October in the account's own zone, for Los Angeles, London and Auckland.",
-     "pass": "The range test passes for all three zones."
-    },
-    {
-     "id": "render-cache",
-     "title": "Render cache skips unchanged invoices",
-     "kind": "code",
-     "tickets": [
-      "pdf-render-worker"
-     ],
-     "expect": "A second render of 500 PDFs reuses the cache; editing one invoice makes only that one render again.",
-     "pass": "The warm run takes under 8 seconds and exactly one PDF renders after one edit."
-    },
-    {
-     "id": "dialog-look",
-     "title": "Export dialog matches the prototype",
-     "kind": "screen",
-     "tickets": [
-      "export-dialog-ui"
-     ],
-     "expect": "The dialog on the invoice list looks like the approved prototype on a laptop and on a phone.",
-     "pass": "Screenshots at 1280 and 390 pixels wide match the prototype with no clipped text."
-    },
-    {
-     "id": "schedule-date",
-     "title": "A saved schedule shows its next send",
-     "kind": "screen",
-     "tickets": [
-      "schedule-settings"
-     ],
-     "expect": "Saving a monthly schedule shows the next send date in the account's time zone.",
-     "pass": "The date shown is the 1st of next month in Los Angeles time.",
-     "run": "month-end"
-    },
-    {
-     "id": "export-under-load",
-     "title": "An export finishes under load and is logged",
-     "kind": "watch",
-     "run": "month-end",
-     "tickets": [
-      "export-job-runner",
-      "export-history-page"
-     ],
-     "expect": "A queued CSV export finishes while the load script runs, and the history page lists it with who, when, filters and count.",
-     "pass": "The export downloads and its history row shows all four."
-    },
-    {
-     "id": "csv-imports",
-     "title": "Each CSV imports into its accounting tool",
-     "kind": "watch",
-     "run": "month-end",
-     "tickets": [
-      "csv-mapping-presets"
-     ],
-     "expect": "The three presets produce files each tool imports with no edits, and totals match the invoice list.",
-     "pass": "All three imports succeed and totals match to the cent."
-    },
-    {
-     "id": "zip-speed",
-     "title": "Zip of 2,000 invoices beats today",
-     "kind": "measure",
-     "run": "month-end",
-     "tickets": [
-      "zip-bundle-download"
-     ],
-     "expect": "The zip for the October range downloads well inside today's two minutes.",
-     "pass": "Under 30 seconds, measured three times."
-    },
-    {
-     "id": "monthly-email",
-     "title": "The monthly email arrives with an expiring link",
-     "kind": "watch",
-     "run": "month-end",
-     "tickets": [
-      "monthly-email-delivery",
-      "end-to-end-proof"
-     ],
-     "expect": "A test schedule set for today sends the email; its link downloads the bundle now and stops working after seven days.",
-     "pass": "The email arrives, the link works, and with the clock moved eight days it is refused."
-    }
-   ]
-  },
-  "commits": "One commit per ticket on the PR branch, named for the ticket. PRs merge with a merge commit only, never a squash or a rebase merge, so the reviewed commits are the ones in history.",
-  "risks": [
-   {
-    "risk": "Accounting tools change their import format",
-    "mitigation": "Presets live in one file with a test per tool"
-   },
-   {
-    "risk": "Large zips time out",
-    "mitigation": "Stream the zip and cap the range"
-   }
-  ],
-  "later": [
-   "Shared folder delivery",
-   "Exports by client or project",
-   "Direct sync with accounting tools"
-  ],
-  "branches": {
-   "development": "develop",
-   "production": "main",
-   "naming": "export/<ticket>-<part>",
-   "naming_note": "One branch per PR, deleted on merge.",
-   "development_note": "Every merge deploys to staging.",
-   "production_note": "Released by hand after the proof on staging."
-  },
-  "prs": [
-   {
-    "id": "export-jobs",
-    "title": "Exports run as jobs and leave a record",
-    "category": "Foundations",
-    "problem": "Exports run inside the web request, time out after 60 seconds on a busy month, and leave no record of who took which invoices. Date ranges use UTC, so month ends drift in the Americas.",
-    "outcome": "Every export runs as a background job in the account's own time zone and writes one history row, so later PRs build on one query and one runner.",
-    "wave": 1,
-    "base": "develop",
-    "branch": "export/jobs",
-    "tickets": [
-     "export-job-runner",
-     "invoice-query-api"
-    ],
-    "areas": [
-     "apps/api/src/jobs/export.ts",
-     "db/migrations",
-     "apps/api/src/invoices"
-    ],
-    "depends_on": [],
-    "risk": "high",
-    "approver": "Maya Okafor",
-    "proof": [
-     "A 300 invoice export finishes with the web server under load",
-     "History shows who, when, filters and count",
-     "October in Los Angeles returns the right invoices"
-    ]
-   },
-   {
-    "id": "csv-export",
-    "title": "CSV export in each bookkeeper's own format",
-    "category": "CSV and records",
-    "problem": "Bookkeepers rebuild a spreadsheet by hand every month, and there is no place to see past exports.",
-    "outcome": "One button exports a month as a CSV their tool imports with no edits, and the history page lists every run.",
-    "wave": 2,
-    "base": "export-jobs",
-    "branch": "export/csv",
-    "tickets": [
-     "csv-mapping-presets",
-     "export-dialog-ui",
-     "export-history-page"
-    ],
-    "areas": [
-     "apps/api/src/export/csv.ts",
-     "apps/api/src/export/presets.ts",
-     "apps/web/src/invoices/ExportDialog.tsx",
-     "apps/web/src/settings/ExportHistory.tsx"
-    ],
-    "depends_on": [
-     "export-jobs"
-    ],
-    "risk": "medium",
-    "approver": "AI reviewer and a refuter",
-    "proof": [
-     "Each preset imports into its tool on a fresh test account",
-     "The dialog walk at 375 and 1440 px",
-     "History lists a run from this PR's walk"
-    ],
-    "shares": [
-     "apps/api/src/jobs/export.ts"
-    ]
-   },
-   {
-    "id": "pdf-bundles",
-    "title": "PDF bundles for any date range, fast",
-    "category": "PDF",
-    "problem": "PDFs render on the web server one at a time, about 4 seconds each, so a month of PDFs takes about 20 minutes.",
-    "outcome": "Anyone with the finance role downloads a zip of PDFs for any range, 2,000 invoices in under 30 seconds.",
-    "wave": 2,
-    "base": "csv-export",
-    "branch": "export/pdf",
-    "tickets": [
-     "pdf-render-worker",
-     "zip-bundle-download"
-    ],
-    "areas": [
-     "apps/worker/src/pdf.ts",
-     "apps/api/src/export/zip.ts"
-    ],
-    "depends_on": [
-     "export-jobs"
-    ],
-    "risk": "high",
-    "approver": "Maya Okafor",
-    "proof": [
-     "2,000 invoices zip in under 30 seconds on the local stack",
-     "A second export reuses stored PDFs"
-    ],
-    "hotfix": {
-     "base": "main",
-     "tickets": [
-      "pdf-render-worker"
-     ],
-     "note": "The render timeout fix also ships to production on its own once proven."
-    }
-   },
-   {
-    "id": "monthly-send",
-    "title": "The monthly export arrives on its own",
-    "category": "Schedule",
-    "problem": "Owners remember to export every month, and bookkeepers wait on them.",
-    "outcome": "An owner sets the day once and the bookkeeper gets a link every month, proven end to end on staging.",
-    "wave": 3,
-    "base": "pdf-bundles",
-    "branch": "export/monthly",
-    "tickets": [
-     "schedule-settings",
-     "monthly-email-delivery",
-     "end-to-end-proof"
-    ],
-    "areas": [
-     "apps/web/src/settings/ExportSchedule.tsx",
-     "apps/api/src/jobs/schedule.ts",
-     "apps/api/src/mail"
-    ],
-    "depends_on": [
-     "csv-export",
-     "pdf-bundles"
-    ],
-    "risk": "high",
-    "approver": "Maya Okafor",
-    "proof": [
-     "A test schedule sends on the chosen day in the account's time zone",
-     "The email link expires after 7 days",
-     "The full walk on staging data, recorded"
-    ],
-    "shares": [
-     "apps/api/src/export/zip.ts"
-    ]
-   }
-  ],
-  "review_policy": [
-   {
-    "risk": "low",
-    "who": "AI reviewer",
-    "what": "Reads each commit and the whole PR; merges when nothing is open."
-   },
-   {
-    "risk": "medium",
-    "who": "AI reviewer and a refuter",
-    "what": "A second agent tries to break the PR; both come back clean."
-   },
-   {
-    "risk": "high",
-    "who": "Maya, after the AI review",
-    "what": "Approves on GitHub. Data changes and auth always count as high."
-   }
-  ],
-  "merge_checklist": [
-   "CI is green on the PR's latest commit",
-   "Every commit's done-when proof is in the PR body",
-   "The whole-PR review came back clean",
-   "The approval its risk needs is in",
-   "The PR's live state is written to the book"
-  ],
-  "github": [
-   {
-    "what": "Delete head branches on merge",
-    "why": "Old PR branches never pile up"
-   },
-   {
-    "what": "Allow merge commits only; turn off squash and rebase merging",
-    "why": "The reviewed commits stay in history, one per ticket"
-   },
-   {
-    "what": "Require CI before merge",
-    "why": "Nothing lands red, even late at night"
-   }
-  ],
-  "flow": {
-   "ticket": [
-    "Build on the PR branch",
-    "Run the area tests",
-    "Prove each done-when in the browser on the local stack",
-    "A fresh reviewer reads the commit",
-    "Fix what it finds",
-    "Commit"
-   ],
-   "pr": [
-    "Every ticket commit is in",
-    "Whole-PR review: correctness, simplicity and bloat, security",
-    "End to end on the local stack with fresh test data",
-    "Open the PR with the template",
-    "CI green",
-    "Approval",
-    "Merge",
-    "Staging deploys",
-    "Spot check on staging"
-   ]
-  },
-  "pr_template": [
-   {
-    "heading": "Problem",
-    "holds": "What hurts today, in the user's words"
-   },
-   {
-    "heading": "Outcome",
-    "holds": "What is true after this merges"
-   },
-   {
-    "heading": "Commits",
-    "holds": "One line per ticket, in order, each with its proof"
-   },
-   {
-    "heading": "Lines",
-    "holds": "Added and deleted: production, tests, docs and config, with a reason for anything large"
-   },
-   {
-    "heading": "Proof",
-    "holds": "Screenshots and run output for every done-when"
-   },
-   {
-    "heading": "Risk and review",
-    "holds": "The risk level and who reviewed it"
-   },
-   {
-    "heading": "How to test",
-    "holds": "Steps anyone can follow on staging"
-   }
-  ]
- },
- "decisions": [
-  {
-   "id": "dialog-placement",
-   "question": "Where does the Export button live?",
-   "why": "The dialog ticket cannot finish until we know where people start an export.",
-   "options": [
-    {
-     "id": "toolbar",
-     "label": "Invoice list toolbar",
-     "effect": "Found in one click. Ticket stays as planned."
-    },
-    {
-     "id": "settings",
-     "label": "Settings page",
-     "effect": "Quieter list. Adds a link from the list, same wave."
-    }
-   ],
-   "recommended": "toolbar",
-   "attach": "ticket:export-dialog-ui",
-   "blocks": [
-    "export-dialog-ui"
-   ]
-  },
-  {
-   "id": "csv-default",
-   "question": "Which CSV layout is the default?",
-   "why": "Two of three tools accept both; bookkeepers split tax by line.",
-   "options": [
-    {
-     "id": "per-invoice",
-     "label": "One row per invoice",
-     "effect": "Works in all three tools."
-    },
-    {
-     "id": "per-line",
-     "label": "One row per line item",
-     "effect": "Better for tax splits. One tool needs a preset."
-    }
-   ],
-   "recommended": "per-invoice",
-   "attach": "ticket:csv-mapping-presets",
-   "blocks": [
-    "csv-mapping-presets"
-   ]
-  },
-  {
-   "id": "send-day",
-   "question": "When does the monthly export send?",
-   "why": "Bookkeepers close the month on different days.",
-   "options": [
-    {
-     "id": "first",
-     "label": "The 1st of the month",
-     "effect": "Simplest. Late invoices miss it."
-    },
-    {
-     "id": "chosen",
-     "label": "A day the owner picks",
-     "effect": "Adds one field to the schedule settings."
-    }
-   ],
-   "recommended": "first",
-   "attach": "milestone:scheduled-export",
-   "blocks": [
-    "schedule-settings"
-   ]
-  },
-  {
-   "id": "zip-cap",
-   "question": "What is the most invoices in one zip?",
-   "why": "Bigger zips risk timeouts on slow connections.",
-   "options": [
-    {
-     "id": "two-k",
-     "label": "2,000",
-     "effect": "Covers 98 percent of accounts' years."
-    },
-    {
-     "id": "five-k",
-     "label": "5,000",
-     "effect": "Covers everyone. Needs streaming, already planned."
-    },
-    {
-     "id": "none",
-     "label": "No cap",
-     "effect": "Adds a risk of timeouts. Not advised."
-    }
-   ],
-   "recommended": "five-k",
-   "attach": "milestone:pdf-bundle",
-   "blocks": []
   }
- ],
- "kickoff": "Build Invoice Export, round 3. Read the book at https://claude.ai/artifact/example-invoice-export (agent/book.json and agent/CHECKPOINT.md first). Run waves 2 and 3 as planned, one builder per PR, each ticket one commit proven with a test and a screenshot before the next starts. Write status, run and log rows as you go. Stop and ask in chat if a blocking decision is still not opened.",
- "report": {
-  "ready": false,
-  "blocked_on_you": [],
-  "changed": [],
-  "found": [],
-  "proof": [],
-  "how_to_test": [],
-  "revert": "",
-  "attention": [],
-  "totals": {},
-  "tests": [],
-  "works_now": [],
-  "not_proven": []
- },
- "history": [
-  {
-   "round": 1,
-   "title": "Research and CSV plan",
-   "dates": "6 to 10 Oct",
-   "ask": "Find out why bookkeepers hate month end and plan a CSV export.",
-   "outcome": "Six interviews, a CSV layout study and a 5 ticket plan for CSV only.",
-   "numbers": {
-    "tickets": 5,
-    "waves": 2
-   },
-   "file": "",
-   "links": []
-  },
-  {
-   "round": 2,
-   "title": "CSV shipped, PDFs added",
-   "dates": "13 to 24 Oct",
-   "ask": "Ship the CSV, then add PDF bundles and a monthly send.",
-   "outcome": "Job runner and range query merged. Plan grew to 10 tickets in 4 waves.",
-   "numbers": {
-    "tickets": 10,
-    "waves": 4
-   },
-   "file": "",
-   "links": [
-    {
-     "label": "Round 2 PR",
-     "url": "https://github.com/fieldnote/app/pull/198"
-    }
-   ]
-  }
- ],
- "files": [
-  {
-   "path": "agent/ASK.md",
-   "title": "The ask, verbatim",
-   "kind": "md"
-  },
-  {
-   "path": "agent/CHECKPOINT.md",
-   "title": "Run ledger",
-   "kind": "md"
-  },
-  {
-   "path": "agent/proof/export-job-runner-1.png",
-   "title": "Proof: export history row",
-   "kind": "img"
-  }
- ],
- "summary": {
-  "headline": "Bookkeepers will export a month of invoices in one click, in their own tool's format, instead of rebuilding a spreadsheet by hand.",
-  "text": "Exports become background jobs. A worker renders PDFs eight at a time, every run leaves a record, and a schedule sends the month on its own.",
-  "numbers": [
-   {
-    "value": "10",
-    "label": "goal-sized tickets, one commit each"
-   },
-   {
-    "value": "4",
-    "label": "pull requests, one per problem"
-   },
-   {
-    "value": "3",
-    "label": "waves of parallel builders"
-   },
-   {
-    "value": "41",
-    "label": "support tickets in September this removes"
-   }
-  ],
-  "timeline": [
-   {
-    "when": "Day 1",
-    "what": "Export jobs and the invoice query on staging"
-   },
-   {
-    "when": "Day 2",
-    "what": "CSV presets and PDF bundles, side by side"
-   },
-   {
-    "when": "Day 3",
-    "what": "The monthly send, proven on staging"
-   },
-   {
-    "when": "Day 4",
-    "what": "Release after your check"
-   }
-  ],
-  "points": [
-   {
-    "icon": "table",
-    "label": "The problem",
-    "text": "Bookkeepers copy invoices out by hand every month, and PDFs take four seconds each.",
-    "link": "#findings"
-   },
-   {
-    "icon": "layers",
-    "label": "How it will work",
-    "text": "The web app queues a job; workers do the slow parts and record every run.",
-    "link": "a:export-jobs"
-   },
-   {
-    "icon": "pr",
-    "label": "How it ships",
-    "text": "Four PRs, one per problem. Every commit is proven and reviewed before its PR opens.",
-    "link": "#prs"
-   },
-   {
-    "icon": "flag",
-    "label": "What we need from you",
-    "text": "Two calls: which CSV presets ship first, and which day the monthly send runs.",
-    "link": "#needs"
-   },
-   {
-    "icon": "chart",
-    "label": "Where we are",
-    "text": "Foundations merged. CSV and PDF are being built side by side.",
-    "link": "#plan"
-   }
-  ]
- },
- "prompts": [
-  {
-   "id": "progress",
-   "title": "Progress update",
-   "when": "Paste any time for a plain status",
-   "text": "Read the book at its URL and the db collections status, run and log. Tell me in five lines: what merged since yesterday, what is in review, what is blocked and on whom, what the next wave is, and anything that needs my call. Link each item to its PR."
-  }
- ]
 }

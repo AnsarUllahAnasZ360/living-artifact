@@ -1,6 +1,6 @@
 # living-artifact
 
-A Claude Code skill for long-running work. Every piece of work, from a small feature to an audit to a multi-week build, runs through **one living HTML page** called the book. The book is the plan, the live tracker, the decision log, the docs and the final report. Any agent in any session can pick the work up from the book's link alone.
+A Claude Code skill for work you run yourself with coding agents. Each piece of work runs through **one living HTML page** called the book: the problems, the tickets, the plan and the proof, with live status on every ticket. Any agent in any session can pick the work up from the book's link alone. It is not for handing tasks to a team.
 
 ## Install
 
@@ -33,30 +33,32 @@ To update the plugin later: `/plugin marketplace update living-artifact`.
 
 ## Use it
 
-Ask in your own words. The skill starts when you bring a problem to explore, ask for a plan or tickets, paste a kickoff, give feedback on a book, or ask for a report. For example:
+Ask in your own words. The skill starts when you bring problems to explore, ask for a plan or tickets for agents, paste a kickoff, give feedback on a book, or ask what was proven. For example:
 
 - "Plan the new export flow with the living-artifact skill."
-- "Audit our onboarding and write up what to fix."
 - "Here is my feedback on the book, start the next round."
 - "Run the build from this book: <link>."
 
+## The page
+
+A left sidebar shows one section at a time, with a theme control and a Human or Agent switch:
+
+1. **Summary**: a headline, two or three short paragraphs and 3 to 6 real numbers.
+2. **Problems**: one list in the manner of Linear, with a status worked out from each problem's tickets. A row opens a side panel (resize, expand, full screen) with the problem, why it matters, what we found with evidence, the fix with pictures and prototypes first, the outcome, and the tickets that fix it.
+3. **Tickets**: the same list and panel, with live status and wave and pull request chips, grouped by wave, pull request or problem.
+4. **Plan**: the goal, counts the build computes, the waves with what each gives you and the reviews and browser checks placed between them, the pull requests, and how the work is proven.
+5. **Proof**: a completion report that fills in as work lands.
+
 ## How it works
 
-Work moves through stages, and feedback at any stage starts a new round in the same book:
-
 ```
-frame -> explore <-> feedback -> plan <-> feedback -> run -> verify -> report -> next round
+ask -> explore problems <-> feedback -> plan <-> feedback -> run waves -> prove -> next round
 ```
 
-1. **Frame.** Your words go verbatim into `agent/ASK.md`. The agent turns them into three to five outcome claims you can check.
-2. **Explore.** It reads the code, runs research agents, and records findings with evidence (a file and line, a screenshot, a number). It explains the fix one area at a time: what it found, what it recommends, a today and a proposed picture with steps you can walk through, why it is right, and what you will notice.
-3. **Plan.** Goal-sized tickets, grouped into milestones people can see working, scheduled into parallel waves where no two builders touch the same files. Each ticket says where the problem was found, how to reproduce it, the fix, why it is right and how to check it. A PR plan shows every small pull request, which are stacked, and who reviews each risk level. Every choice you must make becomes a decision card with a recommendation. The first screen is an executive summary.
-4. **Approve.** You read the book, answer the decisions and approve the plan on the page. Nothing builds before that.
-5. **Run.** A kickoff prompt starts a fresh session. Each ticket ships as its own small PR (or a short stack) into your development branch, is reviewed by risk before it merges, and merges one at a time when proven. Every status change is written to the page as it happens, and a progress prompt gives anyone a plain status.
-6. **Verify.** Every PR needs green checks, proof for each done-when, and a fresh-eyes review scaled by risk; high risk also needs a person. Each wave ends with a browser check on the merged branch. A ticket is done only with its proof.
-7. **Report.** The book fills its completion report: what shipped, proof per outcome, what did not ship and why, and a short retro.
-
-The page has two modes. **Human mode** is for the person who owns the work: pictures, status and decisions, very little text. **Agent mode** shows every raw file the agents use.
+- **Waves come from the dependency graph.** A ticket runs in the earliest wave where what it needs is done and no other ticket in that wave edits the same file. In a wave one agent per ticket starts at once; each ticket is one commit.
+- **Roles.** Opus agents build tickets and do browser checks. A Fable agent reviews every pull request. The session that runs the book orchestrates.
+- **No time estimates.** The plan counts work instead.
+- **Questions go to you in chat**, never onto the page.
 
 ## Components
 
@@ -65,18 +67,17 @@ The page has two modes. **Human mode** is for the person who owns the work: pict
   plugin.json          the plugin
   marketplace.json     lets /plugin marketplace add find it
 skills/living-artifact/
-  SKILL.md             the loop, the profiles, the rules every stage follows
+  SKILL.md             the page, the loop, the roles, the rules
   references/
-    method.md          what each stage produces
-    data-model.md      the book.json shape, the agent files, the live database
-    planning.md        tickets, milestones, waves, decisions, verification
-    run.md             the orchestrator: PRs, review before merge, wave workflow, status writes
-    report.md          the completion report, proof and retro
-    kickoff.md         the kickoff prompt template
-    design.md          how human mode reads, and word budgets per field
-  scripts/build.mjs    checks book.json and builds the page
+    method.md          the stages, from the ask to the next round
+    data-model.md      book.json version 2, the agent files, the live database
+    planning.md        tickets, the dependency graph, waves, junctions, proof
+    run.md             running the waves, the reviews and checks, filling Proof
+    kickoff.md         the kickoff prompt, kept as an agent file
+    design.md          how each section reads, and word budgets
+  scripts/build.mjs    checks book.json, computes the counts, builds the page
   assets/book.html     the page template
-  examples/sample-book a full sample book with demo live data
+  examples/sample-book a full version 2 sample book with demo live data
   research/            the sources the skill is built on
 ```
 
@@ -84,9 +85,9 @@ skills/living-artifact/
 
 | Layer | What it holds | How it changes |
 | --- | --- | --- |
-| `book.json` | Problem, outcomes, findings, research, plan, decisions, kickoff, report, history | The agent edits it and republishes the same page |
-| `agent/` files | Verbatim ask, checkpoint ledger, research notes, earlier rounds | Published next to the page for agents |
-| Live database | Ticket status, run state, log, your decisions, feedback, approvals | Written as work happens, so the page is always current |
+| `book.json` | Summary, problems, plan, proof | The agent edits it and republishes the same page |
+| `agent/`, `shots/`, `proto/` | Verbatim ask, checkpoint, research, kickoff, earlier rounds, screenshots, prototypes | Published next to the page |
+| Live database | Ticket status, run state, log | Written as work happens, so every row is current |
 
 **The build script**
 
@@ -94,19 +95,13 @@ skills/living-artifact/
 node skills/living-artifact/scripts/build.mjs <book-dir> [--demo seed.json] [--preview]
 ```
 
-It refuses a book with a ticket in no wave, a dependency on a later wave, a dash in human text or a missing field. It warns on word budgets and on two builders in one wave sharing files. It writes `index.html` and prints the files map to publish.
+It refuses a dependency that is not in an earlier wave, two tickets in one wave that edit the same file, a ticket without a problem, files or proof, a Fable browser check, a removed section, a dash in human text and an unpublished picture. It warns when a ticket could run sooner and on word budgets. It writes `index.html` and prints the files map to publish.
 
 Try it on the sample:
 
 ```bash
-node skills/living-artifact/scripts/build.mjs skills/living-artifact/examples/sample-book --demo skills/living-artifact/examples/sample-book/db-seed.json --preview
+node skills/living-artifact/scripts/build.mjs skills/living-artifact/examples/sample-book --demo skills/living-artifact/examples/sample-book/db-seed.json
 ```
-
-## Profiles
-
-- **feature**: one milestone, one agent, the gate and one review. Hours.
-- **audit**: findings and recommendations with evidence, no waves unless fixes follow.
-- **large**: milestones, waves of parallel builders, gates, reviews with a refuter, real-data runs, the full report. Days.
 
 ## License
 

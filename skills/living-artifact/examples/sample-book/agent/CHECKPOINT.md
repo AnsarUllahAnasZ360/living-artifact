@@ -2,17 +2,20 @@
 
 ## Now
 
-- Round 3, wave 2 building. Branch invoice-export-r3, draft PR #214.
-- Head 4e1c9a2. Wave 1 merged at 9b03f11 after gate, two reviews and spot check.
+- Wave 2 building: three Opus agents, one per ticket (CSV presets, zip bundle, export history page).
+- Wave 1 done. Data foundations pull request #231 open after the Fable review; one fix to the daylight saving boundary folded into its commit.
+- PDF worker is built; it is reviewed with the zip in the PDF bundle pull request after wave 2.
 
-## Rulings
+## Answers from Maya (asked in chat)
 
-- 28 Oct: csv-default kept (one row per invoice). Line items become a preset.
-- 28 Oct: send-day changed to "a day the owner picks". schedule-settings gains one field, same wave.
-- dialog-placement not opened. export-dialog-ui is blocked until it is answered. Asked in chat 29 Oct 14:10.
+- 28 Oct: one CSV row per invoice; line items become a preset later.
+- 28 Oct: the monthly email goes on a day the owner picks, not a fixed day.
+
+## Open
+
+- Where the Export button sits on the invoice list: asked in chat 14 Nov. Not needed until wave 3.
 
 ## Next step
 
-1. Finish csv-mapping-presets and pdf-render-worker, run the wave 2 gate.
-2. Unblock export-dialog-ui as soon as dialog-placement is answered.
-3. Start wave 3 only after the gate and both reviews pass.
+1. Finish wave 2, then the Fable review of the PDF bundle pull request and the Opus timing check.
+2. Start wave 3 once the button placement is answered.

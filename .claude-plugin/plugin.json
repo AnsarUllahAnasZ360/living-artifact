@@ -1,7 +1,7 @@
 {
   "name": "living-artifact",
-  "version": "1.1.0",
-  "description": "Run any piece of work through one living HTML artifact: the plan, the live tracker, the decisions and the proof, from first question to final report.",
+  "version": "2.0.0",
+  "description": "Run work you do yourself with coding agents through one living HTML artifact: the problems, the plan in parallel waves, live progress and the proof.",
   "author": { "name": "AnsarUllahAnasZ360", "url": "https://github.com/AnsarUllahAnasZ360" },
   "homepage": "https://github.com/AnsarUllahAnasZ360/living-artifact",
   "repository": "https://github.com/AnsarUllahAnasZ360/living-artifact",
