@@ -26,6 +26,8 @@ book/
     prompts/kickoff.md     the kickoff prompt
     rounds/round-<n>.json  the frozen book.json of a closed round
     proof/<ticket>-<n>.png evidence images
+    checks/<name>.js       scripted checks the run reruns after every ticket; no ticket's agent edits them
+    REVIEW.md              a few lines: what the reviewer looks for in this code; grows from misses
   shots/<name>.png         Today and Proposed screenshots, diagrams
   proto/<name>.html        prototypes, each a full page
 ```
@@ -139,7 +141,7 @@ People only read the page; nothing on it writes. The page reads the three collec
 
 Documents:
 
-- `status/<ticket-id>`: `{ state, note, proof: ["agent/proof/x-1.png"], sha, at }`. `state` is `todo`, `building`, `built` (committed, its own proof passed), `reviewed` (its pull request passed the Fable review), `verified` (its check passed and the evidence is tied to a commit) or `blocked` (with the reason in `note`).
+- `status/<ticket-id>`: `{ state, note, how, proof: ["agent/proof/x-1.png"], sha, at }`. `how` says what proved it: `flow`, `test`, `measure`, `review` or `none`. `state` is `todo`, `building`, `built` (committed, its own proof passed), `reviewed` (its pull request passed the Fable review), `verified` (its check passed and the evidence is tied to a commit) or `blocked` (with the reason in `note`).
 - `status/pr-<pr-id>`: `{ state, number, url, base, sha, checks, at }`. `state` is `planned`, `building`, `open`, `merged` or `blocked`; `checks` is `passing`, `pending` or `failing`. The Proof tab reads it when `proof.prs` leaves the link or state out.
 - No ticket id may start with `pr-` or `run-`.
 - `run/current`: `{ wave, phase, note, at, branch, pr, sha }`. `wave` is the wave number (1 based); `phase` is `ready`, `building`, `review`, `fixing`, `final`, `paused` or `done`.

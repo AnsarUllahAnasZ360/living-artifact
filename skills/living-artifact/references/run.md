@@ -20,20 +20,20 @@ The run is a session opened in the repo, started by the kickoff (`agent/prompts/
 ## One wave
 
 1. Read `status` again. Drop any ticket whose dependency is `blocked`, with the reason in its status.
-2. In one message, start one Agent per ticket in the wave, `model: "opus"`, all at once. Each brief carries: the ticket (problem, does, how, files, proof), the pull request's worktree path, the problem's fix and outcome from the book, the repo's rules, "edit only your files; do not run git; run the area's tests and your proof; report what you saw".
-3. As each agent returns: read its result yourself; if its proof passed, commit it and write `status/<ticket>` as `built` with the note and sha; if not, send it back once with the failure, then mark it `blocked` with the reason. Write a `log` row either way.
+2. In one message, start one Agent per ticket in the wave, `model: "opus"`, all at once. Each brief carries: the ticket (problem, does, how, files, proof), the pull request's worktree path, the problem's fix and outcome from the book, the repo's rules, "edit only your files and never the checks; do not run git; run lint, types and the area's tests first, then do your proof on the running change; report the steps you took and what you saw".
+3. As each agent returns: read its result yourself; if its proof passed, commit it and write `status/<ticket>` as `built` with the note, the sha and `how`; if not, send the same agent back with the failing step, up to three rounds, then mark it `blocked` with the reason and tell the user. Write a `log` row either way. Run the scripts in `agent/checks/` after each commit: they are cheap and they catch a ticket breaking its neighbour.
 4. Keep `run/current` true: `{ wave, phase: "building", note, at }`.
 
 ## The junctions
 
 After the wave, run exactly the junctions the plan placed, in order.
 
-- **code-review (Fable).** Start an Agent with `model: "fable"` on the pull request: its diff against its base, its tickets, their problems and proofs. It critiques, then improves the change in the worktree or sends a finding back. Fold each fix into its ticket's commit and rerun that ticket's proof. When it passes, push the branch, open or update the pull request with `gh`, set its tickets to `reviewed`, and write `status/pr-<id>` (state, number, url, base, sha, checks).
+- **code-review (Fable).** First the cheap checks: lint, types, tests and the build pass on the branch. Then start one Agent with `model: "fable"` on the pull request: its diff against its base, its tickets, their problems and proofs, `agent/REVIEW.md` and the repo's own review rules as they stand on the base branch. It critiques, then improves the change in the worktree or sends a finding back. Fold each fix into its ticket's commit and rerun that ticket's proof. A later round goes to the same reviewer (SendMessage), so it builds on its notes; never add a second reviewer on top. The review is for one sha: a commit after it means the changed tickets are read again. When it passes, push the branch, open or update the pull request with `gh`, set its tickets to `reviewed`, and write `status/pr-<id>` (state, number, url, base, sha, checks).
 - **critical-review (Fable).** A Fable agent reads the whole change it names against the problems and outcomes: what a user would still trip on, what is overbuilt, what is missing. Fixes go back to the ticket that owns them.
-- **browser-check (Opus).** An Opus agent drives the browser the repo allows on the local stack running the change, does what the junction says, and saves screenshots of made up data to `agent/proof/<ticket>-<n>.png`. Fable never drives a browser. Anything showing real customer data stays out of the book; the book gets the verdict in words.
+- **browser-check (Opus).** An Opus agent drives the browser the repo allows on the local stack running the change. It does the flows the plan's checks give for the tickets the junction covers, runs the scripts in `agent/checks/`, and saves screenshots of made up data to `agent/proof/<ticket>-<n>.png`. A failure is reported as the step that failed and what was on screen, never as "it did not work". Fable never drives a browser. Anything showing real customer data stays out of the book; the book gets the verdict in words.
 - **merge (Founder).** Stop and ask the founder to merge the named pull requests. Continue when he says so.
 
-A ticket becomes `verified` when its check under How we prove it passed and the evidence is tied to its commit. Only the orchestrator writes `verified`, after seeing the evidence.
+A ticket becomes `verified` when its check under How we prove it passed and the evidence is tied to its commit. Only the orchestrator writes `verified`, after seeing the evidence, with `how` set to what proved it. When a review, a check or the user finds something the checks missed, add one line to `agent/REVIEW.md` so the next review looks for it.
 
 ## Filling Proof
 

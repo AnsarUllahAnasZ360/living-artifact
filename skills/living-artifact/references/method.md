@@ -29,7 +29,7 @@ Produce `plan` and the Summary. Read `planning.md`.
 3. Group tickets into pull requests by problem category; each ticket is one commit.
 4. Place the junctions where this plan's risk is: a Fable code review for every pull request, a critical review where the change is wide, an Opus browser check where a person will see the change, a merge where the founder must merge before work can go on.
 5. Give each wave a `why` (what it does for him) and a `gives` (what he has when it is done).
-6. Write how we prove it: the strategy in a few sentences and the checks.
+6. Write how we prove it: the strategy in a few sentences and the checks, each visible change as the flow a person does. Put any script in `agent/checks/` and the reviewer's focus in `agent/REVIEW.md`.
 7. Write the Summary last: a headline, two or three short paragraphs, 3 to 6 real numbers.
 8. Write the kickoff to `agent/prompts/kickoff.md` (`kickoff.md`).
 9. Check every ask line maps to a problem or a ticket. Ask the user anything still open in chat; record what is still open in `agent/CHECKPOINT.md`.

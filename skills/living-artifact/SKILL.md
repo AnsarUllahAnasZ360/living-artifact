@@ -44,7 +44,7 @@ ask -> explore problems <-> (feedback) -> plan <-> (feedback) -> run waves -> pr
 5. **The work decides the ticket count.** One ticket is one commit by one agent; never aim for a number the user mentioned.
 6. **Waves are for parallel work.** Build the dependency graph. A ticket goes in the earliest wave where everything it depends on is in an earlier wave and no other ticket in that wave edits the same file. One agent and one commit per ticket. `references/planning.md`.
 7. **No time estimates anywhere.** Count tickets, waves, pull requests, commits, reviews and checks instead.
-8. **Proof, not claims.** Every ticket names its proof; a ticket is verified only when that proof is seen and tied to a commit. What was not verified is said plainly on the Proof tab.
+8. **Proof is running the change.** Every ticket names its proof, and for anything a person can see that proof is the flow done on the running product, with tests behind it. Cheap checks run first, the checks live where the change cannot edit them, and a ticket is verified only when its proof is seen on its commit. What was not verified is said plainly on the Proof tab. `references/planning.md`, How we prove it.
 9. **The book is the state.** Write `status`, `run` and `log` to the db as you go; republish when content changes. A fresh session must lose nothing.
 10. **Plain words**: no em or en dashes, no internal codes in human text, the user's vocabulary.
 
@@ -59,7 +59,7 @@ ask -> explore problems <-> (feedback) -> plan <-> (feedback) -> run waves -> pr
 - `scripts/build.mjs`: `node scripts/build.mjs <book-dir>` checks book.json, computes the plan counts, writes index.html, prints the files map.
 - `assets/book.html`: the page template. Improve it here, never fork it per project.
 - `examples/sample-book/`: a complete version 2 book with a db seed.
-- `research/`: the sources this skill is built on.
+- `research/`: the sources this skill is built on (`verification.md`: how checks are chosen and kept honest).
 
 ## Publishing
 
@@ -74,3 +74,5 @@ Local working copy: `<repo>/docs/<book-id>/book/` (never staged). Build, then pu
 - The same junctions after every wave. Place a review, a browser check or a merge where this plan's risk is.
 - A page that lies. If the run does not write status, every row shows stale work as current.
 - Treating the planning chat as memory. Write it into the book; the next session will not have the chat.
+- Passing tests taken as proof. A unit test can pass while the feature is broken; run the flow.
+- A check the change can edit, a second reviewer stacked on the first, a flaky test retried until it passes. Each hides the miss it was meant to catch.

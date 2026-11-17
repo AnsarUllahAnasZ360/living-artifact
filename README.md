@@ -49,6 +49,8 @@ A left sidebar shows one section at a time, with a theme control and a Human or 
 4. **Plan**: the goal, counts the build computes, the waves with what each gives you and the reviews and browser checks placed between them, the pull requests, and how the work is proven.
 5. **Proof**: a completion report that fills in as work lands.
 
+Proof means running the change: anything a person can see is proven by doing the flow on the running product, with tests behind it. Cheap checks run first, the checks live in the book where the change cannot edit them, one reviewer works in rounds, and a check still failing after three rounds goes to you. The rules follow [how the Claude Code team thinks about verification](https://claude.dev/blog/how-the-claude-code-team-thinks-about-verification/); see `skills/living-artifact/research/verification.md`.
+
 ## How it works
 
 ```
